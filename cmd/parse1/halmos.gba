@@ -9,7 +9,7 @@
    properties of sets.
 
  ‖ Incidentally, to avoid terminological monotony, we shall
-   sometimes say _collection_ instead of _set_.
+   sometimes say ‹collection› instead of ‹set›.
 
  ‖ The word "class" is sometimes also used in this context, but
    there is a slight danger in doing so.
@@ -19,7 +19,7 @@
 
  ‖ We shall have occasion to refer to this again a little later.
    † {
-    ‖ See the end of Section 3
+    ‖ See the end of Section 3.
    }
 }
 
@@ -31,7 +31,8 @@
    elementary geometry.
 
  ‖ That approach does not offer a definition of points and lines;
-   instead it describes what it is that one can do with those objects.
+   instead it describes what it is that one can do with those
+   objects.
 
  ‖ The semi-axiomatic point of view adopted here assumes the reader
    has the ordinary, human, intuitive (and frequently erroneous)
@@ -41,8 +42,8 @@
 }
 
 ¶ {
- ‖ Sets, as they are usually conceived, have _elements_ or
-   _members_.
+ ‖ Sets, as they are usually conceived, have ‹elements› or
+   ‹members›.
 
  ‖ An element of a set may be a wolf, a grape, or a pigeon.
 
@@ -63,13 +64,13 @@
    complexity---and nothing else.
 
  ‖ By way of examples we might occasionally speak of sets of
-  cabbages, and kings, and the like, but such usage is always to be
-  construed as an illuminating parable only, and not as part of the
-  theory that is being developed.
+   cabbages, and kings, and the like, but such usage is always to be
+   construed as an illuminating parable only, and not as part of the
+   theory that is being developed.
 
  ‖ The principal concept of set theory, the one that in completely
    axiomatic studies is the principle primitive (undefined) concept,
-   is that of _belonging_.
+   is that of ‹belonging›.
 
  ‖ If {$x$} belongs to {$A$} ({$x$} is an element of {$A$}, {$x$} is
    contained in {$A$}), we shall write
@@ -85,7 +86,7 @@
    forever and use {$\varepsilon$} when they need the fifth letter
    of the Greek alphabet.
 
- ‖ {%  decide what to do with epsilons in this work }
+ ‖ { %  decide what to do with epsilons in this work }
 }
 
 ¶ {
@@ -107,10 +108,10 @@
  ‖ Examples: {$x \in A$}, {$A \in X$}, {$X \in \mathcal{C}$}.
 
  ‖ A possible relation between sets, more elementary than belonging,
-   is _equality_.
+   is ‹equality›.
 
- ‖ The equality of two sets {$A$} and {$B$} is universally denoted by the
-   familiar symbol
+ ‖ The equality of two sets {$A$} and {$B$} is universally denoted by
+   the familiar symbol
    ◇ {
     \[ A = B; \]
    }
@@ -124,9 +125,13 @@
 }
 
 ¶ {
- ‖ *Axiom of extension.*
+ ‖ {\begin{quote}}
 
- ‖ _Two sets are equal if and only if they have the same elements._
+ ‖ «Axiom of extension.»
+
+ ‖ ‹Two sets are equal if and only if they have the same elements.›
+
+ ‖ {\end{quote}}
 }
 
 ¶ {
@@ -155,8 +160,8 @@
    "if" part, and it is false).
 
  ‖ If {$A$} and {$B$} are sets and if every element of {$A$} is an
-   element of {$B$}, we say that {$A$} is a _subset_ of {$B$}, or $B$
-   _includes_ {$A$}, and we write
+   element of {$B$}, we say that {$A$} is a ‹subset› of {$B$}, or $B$
+   ‹includes› {$A$}, and we write
    ◇ {
      \[ A \subset B \]
    }
@@ -167,16 +172,16 @@
 
  ‖ The wording of the definition implies that each set must be
    considered to be included in itself ({$A \subset A$}); this fact
-   is described by saying that set inclusion is _reflexive_. (Note
+   is described by saying that set inclusion is ‹reflexive›. (Note
    that, in the same sense of the word, equality also is reflexive.)
 
  ‖ If {$A$} and {$B$} are sets such that {$A \subset B$} and
-   {$A \neq B$}, the word _proper_ is used (proper subset, proper
+   {$A \neq B$}, the word ‹proper› is used (proper subset, proper
    inclusion).
 
  ‖ If {$A$}, {$B$}, and {$C$} are sets such that {$A \subset B$} and
    {$B \subset C$}, then {$A \subset C$}; this fact is described by
-   saying that set inclusion is _transitive_.
+   saying that set inclusion is ‹transitive›.
 
  ‖ (This property is also shared by equality.)
 }
@@ -187,11 +192,11 @@
    therefore, by the axiom of extension, {$A = B$}.
 
  ‖ This fact is described by saying that set inclusion is
-   _antisymmetric_
+   ‹antisymmetric›.
 
  ‖ (In this respect, set inclusion behaves differently from equality.
 
- ‖ Equality is _symmetric_, in the sense that if {$A = B$}, then
+ ‖ Equality is ‹symmetric›, in the sense that if {$A = B$}, then
    necessarily {$B = A$}.)
 
  ‖ The axiom of extension can, in fact, be reformulated in these

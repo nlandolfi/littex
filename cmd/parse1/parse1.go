@@ -24,5 +24,5 @@ func main() {
 		fmt.Fprint(os.Stdout, string(bs))
 	*/
 
-	f.WriteTo(os.Stdout)
+	f.TexWriteTo(os.Stdout)
 }
