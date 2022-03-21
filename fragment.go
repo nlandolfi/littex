@@ -97,17 +97,17 @@ func (t TokenType) MarshalJSON() ([]byte, error) {
 
 func (t *TokenType) UnmarshalJSON(bs []byte) error {
 	switch string(bs) {
-	case "ERROR":
+	case `"ERROR"`:
 		*t = Error
-	case "PUNCTUATION":
+	case `"PUNCTUATION"`:
 		*t = Punctuation
-	case "WORD":
+	case `"WORD"`:
 		*t = Word
 		return nil
-	case "STYLE":
+	case `"STYLE"`:
 		*t = Style
 		return nil
-	case "GLUE":
+	case `"GLUE"`:
 		*t = Glue
 		return nil
 	}
