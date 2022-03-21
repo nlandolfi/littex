@@ -11,10 +11,10 @@
  ‖ Incidentally, to avoid terminological monotony, we shall
    sometimes say ‹collection› instead of ‹set›.
 
- ‖ The word "class" is sometimes also used in this context, but
+ ‖ The word “class” is sometimes also used in this context, but
    there is a slight danger in doing so.
 
- ‖ The reason is that in some approaches to set theory "class" has
+ ‖ The reason is that in some approaches to set theory “class” has
    a special technical meaning.
 
  ‖ We shall have occasion to refer to this again a little later.
@@ -77,7 +77,7 @@
  ‖ If {$x$} belongs to {$A$} ({$x$} is an element of {$A$}, {$x$} is
    contained in {$A$}), we shall write
    ◇ {
-     \[ x \in A \]
+     \[ x \in A. \]
    }
 
  ‖ This version of the Greek letter epsilon is so often used to
@@ -108,6 +108,9 @@
    sets containing them.
 
  ‖ Examples: {$x \in A$}, {$A \in X$}, {$X \in \mathcal{C}$}.
+}
+
+¶ {
 
  ‖ A possible relation between sets, more elementary than belonging,
    is ‹equality›.
@@ -139,7 +142,9 @@
 ¶ {
  ‖ With greater pretentiousness and less clarity: a set is determined
    by its extension.
+}
 
+¶ {
  ‖ It is valuable to understand that the axiom of extension is not
    just a logically necessary property of equality but a non-trivial
    statement about belonging.
@@ -157,10 +162,12 @@
 
  ‖ The analogue of the axiom of extension would say here that if two
    human beings are equal, then they have the same ancestors (this is
-   the "only if" part, and it is true), and also that if two human
+   the “only if” part, and it is true), and also that if two human
    beings have the same ancestors, then they are equal (this is the
-   "if" part, and it is false).
+   “if” part, and it is false).
+}
 
+¶ {
  ‖ If {$A$} and {$B$} are sets and if every element of {$A$} is an
    element of {$B$}, we say that {$A$} is a ‹subset› of {$B$}, or $B$
    ‹includes› {$A$}, and we write

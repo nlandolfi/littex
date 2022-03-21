@@ -178,6 +178,9 @@ func (l *Run) texWrite(w io.Writer, prefix string) (n int, err error) {
 
 		willWrite := t.TexTokenString(prev)
 		prev = t
+		if l.Notes[i+1] != nil && t.Type == GlueToken {
+			continue
+		}
 		nn, err = fmt.Fprint(w, willWrite)
 		n += nn
 		if err != nil {
@@ -223,6 +226,16 @@ func (l *Run) write(w io.Writer, prefix string) (n int, err error) {
 			}
 			charsOnLine += nn
 		}
+		if math := l.Maths[i]; math != nil { // assume can be index 0
+			//log.Printf("writing")
+			math.write(w, prefix+"")
+			nn, err = fmt.Fprint(w, prefix+"  ")
+			n += nn
+			if err != nil {
+				return
+			}
+			charsOnLine += nn
+		}
 
 		willWrite := t.TokenString(prev)
 		prev = t
@@ -249,29 +262,30 @@ func (l *Run) write(w io.Writer, prefix string) (n int, err error) {
 	return
 }
 
+func (math *Math) write(w io.Writer, prefix string) (n int, err error) {
+	return fmt.Fprint(w, prefix+" "+math.Token.Data[1:len(math.Token.Data)-1])
+}
+
+func (math *Math) texWrite(w io.Writer, prefix string) (n int, err error) {
+	return fmt.Fprint(w, prefix+"\n"+strings.TrimSpace(math.Token.Data[1:len(math.Token.Data)-1]))
+}
+
 func (note *Note) texWrite(w io.Writer, prefix string) (n int, err error) {
 	//log.Printf("%+v", n.Runs)
 	var nn int
-	nn, err = fmt.Fprint(w, "\n"+prefix+"\\footnote{\n")
+	nn, err = fmt.Fprint(w, "\\footnote{\n")
 	n += nn
 	if err != nil {
 		return
 	}
-	for i, l := range note.Runs {
-		if i != 0 {
-			nn, err = fmt.Fprint(w, "\n")
-			n += nn
-			if err != nil {
-				return
-			}
-		}
+	for _, l := range note.Runs {
 		nn, err = l.texWrite(w, prefix+"  ")
 		n += nn
 		if err != nil {
 			return
 		}
 	}
-	nn, err = fmt.Fprint(w, prefix+"}")
+	nn, err = fmt.Fprint(w, prefix+"}\n")
 	n += nn
 	if err != nil {
 		return
@@ -331,12 +345,21 @@ func (t *Token) TexTokenString(prev *Token) string {
 			return "\\textbf{"
 		case '»':
 			return "}"
+		case '“':
+			return "\\say{"
+		case '”':
+			return "}"
+		case '—':
+			return "---"
 		}
 	}
 
 	return t.Data
 	//	panic("not reached")
 }
+
+const RightQuote = "”"
+const LeftQuote = "“"
 
 func (t *Token) TokenString(prev *Token) string {
 	switch t.Type {

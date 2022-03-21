@@ -50,6 +50,7 @@ func (p *Paragraph) LastRun() *Run {
 }
 
 func (l *Run) AddToken(t *Token) {
+	t.Index = len(l.Tokens)
 	l.Tokens = append(l.Tokens, t)
 }
 
@@ -142,8 +143,9 @@ func (t *TokenType) UnmarshalJSON(bs []byte) error {
 }
 
 type Token struct {
-	Type TokenType
-	Data string
+	Type  TokenType
+	Data  string
+	Index int
 }
 
 func (t *Token) Add(r rune) {

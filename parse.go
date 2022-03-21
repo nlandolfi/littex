@@ -102,7 +102,9 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 					f.AddParagraph(&Paragraph{})
 				case StateOpenF:
 					state = StateInF
-					f.LastParagraph().LastRun().AddNote(&Note{Index: len(f.LastParagraph().LastRun().Tokens)})
+					f.LastParagraph().LastRun().AddNote(
+						&Note{Index: len(f.LastParagraph().LastRun().Tokens)},
+					)
 				}
 				continue
 			default:
