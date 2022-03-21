@@ -99,8 +99,10 @@ func (t *TokenType) UnmarshalJSON(bs []byte) error {
 	switch string(bs) {
 	case `"ERROR"`:
 		*t = Error
+		return nil
 	case `"PUNCTUATION"`:
 		*t = Punctuation
+		return nil
 	case `"WORD"`:
 		*t = Word
 		return nil
