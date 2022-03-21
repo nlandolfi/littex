@@ -73,7 +73,7 @@
 
  ‖ If {$x$} belongs to {$A$} ({$x$} is an element of {$A$}, {$x$} is
    contained in {$A$}), we shall write
-   {
+   ◇ {
      \[ x \in A \]
    }
 
@@ -111,11 +111,11 @@
 
  ‖ The equality of two sets {$A$} and {$B$} is universally denoted by the
    familiar symbol
-   {
+   ◇ {
     \[ A = B; \]
    }
    the fact that {A} and {B} are not equal is expressed by writing
-   {
+   ◇ {
      \[ A \neq B. \]
    }
 
@@ -157,11 +157,11 @@
  ‖ If {$A$} and {$B$} are sets and if every element of {$A$} is an
    element of {$B$}, we say that {$A$} is a _subset_ of {$B$}, or $B$
    _includes_ {$A$}, and we write
-   {
+   ◇ {
      \[ A \subset B \]
    }
    or
-   {
+   ◇ {
 	   \[ B \supset A. \]
    }
 

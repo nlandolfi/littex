@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -10,17 +8,21 @@ import (
 )
 
 func main() {
-	bs, err := os.ReadFile("text.gba")
+	bs, err := os.ReadFile("halmos.gba")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	f, _ := gba.ParseSource1(bs)
 
-	bs, err = json.MarshalIndent(f, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
+	/*
+		bs, err = json.MarshalIndent(f, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	fmt.Fprint(os.Stdout, string(bs))
+		fmt.Fprint(os.Stdout, string(bs))
+	*/
+
+	f.WriteTo(os.Stdout)
 }
