@@ -13,8 +13,15 @@ type Paragraph struct {
 }
 
 type Run struct {
-	Tokenized []*Token
-	Notes     map[int]*Note
+	// change this to Tokens
+	Tokens []*Token
+	Notes  map[int]*Note
+	Maths  map[int]*Math
+}
+
+type Math struct {
+	Index int
+	Token *Token // The opaque token corresponding
 }
 
 type Note struct {
@@ -43,7 +50,14 @@ func (p *Paragraph) LastRun() *Run {
 }
 
 func (l *Run) AddToken(t *Token) {
-	l.Tokenized = append(l.Tokenized, t)
+	l.Tokens = append(l.Tokens, t)
+}
+
+func (l *Run) AddMath(n *Math) {
+	if l.Maths == nil {
+		l.Maths = make(map[int]*Math)
+	}
+	l.Maths[n.Index] = n
 }
 
 func (l *Run) AddNote(n *Note) {
@@ -53,8 +67,12 @@ func (l *Run) AddNote(n *Note) {
 	l.Notes[n.Index] = n
 }
 
+func (l *Run) CurrentMath() *Math {
+	return l.Maths[len(l.Tokens)]
+}
+
 func (l *Run) CurrentNote() *Note {
-	return l.Notes[len(l.Tokenized)]
+	return l.Notes[len(l.Tokens)]
 }
 
 func (n *Note) AddRun(r *Run) {
@@ -67,28 +85,32 @@ func (n *Note) LastRun() *Run {
 
 type TokenType uint
 
+// change these for better export
 const (
-	Error TokenType = iota
-	Word
-	Punctuation
-	Style
-	Glue
+	ErrorToken TokenType = iota
+	WordToken
+	PunctuationToken
+	StyleToken
+	GlueToken
+	OpaqueToken
 )
 
 func (t *TokenType) String() string {
 	switch *t {
-	case Error:
+	case ErrorToken:
 		return "ERROR"
-	case Punctuation:
+	case PunctuationToken:
 		return "PUNCTUATION"
-	case Word:
+	case WordToken:
 		return "WORD"
-	case Style:
+	case StyleToken:
 		return "STYLE"
-	case Glue:
+	case GlueToken:
 		return "GLUE"
+	case OpaqueToken:
+		return "Opaque"
 	}
-	panic("not reached")
+	panic("TokentType.String not reached")
 }
 
 func (t TokenType) MarshalJSON() ([]byte, error) {
@@ -98,19 +120,22 @@ func (t TokenType) MarshalJSON() ([]byte, error) {
 func (t *TokenType) UnmarshalJSON(bs []byte) error {
 	switch string(bs) {
 	case `"ERROR"`:
-		*t = Error
+		*t = ErrorToken
 		return nil
 	case `"PUNCTUATION"`:
-		*t = Punctuation
+		*t = PunctuationToken
 		return nil
 	case `"WORD"`:
-		*t = Word
+		*t = WordToken
 		return nil
 	case `"STYLE"`:
-		*t = Style
+		*t = StyleToken
 		return nil
 	case `"GLUE"`:
-		*t = Glue
+		*t = GlueToken
+		return nil
+	case `"OPAQUE"`:
+		*t = OpaqueToken
 		return nil
 	}
 	return fmt.Errorf("unknown token type %q", bs)
@@ -123,36 +148,4 @@ type Token struct {
 
 func (t *Token) Add(r rune) {
 	t.Data += string(r)
-}
-
-type State int
-
-const (
-	StateFresh State = iota
-	StateOpenP
-	StateInP
-	StateInL
-	StateOpenF
-	StateInF
-	StateInLF
-)
-
-func (s State) String() string {
-	switch s {
-	case StateFresh:
-		return "fresh"
-	case StateOpenP:
-		return "openp"
-	case StateInP:
-		return "inp"
-	case StateInL:
-		return "inl"
-	case StateOpenF:
-		return "openf"
-	case StateInF:
-		return "inf"
-	case StateInLF:
-		return "inlf"
-	}
-	panic("not reached")
 }
