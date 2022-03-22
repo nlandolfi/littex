@@ -12,6 +12,32 @@ import (
 // ︰
 // ⋮ {
 // }
+var recognizedPunctuation = map[rune]bool{
+	// standard
+	',': true,
+	'.': true,
+	';': true,
+	':': true,
+	'-': true,
+	'(': true,
+	')': true,
+	'[': true,
+	']': true,
+	'?': true,
+	'!': true,
+
+	'‹': true,
+	'›': true,
+	'«': true,
+	'»': true,
+	'“': true, //left
+	'”': true, //right
+	'–': true, // en dash
+	'—': true, // em dash
+	'‘': true, // left
+	'’': true, // right
+	'᜶': true,
+}
 
 type State int
 
@@ -240,6 +266,9 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 					f.LastParagraph().LastRun().CurrentNote().LastRun().AddToken(lastToken)
 				}
 			case unicode.IsPunct(r):
+				if !recognizedPunctuation[r] {
+					panic(fmt.Sprintf("unrecognized punctuation %q in state %s at %d:%d", r, state, line, char))
+				}
 				lastToken = &Token{Type: PunctuationToken, Data: string(r)}
 				switch state {
 				case StateInL:
@@ -258,6 +287,9 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 						f.LastParagraph().LastRun().CurrentNote().LastRun().AddToken(lastToken)
 					}
 				default:
+					if !(unicode.IsLetter(r) || unicode.IsNumber(r)) {
+						panic(fmt.Sprintf("unrecognized unicode %q in state %s at %d:%d", r, state, line, char))
+					}
 					lastToken.Add(r)
 				}
 			}

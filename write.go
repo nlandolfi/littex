@@ -345,12 +345,20 @@ func (t *Token) TexTokenString(prev *Token) string {
 			return "\\textbf{"
 		case '»':
 			return "}"
-		case '“':
+		case '“': //left
 			return "\\say{"
-		case '”':
+		case '”': //right
 			return "}"
-		case '—':
+		case '–': // en dash
+			return "--"
+		case '—': // em dash
 			return "---"
+		case '‘': // left
+			return "`"
+		case '’': // right
+			return "'"
+		case '᜶':
+			return "\\\\"
 		}
 	}
 
