@@ -263,11 +263,15 @@ func (l *Run) write(w io.Writer, prefix string) (n int, err error) {
 }
 
 func (math *Math) write(w io.Writer, prefix string) (n int, err error) {
-	return fmt.Fprint(w, prefix+" "+math.Token.Data[1:len(math.Token.Data)-1])
+	return math.texWrite(w, prefix)
 }
 
 func (math *Math) texWrite(w io.Writer, prefix string) (n int, err error) {
-	return fmt.Fprint(w, prefix+"\n"+strings.TrimSpace(math.Token.Data[1:len(math.Token.Data)-1]))
+	x := strings.TrimSpace(math.Token.Data[1 : len(math.Token.Data)-1])
+	for r, to := range latexMathReplacements {
+		x = strings.Replace(x, string(r), to, -1)
+	}
+	return fmt.Fprint(w, prefix+"\n\\["+x+"\\]")
 }
 
 func (note *Note) texWrite(w io.Writer, prefix string) (n int, err error) {
@@ -334,7 +338,11 @@ func (t *Token) TexTokenString(prev *Token) string {
 		//	case PunctuationToken, StyleToken, GlueToken, OpaqueToken:
 		//		return t.Data
 	case OpaqueToken:
-		return t.Data[1 : len(t.Data)-1]
+		x := t.Data[1 : len(t.Data)-1]
+		for r, to := range latexMathReplacements {
+			x = strings.Replace(x, string(r), to, -1)
+		}
+		return x
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Data); r {
 		case '‹':
@@ -359,6 +367,10 @@ func (t *Token) TexTokenString(prev *Token) string {
 			return "'"
 		case '᜶':
 			return "\\\\"
+		case '↦':
+			return "{\\indent}"
+		case '↤':
+			return "{\\noindent}"
 		}
 	}
 

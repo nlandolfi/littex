@@ -37,6 +37,81 @@ var recognizedPunctuation = map[rune]bool{
 	'‘': true, // left
 	'’': true, // right
 	'᜶': true,
+
+	'↦': true,
+	'↤': true,
+}
+
+var latexMathReplacements = map[rune]string{
+	'→': "\\to",
+	'↦': "\\mapsto",
+	'≠': "\\neq",
+	'∈': "\\in",
+	'∉': "\\not\\in",
+	'⊃': "\\supset",
+	'⊇': "\\supseteq",
+	'⊂': "\\subset",
+	'⊆': "\\subseteq",
+	'∅': "\\varnothing",
+	'∪': "\\cup",
+	'∩': "\\cap",
+	'×': "\\times",
+	'𝒞': "\\mathcal{C}",
+	'∕': "/",
+	'∏': "\\prod",
+	'∑': "\\sum",
+	'≡': "\\equiv",
+	'≪': "\\ll",
+	'≫': "\\gg",
+	'≦': "\\leqq",
+	'≺': "\\prec",
+	'≻': "\\succ",
+	'≼': "\\preceq",
+	'≽': "\\succeq",
+	'∫': "\\int",
+	'∀': "\\forall",
+	'∃': "\\exists",
+	'∄': "\\not\\exists",
+	'∞': "\\infty",
+	'∝': "\\propto",
+	'∘': "\\ocirc",
+	'⋮': "\\vdots",
+	'⋯': "\\cdots",
+	'⋱': "\\ddots",
+	'∼': "\\sim",
+	'√': "\\sqrt",
+	'±': "\\pm",
+	'𝗥': "\\mathbfsf{R}",
+	'𝗤': "\\mathbfsf{Q}",
+	'𝗡': "\\mathbfsf{N}",
+	'∇': "\\nabla",
+	'∂': "\\partial",
+	'α': "\\alpha",
+	'β': "\\beta",
+	'ψ': "\\psi",
+	'δ': "\\delta",
+	'ε': "\\varepsilon",
+	'ϵ': "\\epsilon",
+	'φ': "\\phi",
+	'γ': "\\gamma",
+	'η': "\\eta",
+	'ι': "\\iota",
+	'ξ': "\\xi",
+	'κ': "\\kappa",
+	'λ': "\\lambda",
+	'μ': "\\mu",
+	'ν': "\\nu",
+	'ο': "\\omicron",
+	'π': "\\pi",
+	'ρ': "\\rho",
+	'σ': "\\sigma",
+	'τ': "\\tau",
+	'θ': "\\theta",
+	'ω': "\\omega",
+	//	'ς':
+	'χ': "\\chi",
+	'υ': "\\upsilon",
+	'ζ': "\\zeta",
 }
 
 type State int
@@ -265,7 +340,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 				case StateInLF:
 					f.LastParagraph().LastRun().CurrentNote().LastRun().AddToken(lastToken)
 				}
-			case unicode.IsPunct(r):
+			case unicode.IsPunct(r) || r == '↦' || r == '↤':
 				if !recognizedPunctuation[r] {
 					panic(fmt.Sprintf("unrecognized punctuation %q in state %s at %d:%d", r, state, line, char))
 				}
