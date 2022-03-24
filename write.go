@@ -350,8 +350,20 @@ func (t *Token) TexTokenString(prev *Token) string {
 		case '›':
 			return "}"
 		case '«':
-			return "\\textbf{"
+			return "\textbf{"
 		case '»':
+			return "}"
+		case '❬':
+			return "\\t{"
+		case '❭':
+			return "}"
+		case '❮':
+			return "\\textbf{"
+		case '❯':
+			return "}"
+		case '⧼':
+			return "\\t{"
+		case '⧽':
 			return "}"
 		case '“': //left
 			return "\\say{"
