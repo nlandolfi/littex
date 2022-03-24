@@ -48,25 +48,25 @@
   ‖ An element of a set may be a wolf, a grape, or a pigeon.
 
   ‖ It is important to know that a set itself may also be an element
-   of some other set.
+    of some other set.
 
   ‖ Mathematics is full of examples of sets of sets.
 
   ‖ A line, for instance, is a set of points; the set of all lines
-   in the plane is a natural example of a set of sets (of points).
+    in the plane is a natural example of a set of sets (of points).
 
   ‖ What may be surprising is not so much that sets may occur as
-   elements, but that for mathematical purposes no other elements
-   need every be considered.
+    elements, but that for mathematical purposes no other elements
+    need every be considered.
 
   ‖ In this book, in particular, we shall study sets, and sets of
-   sets, and similar towers of sometimes frightening height and
-   complexity—and nothing else.
+    sets, and similar towers of sometimes frightening height and
+    complexity—and nothing else.
 
   ‖ By way of examples we might occasionally speak of sets of
-   cabbages, and kings, and the like, but such usage is always to be
-   construed as an illuminating parable only, and not as part of the
-   theory that is being developed.
+    cabbages, and kings, and the like, but such usage is always to be
+    construed as an illuminating parable only, and not as part of the
+    theory that is being developed.
 }
 
 ¶ {
@@ -74,11 +74,11 @@
    axiomatic studies is the principle primitive (undefined) concept,
    is that of ‹belonging›.
 
- ‖ If ❲$x$❳ belongs to ❲$A$❳ (❲$x$❳ is an element of ❲$A$❳, ❲$x$❳ is
+ ‖ If ⦇x⦈ belongs to ❲$A$❳ (❲$x$❳ is an element of ❲$A$❳, ❲$x$❳ is
    contained in ❲$A$❳), we shall write
-   ◇ {❲
-     x ∈ A.
-   ❳}
+   ◇ {
+     ‖ x ∈ A.
+   }
 
  ‖ This version of the Greek letter epsilon is so often used to
    denote belonging that its use to denote anything else is almost
@@ -118,11 +118,11 @@
  ‖ The equality of two sets ❲$A$❳ and ❲$B$❳ is universally denoted by
    the familiar symbol
    ◇ {
-     A = B;
+     ‖ A = B;
    }
    the fact that ❲$A$❳ and ❲$B$❳ are not equal is expressed by writing
    ◇ {
-     A ≠ B.
+     ‖ A ≠ B.
    }
 
  ‖ The most basic property of belonging is its relation to equality,
@@ -172,11 +172,11 @@
    element of ❲$B$❳, we say that ❲$A$❳ is a ‹subset› of ❲$B$❳, or $B$
    ‹includes› ❲$A$❳, and we write
    ◇ {
-     A ⊂ B.
+     ‖ A ⊂ B.
    }
    or
    ◇ {
-     B ⊃ A.
+     ‖ B ⊃ A.
    }
 
  ‖ The wording of the definition implies that each set must be

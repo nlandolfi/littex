@@ -2,6 +2,7 @@ package gba
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"strings"
 	"unicode"
@@ -491,6 +492,8 @@ func Lex2(s string) []*TToken {
 
 			// ok this is some magic nonsense
 			if last.Type == WordTToken ||
+				last.Type == SymbolTToken ||
+				last.Type == OpaqueTToken ||
 				(last.Type == PunctuationTToken && last.Value != "·") {
 				// convert it to a space
 				ts = append(ts, &TToken{
@@ -533,6 +536,33 @@ func Lex2(s string) []*TToken {
 	}
 
 	return ts
+}
+
+func (b *Block) WriteTo(w io.Writer, prefix string) {
+	switch b.Type {
+	case RunBlock:
+		switch b.Token.Value {
+		case "‖", "‣":
+			fmt.Fprintf(w, prefix+"\n"+prefix+"%s ", b.Token.Value)
+			for _, k := range b.Kids {
+				k.WriteTo(w, prefix+"  ")
+			}
+			fmt.Fprintf(w, "\n")
+		default:
+			fmt.Fprintf(w, "\n"+prefix+" %s {\n", b.Token.Value)
+			for _, k := range b.Kids {
+				k.WriteTo(w, prefix+"  ")
+			}
+			fmt.Fprintf(w, "\n"+prefix+"}\n")
+		}
+	case AtomicBlock:
+		switch b.Token.Type {
+		case OpaqueTToken:
+			fmt.Fprintf(w, "❲%s❳", b.Token.Value)
+		default:
+			fmt.Fprint(w, b.Token.Value)
+		}
+	}
 }
 
 type Block struct {
