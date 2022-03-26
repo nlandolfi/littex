@@ -1,4 +1,4 @@
-‣ Basic mathematic genomics
+‣ Basic mathematical genomics
   ⁝ ⦊
     ‣ Nick Landolfi and Dan O'Neill ⦉
 
@@ -47,7 +47,7 @@
     ‣ a protein is a molecule which we can represent as a
       string ⦉
 
-    ‣ an ❬amino acid❭ (also ❬residue❭ is one of
+    ‣ an ❬amino acid❭ (also ❬residue❭) is one of
       ❲\begin{center}
         \begin{tabular}{rl|rl|rl|rl}
         \toprule
@@ -80,9 +80,9 @@
         \end{tabular}
       \end{center}❳ ⦉
 
-    ‣ an ❬amino acid string❭ is a sequence in ❲$\{$❳ A, R, N,
-      D, C, Q, E, G, H, I, L, K, M, F, P, S, T, W, Y, V
-      ❲$\}$❳
+    ‣ an ❬amino acid string❭ is a sequence in ❲$\{$❳A, R, N,
+      D, C, Q, E, G, H, I, L, K, M, F, P, S, T, W, Y,
+      V❲$\}$❳
       ⁝ ⦊
         ‣ we denote this set by $\CA$, a mnemonic for “amino” ⦉
 
@@ -100,34 +100,41 @@
       sequences of three ⦉
 
     ‣ a ❬nucleotide codon❭ (or ❬trinucleotide sequence❭) is a
-      length 3 nucleotide string; e.g., ❲$\NA\NT\NC$❳ ⁝ {
-      ‣ codons encode an element of ❲$\CA$❳ (an amino acid) or
-        a “stop” (which we denote by ❲$\CSTOP$❳) ⦉
+      length 3 nucleotide string; e.g., ❲$\NA\NT\NC$❳
+      ⁝ ⦊
+        ‣ codons encode an element of ❲$\CA$❳ (an amino acid) or
+          a “stop” (which we denote by ❲$\CSTOP$❳) ⦉
 
-      ‣ we partition the set ❲$\set{\NA, \NT, \NC, \NG}^3$❳ of
-        ❲$4^3 = 64$❳ codons into 61 ❬amino codons❭ and 3 ❬stop
-        codons❭ ⦉⦉
-  ⦉
-  ‣ a nucleotide string is ❬codon-aligned❭ if its length is a
-    multiple of three
-    ⁝ ⦊
-      ‣ a codon-aligned nucleotide string can be interpreted as a
-        sequence of codons ⦉
+        ‣ we partition the set ❲$\set{\NA, \NT, \NC, \NG}^3$❳ of
+          ❲$4^3 = 64$❳ codons into 61 ❬amino codons❭ and 3 ❬stop
+          codons❭ ⦉
+      ⦉⦉
 
-      ‣ we know the ❲$codon decoding function$❳
-        ❲$f: \set{\NA,\NC,\NT,\NG}^3  \to \CA \cup \set{\CSTOP}$❳
-        ⁝ ⦊
-          ‣ for example, ❲$f(\text{GCT})= \text{A}$❳ where the
-            r.h.s. is the symbol for the amino alanine ⦉
-        ⦉
+    ‣ a nucleotide string is ❬codon-aligned❭ if its length is a
+      multiple of three
+      ⁝ ⦊
+        ‣ a codon-aligned nucleotide string can be interpreted as
+          a sequence of codons ⦉
+
+        ‣ we know the ❬codon decoding function❭
+          ❲$f: \set{\NA,\NC,\NT,\NG}^3  \to \CA \cup \set{\CSTOP}$❳
+          ⁝ ⦊
+            ‣ for example, ❲$f(\text{GCT})= \text{A}$❳ where the
+              r.h.s. is the symbol for the amino alanine ⦉
+          ⦉⦉
+
         ‣ $f$ is not injective since two distinct codons may map
-          to the same amino (or to ❲$\CSTOP$❳) ⁝ {
-          ‣ we call two codons with the same image under ❲$f$❳
-            ❬synonyms❭ ⦉
+          to the same amino (or to ❲$\CSTOP$❳)
+          ⁝ ⦊
+            ‣ we call two codons with the same image under ❲$f$❳
+              ❬synonyms❭ ⦉
 
-          ‣ for example, CAU and CAC are synonyms for histidine;
-            i.e., ❲$f(\text{CAU}) = f(\text{CAC}) = \text{H}$❳ ⦉⦉⦉
-    ⦉⦉⦉
+            ‣ for example, CAU and CAC are synonyms for
+              histidine; i.e.,
+              ❲$f(\text{CAU}) = f(\text{CAC}) = \text{H}$❳ ⦉
+          ⦉⦉
+      ⦉⦉
+  ⦉⦉
 
 ‣ Codon Table
   ⁝ ⦊
@@ -231,16 +238,16 @@
           ❬replacement❭ nucleotide ❲$b$❳ is in
           ❲$\set{\NA, \NT, \NC, \NG}$❳ ⦉
 
-        ‣ the ❬(j,b)-mutation❭ of ❲$x$❳ is the nucleotide string
-          ❲$y$❳ defined by ❲$y_j = b$❳ and ❲$y_i = x_i$❳ for all
-          ❲$i \neq j$❳
+        ‣ the ❬❲$(j,b)$❳-mutation❭ of ❲$x$❳ is the nucleotide
+          string ❲$y$❳ defined by ❲$y_j = b$❳ and ❲$y_i = x_i$❳ for
+          all ❲$i \neq j$❳
           ⁝ ⦊
             ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index
               ❲$j$❳, where it has nucleotide ❲$b$❳ ⦉
 
-            ‣ e.g., the ❲$(3, \NA)$❳-mutation of
-              ❲$\text{CG\underline{T}}$❳ is ❲$\text{CG\underline{A}}$❳
-              (we swapped T in position 3 with A) ⦉
+            ‣ e.g., the (3,A)-mutation of ❲$\text{CG\underline{T}}$❳
+              is ❲$\text{CG\underline{A}}$❳ (we swapped T in
+              position 3 with A) ⦉
           ⦉⦉
       ⦉⦉
 
@@ -250,7 +257,7 @@
         ‣ a substitution is ❬synonymous (silent)❭ if it does not
           change the sense
           ⁝ ⦊
-            ‣ e.g. ❲$(3, C)$❳ on ❲CG\underline{T}❳ with result
+            ‣ e.g. (3,C) on ❲CG\underline{T}❳ with result
               ❲CG\underline{C}❳, since
               ❲$
                 f(\text{CG\underline{T}}) =
