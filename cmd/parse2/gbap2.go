@@ -20,19 +20,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	f, _ := gba.ParseSource2(bs)
+	s := string(bs)
+	ts := gba.Lex2(s)
+	b := gba.Parse2(ts)
+
 	switch *mode {
 	case "json":
-		bs, err = json.MarshalIndent(f, "", "  ")
+		bs, err = json.MarshalIndent(b, "", "  ")
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		fmt.Fprint(os.Stdout, string(bs))
 	case "tex":
-		f.TexWriteTo(os.Stdout)
+		b.TexWriteTo(os.Stdout, "")
 	case "gba":
-		f.WriteTo(os.Stdout)
+		b.WriteTo(os.Stdout, "")
 	}
 
 }

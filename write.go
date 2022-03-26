@@ -108,13 +108,13 @@ func (p *Paragraph) write(w io.Writer, prefix string) (n int, err error) {
 }
 
 func (r *Run) Pieces(insertions []int, prefix string) (outs []string) {
-	var pieces [][]*Token
+	var pieces [][]*Token1
 	var last int
 	for _, i := range insertions {
 		pieces = append(pieces, r.Tokens[last:i])
 	}
 	pieces = append(pieces, r.Tokens[last:])
-	var nonempties [][]*Token
+	var nonempties [][]*Token1
 	for _, p := range pieces {
 		if len(p) > 0 {
 			nonempties = append(nonempties, p)
@@ -153,7 +153,7 @@ func (l *Run) texWrite(w io.Writer, prefix string) (n int, err error) {
 		return
 	}
 	//	log.Printf("%+v", l.Notes)
-	var prev *Token
+	var prev *Token1
 	for i, t := range l.Tokens {
 		if note := l.Notes[i]; note != nil { // assume can be index 0
 			//log.Printf("writing")
@@ -178,7 +178,7 @@ func (l *Run) texWrite(w io.Writer, prefix string) (n int, err error) {
 
 		willWrite := t.TexTokenString(prev)
 		prev = t
-		if l.Notes[i+1] != nil && t.Type == GlueToken {
+		if l.Notes[i+1] != nil && t.Type == GlueToken1 {
 			continue
 		}
 		nn, err = fmt.Fprint(w, willWrite)
@@ -214,7 +214,7 @@ func (l *Run) write(w io.Writer, prefix string) (n int, err error) {
 		return
 	}
 	//	log.Printf("%+v", l.Notes)
-	var prev *Token
+	var prev *Token1
 	for i, t := range l.Tokens {
 		if note := l.Notes[i]; note != nil { // assume can be index 0
 			//log.Printf("writing")
@@ -327,9 +327,9 @@ func (note *Note) write(w io.Writer, prefix string) (n int, err error) {
 	return
 }
 
-func (t *Token) TexTokenString(prev *Token) string {
+func (t *Token1) TexTokenString(prev *Token1) string {
 	switch t.Type {
-	case ErrorToken:
+	case ErrorToken1:
 		panic("error token")
 		//	case WordToken:
 		//		if prev == nil || prev.Type == WordToken || prev.Type == PunctuationToken {
@@ -337,13 +337,13 @@ func (t *Token) TexTokenString(prev *Token) string {
 		//		}
 		//	case PunctuationToken, StyleToken, GlueToken, OpaqueToken:
 		//		return t.Data
-	case OpaqueToken:
+	case OpaqueToken1:
 		x := t.Data[1 : len(t.Data)-1]
 		for r, to := range latexMathReplacements {
 			x = strings.Replace(x, string(r), to, -1)
 		}
 		return x
-	case PunctuationToken:
+	case PunctuationToken1:
 		switch r, _ := utf8.DecodeRuneInString(t.Data); r {
 		case '‹':
 			return "\\textit{"
@@ -393,12 +393,47 @@ func (t *Token) TexTokenString(prev *Token) string {
 const RightQuote = "”"
 const LeftQuote = "“"
 
-func (t *Token) TokenString(prev *Token) string {
+func (t *Token1) TokenString(prev *Token1) string {
 	switch t.Type {
-	case ErrorToken:
+	case ErrorToken1:
 		panic("error token")
 	}
 
 	return t.Data
 	//	panic("not reached")
+}
+
+func (b *Block) TexWriteTo(w io.Writer, prefix string) {
+	panic("doesn't work")
+}
+
+func (b *Block) WriteTo(w io.Writer, prefix string) {
+	b.writeTo(w, prefix, 0, 0)
+}
+
+func (b *Block) writeTo(w io.Writer, prefix string, line, char int) {
+	switch b.Type {
+	case ContainerBlock:
+		switch b.Token.Value {
+		case "‖", "‣":
+			fmt.Fprintf(w, prefix+"\n"+prefix+"%s ", b.Token.Value)
+			for _, k := range b.Kids {
+				k.WriteTo(w, prefix+"  ")
+			}
+			fmt.Fprintf(w, "\n")
+		default:
+			fmt.Fprintf(w, "\n"+prefix+" %s {\n", b.Token.Value)
+			for _, k := range b.Kids {
+				k.WriteTo(w, prefix+"  ")
+			}
+			fmt.Fprintf(w, "\n"+prefix+"}\n")
+		}
+	case AtomicBlock:
+		switch b.Token.Type {
+		case OpaqueTToken:
+			fmt.Fprintf(w, "❲%s❳", b.Token.Value)
+		default:
+			fmt.Fprint(w, b.Token.Value)
+		}
+	}
 }

@@ -1,9 +1,12 @@
 ‣ Basic mathematic genomics
   ⁝ ⦊
-    ‣ Nick Landolfi and Dan O'Neill⦉
-    ‣ Stanford University⦉
-    ‣ N. C. Landolfi & D. C. O'Neill⦉
-    ‣ Revision: January 2022⦉
+    ‣ Nick Landolfi and Dan O'Neill ⦉
+
+    ‣ Stanford University ⦉
+
+    ‣ N. C. Landolfi & D. C. O'Neill ⦉
+
+    ‣ Revision: January 2022 ⦉
   ⦉⦉
 
 ‣ DNA
@@ -31,17 +34,18 @@
           with ❲$\NT$❳ and ❲$\NC$❳ binds with ❲$\NG$❳, forming
           “cross-bars” ⦉
 
-        ‣ we call ❲$\NA$❳ the ❬nucleotide complement❭ of
-          ❲$\NT$❳, and vice versa; same for  ❲$\NC$❳ and ❲$\NG$❳ ⦉
+        ‣ we call ❲$\NA$❳ the ❬nucleotide complement❭ of ❲$\NT$❳,
+          and vice versa; same for ❲$\NC$❳ and ❲$\NG$❳ ⦉
 
-        ‣ as a result, we can represent the double helix DNA as a
-          single nucleotide string ⦉
+        ‣ as a result, we can represent the double helix DNA as
+          a single nucleotide string ⦉
       ⦉⦉
   ⦉⦉
 
 ‣ Proteins
   ⁝ ⦊
-    ‣ a protein is a molecule which we can represent as a string⦉
+    ‣ a protein is a molecule which we can represent as a
+      string ⦉
 
     ‣ an ❬amino acid❭ (also ❬residue❭ is one of
       ❲\begin{center}
@@ -74,62 +78,56 @@
         valine        & V \\
         \bottomrule
         \end{tabular}
-      \end{center}❳⦉
+      \end{center}❳ ⦉
 
-    ‣ an ❬amino acid string❭ is a sequence in
-      ❲$\{$❳ A, R, N, D, C, Q, E, G, H, I, L, K, M, F, P, S, T, W, Y, V
+    ‣ an ❬amino acid string❭ is a sequence in ❲$\{$❳ A, R, N,
+      D, C, Q, E, G, H, I, L, K, M, F, P, S, T, W, Y, V
       ❲$\}$❳
       ⁝ ⦊
-        ‣ we denote this set by $\CA$, a mnemonic for “amino”⦉
+        ‣ we denote this set by $\CA$, a mnemonic for “amino” ⦉
 
         ‣ different amino acid strings correspond to different
-          proteins⦉
+          proteins ⦉
 
-        ‣ as a result, we can represent a protein as a single amino
-          acid string⦉
+        ‣ as a result, we can represent a protein as a single
+          amino acid string ⦉
       ⦉⦉
   ⦉⦉
 
 ‣ Codons
   ⁝ ⦊
     ‣ nucleotides have semantic meaning in ❬non-overlapping❭
-      sequences of three⦉
+      sequences of three ⦉
 
-    ‣ a ❬nucleotide codon❭ (or ❬trinucleotide sequence❭) is a length
-      3 nucleotide string; e.g., ❲$\NA\NT\NC$❳
-      ⁝ {
-        ‣ codons encode an element of ❲$\CA$❳ (an amino acid) or a
-          “stop” (which we denote by ❲$\CSTOP$❳)⦉
+    ‣ a ❬nucleotide codon❭ (or ❬trinucleotide sequence❭) is a
+      length 3 nucleotide string; e.g., ❲$\NA\NT\NC$❳ ⁝ {
+      ‣ codons encode an element of ❲$\CA$❳ (an amino acid) or
+        a “stop” (which we denote by ❲$\CSTOP$❳) ⦉
 
-        ‣ we partition the set ❲$\set{\NA, \NT, \NC, \NG}^3$❳ of
-          ❲$4^3 = 64$❳ codons into 61 ❬amino codons❭ and 3
-          ❬stop codons❭⦉
-      ⦉⦉
+      ‣ we partition the set ❲$\set{\NA, \NT, \NC, \NG}^3$❳ of
+        ❲$4^3 = 64$❳ codons into 61 ❬amino codons❭ and 3 ❬stop
+        codons❭ ⦉⦉
+  ⦉
+  ‣ a nucleotide string is ❬codon-aligned❭ if its length is a
+    multiple of three
+    ⁝ ⦊
+      ‣ a codon-aligned nucleotide string can be interpreted as a
+        sequence of codons ⦉
 
-    ‣ a nucleotide string is ❬codon-aligned❭ if its length is a
-      multiple of three
-      ⁝ ⦊
-        ‣ a codon-aligned nucleotide string can be interpreted as a
-          sequence of codons⦉
+      ‣ we know the ❲$codon decoding function$❳
+        ❲$f: \set{\NA,\NC,\NT,\NG}^3  \to \CA \cup \set{\CSTOP}$❳
+        ⁝ ⦊
+          ‣ for example, ❲$f(\text{GCT})= \text{A}$❳ where the
+            r.h.s. is the symbol for the amino alanine ⦉
+        ⦉
+        ‣ $f$ is not injective since two distinct codons may map
+          to the same amino (or to ❲$\CSTOP$❳) ⁝ {
+          ‣ we call two codons with the same image under ❲$f$❳
+            ❬synonyms❭ ⦉
 
-        ‣ we know the ❲$codon decoding function$❳
-          ❲$f: \set{\NA,\NC,\NT,\NG}^3  \to \CA \cup \set{\CSTOP}$❳
-          ⁝ ⦊
-            ‣ for example, ❲$f(\text{GCT})= \text{A}$❳ where the
-              r.h.s. is the symbol for the amino alanine⦉
-          ⦉
-
-        ‣ $f$ is not injective since two distinct codons may map to
-          the same amino (or to ❲$\CSTOP$❳)
-          ⁝ {
-            ‣ we call two codons with the same image under ❲$f$❳
-              ❬synonyms❭⦉
-
-            ‣ for example, CAU and CAC are synonyms for histidine;
-              i.e., ❲$f(\text{CAU}) = f(\text{CAC}) = \text{H}$❳⦉
-          ⦉
-      ⦉⦉
-  ⦉⦉
+          ‣ for example, CAU and CAC are synonyms for histidine;
+            i.e., ❲$f(\text{CAU}) = f(\text{CAC}) = \text{H}$❳ ⦉⦉⦉
+    ⦉⦉⦉
 
 ‣ Codon Table
   ⁝ ⦊
@@ -167,13 +165,14 @@
         \bottomrule
         \end{tabular}
       \end{center}❳
-      ⁝ ⦊
-        ‣ the domain of $f$ is ❲$\set{\NA, \NT, \NC, \NG}^3$❳ and the
-          codomain of $f$ is ❲$\CA \cup \set{\CSTOP}$❳⦉
 
-        ‣ ❲$f^{-1}(x)$❳ is the set of domain elements of ❲$f$❳ (in
-          this case, codons) which map to
-          ❲$x \in \CA \cup \set{\CSTOP}$❳⦉
+      ⁝ ⦊
+        ‣ the domain of $f$ is ❲$\set{\NA, \NT, \NC, \NG}^3$❳ and
+          the codomain of $f$ is ❲$\CA \cup \set{\CSTOP}$❳ ⦉
+
+        ‣ ❲$f^{-1}(x)$❳ is the set of domain elements of ❲$f$❳
+          (in this case, codons) which map to
+          ❲$x \in \CA \cup \set{\CSTOP}$❳ ⦉
       ⦉⦉
   ⦉⦉
 
@@ -185,31 +184,29 @@
         s_i = f(
             \underbrace{
               x_{3(i-1)+1 } x_{3(i-1)+2} x_{3(i-1)+3}
-            }_{\text{codon } i \text{ of } x}) ⦉
-      \]❳
-      ⁝ ⦊
-        ‣ we call ❲$s$❳ the ❲sense❳ of ❲$x$❳; for example, the sense
-          of ATTCTTAAA is
-          ❲\[
+            }_{\text{codon } i \text{ of } x}) ❳ ⦉
+    ⁝ ⦊
+      ‣ we call ❲$s$❳ the ❲sense❳ of ❲$x$❳; for example, the
+        sense of ATTCTTAAA is
+        ❲\[
             \bar{f}(
                 \underbrace{\underline{\text{ATT}}}_{\text{I}}
                 \underbrace{\underline{\text{CTT}}}_{\text{L}}
                 \underbrace{\underline{\text{AAA}}}_{\text{K}}
             ) = \text{ILK}
-          \]❳⦉
-      ⦉⦉
+          \]❳ ⦉
+    ⦉
+  ⦉
+  ‣ since ❲$f$❳ is not one-to-one, neither is ❲$\bar{f}$❳
+    ⁝ ⦊
+      ‣ ❲$x$❳ and ❲$y$❳ are ❬sense-equivalent❭ if they have the
+        same sense; i.e., ❲$\bar{f}(x) = \bar{f}(y)$❳ ⦉
 
-    ‣ since ❲$f$❳ is not one-to-one, neither is ❲$\bar{f}$❳
-      ⁝ ⦊
-        ‣ ❲$x$❳ and ❲$y$❳ are ❬sense-equivalent❭ if they have the
-          same sense; i.e., ❲$\bar{f}(x) = \bar{f}(y)$❳⦉
+      ‣ roughly speaking, ❲$x$❳ and ❲$y$❳ are sense-equivalent if
+        they “spell out the same thing” ⦉
 
-        ‣ roughly speaking, ❲$x$❳ and ❲$y$❳ are sense-equivalent if
-          they “spell out the same thing”⦉
-
-        ‣ e.g., CGTCGC and CGACGG are
-          sense-equivalent because
-          ❲$
+      ‣ e.g., CGTCGC and CGACGG are sense-equivalent because
+        ❲$
             \bar{f}(
                 \underbrace{\text{CGT}}_{\text{R}}
                 \underbrace{\text{CGC}}_{\text{R}}
@@ -217,12 +214,12 @@
                 \underbrace{\text{CGA}}_{\text{R}}
                 \underbrace{\text{CGG}}_{\text{R}}
             ) = \text{RR}$❳
-          ⁝ ⦊
-            ‣ in this case, because CGT, CGC, CGA, CGG are synonyms
-              for arginine (R)⦉
-          ⦉⦉
-      ⦉⦉
-  ⦉⦉
+
+        ⁝ ⦊
+          ‣ in this case, because CGT, CGC, CGA, CGG are
+            synonyms for arginine (R) ⦉
+        ⦉⦉
+    ⦉⦉⦉
 
 ‣ Nucleotide substitutions
   ⁝ ⦊
@@ -231,19 +228,18 @@
       ⁝ ⦊
         ‣ the ❬index❭ ❲$j$❳ is in ❲$\set{1, \dots, m}$❳ and the
           ❬replacement❭ nucleotide ❲$b$❳ is in
-          ❲$\set{\NA, \NT, \NC, \NG}$❳⦉
+          ❲$\set{\NA, \NT, \NC, \NG}$❳ ⦉
 
-        ‣ the ❬(j,b)-mutation❭ of ❲$x$❳ is the nucleotide string ❲$y$❳
-          defined by
-          ❲$y_j = b$❳ and  ❲$y_i = x_i$❳ for all ❲$i \neq j$❳
+        ‣ the ❬(j,b)-mutation❭ of ❲$x$❳ is the nucleotide string
+          ❲$y$❳ defined by ❲$y_j = b$❳ and ❲$y_i = x_i$❳ for all
+          ❲$i \neq j$❳
           ⁝ ⦊
-            ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index ❲$j$❳,
-              where it has nucleotide ❲$b$❳⦉
+            ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index
+              ❲$j$❳, where it has nucleotide ❲$b$❳ ⦉
 
             ‣ e.g., the ❲$(3, \NA)$❳-mutation of
-              ❲$\text{CG\underline{T}}$❳
-              is ❲$\text{CG\underline{A}}$❳ (we swapped T in position
-              3 with A)⦉
+              ❲$\text{CG\underline{T}}$❳ is ❲$\text{CG\underline{A}}$❳
+              (we swapped T in position 3 with A) ⦉
           ⦉⦉
       ⦉⦉
 
@@ -253,8 +249,8 @@
         ‣ a substitution is ❬synonymous (silent)❭ if it does not
           change the sense
           ⁝ ⦊
-            ‣ e.g. ❲$(3, C)$❳ on ❲CG\underline{T}❳ with
-              result ❲CG\underline{C}❳, since
+            ‣ e.g. ❲$(3, C)$❳ on ❲CG\underline{T}❳ with result
+              ❲CG\underline{C}❳, since
               ❲$
                 f(\text{CG\underline{T}}) =
                 f(\text{CG\underline{C}}) =
@@ -262,21 +258,22 @@
               $❳ ⦉
           ⦉⦉
 
-        ‣ a substitution is ❬nonsynonymous❭ if it changes the sense
+        ‣ a substitution is ❬nonsynonymous❭ if it changes the
+          sense
           ⁝ ⦊
-            ‣ a substitution is ❬missense❭ if an amino codon became
-              a different amino codon
+            ‣ a substitution is ❬missense❭ if an amino codon
+              became a different amino codon
               ⁝ ⦊
                 ‣ the ❬missense variants❭ of a protein are all
                   proteins which differ with it by one amino in
-                  position⦉
+                  position ⦉
               ⦉⦉
 
             ‣ a substitution is ❬nonsense (readstop)❭ if an amino
-              codon became a stop codon⦉
+              codon became a stop codon ⦉
 
             ‣ a substitution is ❬nonstop (readthrough)❭ if a stop
-              codon became amino codon⦉
+              codon became amino codon ⦉
           ⦉⦉
       ⦉⦉
   ⦉⦉

@@ -2,7 +2,6 @@ package gba
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"strings"
 	"unicode"
@@ -175,7 +174,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 	var state State
 	var f Fragment
 
-	var lastToken *Token
+	var lastToken *Token1
 
 	var opaqueLevel int
 
@@ -256,7 +255,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 			switch {
 			case r == '{':
 				state = StateInMath
-				lastToken = &Token{Type: OpaqueToken, Data: string(r)}
+				lastToken = &Token1{Type: OpaqueToken1, Data: string(r)}
 				state = StateInMath
 				f.LastParagraph().LastRun().AddMath(&Math{Index: len(f.LastParagraph().LastRun().Tokens), Token: lastToken})
 				continue
@@ -285,10 +284,10 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 			case r == '\t' || r == '\r' || r == '\n':
 				continue
 			case r == ' ':
-				if lastToken != nil && lastToken.Type == GlueToken {
+				if lastToken != nil && lastToken.Type == GlueToken1 {
 					continue // ignore repeated glues
 				}
-				lastToken = &Token{Type: GlueToken, Data: string(r)}
+				lastToken = &Token1{Type: GlueToken1, Data: string(r)}
 				switch state {
 				case StateInL:
 					f.LastParagraph().LastRun().AddToken(lastToken)
@@ -323,7 +322,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 					continue
 				}
 			case r == '{':
-				lastToken = &Token{Type: OpaqueToken, Data: string(r)}
+				lastToken = &Token1{Type: OpaqueToken1, Data: string(r)}
 				switch state {
 				case StateInL:
 					f.LastParagraph().LastRun().AddToken(lastToken)
@@ -344,7 +343,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 					continue
 				}
 			case r == '_' || r == '*' || r == '$':
-				lastToken = &Token{Type: StyleToken, Data: string(r)}
+				lastToken = &Token1{Type: StyleToken1, Data: string(r)}
 				switch state {
 				case StateInL:
 					f.LastParagraph().LastRun().AddToken(lastToken)
@@ -355,7 +354,7 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 				if !recognizedPunctuation[r] {
 					panic(fmt.Sprintf("unrecognized punctuation %q in state %s at %d:%d", r, state, line, char))
 				}
-				lastToken = &Token{Type: PunctuationToken, Data: string(r)}
+				lastToken = &Token1{Type: PunctuationToken1, Data: string(r)}
 				switch state {
 				case StateInL:
 					f.LastParagraph().LastRun().AddToken(lastToken)
@@ -364,8 +363,8 @@ func ParseSource1(bs []byte) (*Fragment, error) {
 				}
 			default:
 				switch {
-				case lastToken == nil || (lastToken != nil && lastToken.Type != WordToken):
-					lastToken = &Token{Type: WordToken, Data: string(r)}
+				case lastToken == nil || (lastToken != nil && lastToken.Type != WordToken1):
+					lastToken = &Token1{Type: WordToken1, Data: string(r)}
 					switch state {
 					case StateInL:
 						f.LastParagraph().LastRun().AddToken(lastToken)
@@ -425,6 +424,15 @@ func (t *TToken) String() string {
 }
 
 func Lex2(s string) []*TToken {
+	// destroys nice errors with char and lines
+	/*
+		lines := strings.Split(s, "\n")
+		for i, l := range lines {
+			lines[i] = strings.TrimSpace(l)
+		}
+		s = strings.Join(lines
+	*/
+
 	var line, char int = 1, 0
 	var ts []*TToken = []*TToken{&TToken{Type: "start", Value: ""}}
 	var opaque bool
@@ -460,6 +468,16 @@ func Lex2(s string) []*TToken {
 				StartLine: line,
 				StartChar: char,
 			})
+			// lex ◇ as opaque...
+			if ts[len(ts)-1].Value == "◇" {
+				ts = append(ts, &TToken{
+					Type:      OpaqueTToken,
+					Value:     "",
+					StartLine: line,
+					StartChar: char,
+				})
+				opaque = true
+			}
 		case r == CloseRune:
 			ts = append(ts, &TToken{
 				Type:      CloseTToken,
@@ -538,41 +556,16 @@ func Lex2(s string) []*TToken {
 	return ts
 }
 
-func (b *Block) WriteTo(w io.Writer, prefix string) {
-	switch b.Type {
-	case RunBlock:
-		switch b.Token.Value {
-		case "‖", "‣":
-			fmt.Fprintf(w, prefix+"\n"+prefix+"%s ", b.Token.Value)
-			for _, k := range b.Kids {
-				k.WriteTo(w, prefix+"  ")
-			}
-			fmt.Fprintf(w, "\n")
-		default:
-			fmt.Fprintf(w, "\n"+prefix+" %s {\n", b.Token.Value)
-			for _, k := range b.Kids {
-				k.WriteTo(w, prefix+"  ")
-			}
-			fmt.Fprintf(w, "\n"+prefix+"}\n")
-		}
-	case AtomicBlock:
-		switch b.Token.Type {
-		case OpaqueTToken:
-			fmt.Fprintf(w, "❲%s❳", b.Token.Value)
-		default:
-			fmt.Fprint(w, b.Token.Value)
-		}
-	}
-}
-
 type Block struct {
 	Type  string
 	Token *TToken
 	Kids  []*Block
 }
 
-const RunBlock = "run"
-const AtomicBlock = "atomic"
+const (
+	ContainerBlock = "container"
+	AtomicBlock    = "atomic"
+)
 
 func prints(s []*Block) string {
 	var ss []string
@@ -585,7 +578,7 @@ func prints(s []*Block) string {
 func Parse2(ts []*TToken) *Block {
 	var stack = []*Block{
 		&Block{
-			Type: RunBlock, Token: &TToken{Type: BlockTToken, Value: "ROOT"},
+			Type: ContainerBlock, Token: &TToken{Type: BlockTToken, Value: "ROOT"},
 		},
 	}
 
@@ -617,11 +610,11 @@ func Parse2(ts []*TToken) *Block {
 					stack = stack[:len(stack)-1]
 				}
 				p := stack[len(stack)-1]
-				b := &Block{Type: RunBlock, Token: t}
+				b := &Block{Type: ContainerBlock, Token: t}
 				p.Kids = append(p.Kids, b)
 				stack = append(stack, b)
 			default:
-				pendingBlock = &Block{Type: RunBlock, Token: t}
+				pendingBlock = &Block{Type: ContainerBlock, Token: t}
 			}
 		case CloseTToken:
 			if v := stack[len(stack)-1].Token.Value; v == "‖" || v == "‣" {

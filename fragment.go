@@ -14,14 +14,14 @@ type Paragraph struct {
 
 type Run struct {
 	// change this to Tokens
-	Tokens []*Token
+	Tokens []*Token1
 	Notes  map[int]*Note
 	Maths  map[int]*Math
 }
 
 type Math struct {
 	Index int
-	Token *Token // The opaque token corresponding
+	Token *Token1 // The opaque token corresponding
 }
 
 type Note struct {
@@ -49,7 +49,7 @@ func (p *Paragraph) LastRun() *Run {
 	return p.Runs[len(p.Runs)-1]
 }
 
-func (l *Run) AddToken(t *Token) {
+func (l *Run) AddToken(t *Token1) {
 	t.Index = len(l.Tokens)
 	l.Tokens = append(l.Tokens, t)
 }
@@ -84,70 +84,70 @@ func (n *Note) LastRun() *Run {
 	return n.Runs[len(n.Runs)-1]
 }
 
-type TokenType uint
+type Token1Type uint
 
 // change these for better export
 const (
-	ErrorToken TokenType = iota
-	WordToken
-	PunctuationToken
-	StyleToken
-	GlueToken
-	OpaqueToken
+	ErrorToken1 Token1Type = iota
+	WordToken1
+	PunctuationToken1
+	StyleToken1
+	GlueToken1
+	OpaqueToken1
 )
 
-func (t *TokenType) String() string {
+func (t *Token1Type) String() string {
 	switch *t {
-	case ErrorToken:
+	case ErrorToken1:
 		return "ERROR"
-	case PunctuationToken:
+	case PunctuationToken1:
 		return "PUNCTUATION"
-	case WordToken:
+	case WordToken1:
 		return "WORD"
-	case StyleToken:
+	case StyleToken1:
 		return "STYLE"
-	case GlueToken:
+	case GlueToken1:
 		return "GLUE"
-	case OpaqueToken:
+	case OpaqueToken1:
 		return "Opaque"
 	}
 	panic("TokentType.String not reached")
 }
 
-func (t TokenType) MarshalJSON() ([]byte, error) {
+func (t Token1Type) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf("%q", t.String())), nil
 }
 
-func (t *TokenType) UnmarshalJSON(bs []byte) error {
+func (t *Token1Type) UnmarshalJSON(bs []byte) error {
 	switch string(bs) {
 	case `"ERROR"`:
-		*t = ErrorToken
+		*t = ErrorToken1
 		return nil
 	case `"PUNCTUATION"`:
-		*t = PunctuationToken
+		*t = PunctuationToken1
 		return nil
 	case `"WORD"`:
-		*t = WordToken
+		*t = WordToken1
 		return nil
 	case `"STYLE"`:
-		*t = StyleToken
+		*t = StyleToken1
 		return nil
 	case `"GLUE"`:
-		*t = GlueToken
+		*t = GlueToken1
 		return nil
 	case `"OPAQUE"`:
-		*t = OpaqueToken
+		*t = OpaqueToken1
 		return nil
 	}
 	return fmt.Errorf("unknown token type %q", bs)
 }
 
-type Token struct {
-	Type  TokenType
+type Token1 struct {
+	Type  Token1Type
 	Data  string
 	Index int
 }
 
-func (t *Token) Add(r rune) {
+func (t *Token1) Add(r rune) {
 	t.Data += string(r)
 }
