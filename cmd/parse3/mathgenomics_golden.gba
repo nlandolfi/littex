@@ -165,7 +165,6 @@
         \bottomrule
         \end{tabular}
       \end{center}❳
-
       ⁝ ⦊
         ‣ the domain of $f$ is ❲$\set{\NA, \NT, \NC, \NG}^3$❳ and
           the codomain of $f$ is ❲$\CA \cup \set{\CSTOP}$❳ ⦉
@@ -214,7 +213,6 @@
                 \underbrace{\text{CGA}}_{\text{R}}
                 \underbrace{\text{CGG}}_{\text{R}}
             ) = \text{RR}$❳
-
         ⁝ ⦊
           ‣ in this case, because CGT, CGC, CGA, CGG are
             synonyms for arginine (R) ⦉
