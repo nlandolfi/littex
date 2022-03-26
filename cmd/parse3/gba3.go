@@ -83,11 +83,14 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 			WriteGBA(w, c, prefix, indent)
 		}
 	case ParagraphNode:
+		if n.PrevSibling != nil && n.PrevSibling.Type == ParagraphNode {
+			w.Write([]byte("\n"))
+		}
 		w.Write([]byte(prefix + "¶ ⦊\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteGBA(w, c, prefix+indent, indent)
 		}
-		w.Write([]byte(prefix + "⦉\n"))
+		w.Write([]byte("\n" + prefix + "⦉"))
 		if n.NextSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -96,14 +99,17 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteGBA(w, c, prefix+indent, indent)
 		}
-		w.Write([]byte(prefix + "⦉\n"))
+		w.Write([]byte("\n" + prefix + "⦉"))
 	case DisplayMathNode:
-		w.Write([]byte(prefix + "† ⦊\n"))
+		w.Write([]byte(prefix + "◇ ⦊\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteGBA(w, c, prefix+indent, indent)
 		}
-		w.Write([]byte(prefix + "⦉\n"))
+		w.Write([]byte("\n" + prefix + "⦉"))
 	case RunNode:
+		if n.PrevSibling != nil && n.PrevSibling.Type == RunNode {
+			w.Write([]byte("\n\n"))
+		}
 		out := prefix + "‖ "
 
 		w.Write([]byte(out))
@@ -119,6 +125,10 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 			//log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
+				if c.PrevSibling != nil {
+					w.Write([]byte("\n"))
+				}
+
 				var block []*Token = []*Token{c.Token}
 
 				// in case its a token, go a find all tokens to next non-token
@@ -200,11 +210,11 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 			}
 		}
 
-		// will need to do overflow check
-		w.Write([]byte(" ⦉\n"))
-		if n.NextSibling != nil && n.NextSibling.Type == RunNode {
-			w.Write([]byte("\n"))
+		if n.LastChild.Type == TokenNode {
+			w.Write([]byte(" "))
 		}
+		// will need to do overflow check
+		w.Write([]byte("⦉"))
 	case TextNode:
 		lines := strings.Split(n.Data, "\n")
 		for i, l := range lines {
@@ -263,7 +273,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case c == "fragment":
 				n.Type = FragmentNode
 			}
-			log.Printf("CLASS: %s", class(in))
+			//log.Printf("CLASS: %s", class(in))
 
 			for c := in.FirstChild; c != nil; c = c.NextSibling {
 				switch c.Type {
@@ -298,7 +308,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 
 func Parse3(s string) (*Node, error) {
 	s = GBAReplacements(s)
-	fmt.Fprint(os.Stdout, s)
+	//fmt.Fprint(os.Stdout, s)
 
 	var fragment html.Node = html.Node{
 		Type:     html.ElementNode,
