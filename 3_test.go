@@ -8,7 +8,7 @@ import (
 	"github.com/greatbooksadventure/gba"
 )
 
-func TestHalmos(t *testing.T) {
+func TestGolden(t *testing.T) {
 	var cases = []struct {
 		file   string
 		golden string
@@ -54,7 +54,7 @@ func TestHalmos(t *testing.T) {
 		}
 
 		if want, got := string(bs), s; got != want {
-			t.Fatalf("doesn't match golden, diff the result of gba3 on %q against %q", c.file, c.golden)
+			t.Fatalf("%q doesn't match golden\n diff the result of gba3 on %q \nagainst %q", c.file, c.file, c.golden)
 		}
 
 	}

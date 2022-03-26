@@ -71,8 +71,150 @@ func val(t *Token) string {
 	return out
 }
 
+func texval(t *Token) string {
+	switch t.Type {
+	case WordToken:
+		return t.Value
+	case PunctuationToken:
+		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
+		case '‹':
+			return "\\textit{"
+		case '›':
+			return "}"
+		case '«':
+			return "\textbf{"
+		case '»':
+			return "}"
+		case '❬':
+			return "\\t{"
+		case '❭':
+			return "}"
+		case '❮':
+			return "\\textbf{"
+		case '❯':
+			return "}"
+		case '⧼':
+			return "\\t{"
+		case '⧽':
+			return "}"
+		case '“': //left
+			return "\\say{"
+		case '”': //right
+			return "}"
+		case '–': // en dash
+			return "--"
+		case '—': // em dash
+			return "---"
+		case '‘': // left
+			return "`"
+		case '’': // right
+			return "'"
+		case '᜶':
+			return "\\\\"
+		case '↦':
+			return "{\\indent}"
+		case '↤':
+			return "{\\noindent}"
+		}
+	case SymbolToken:
+		r, _ := utf8.DecodeRuneInString(t.Value)
+		if replacement, ok := latexMathReplacements[r]; ok {
+			return replacement
+		}
+		return t.Value
+	case OpaqueToken:
+		x := t.Value[1 : len(t.Value)-1]
+		for r, to := range latexMathReplacements {
+			x = strings.Replace(x, string(r), to, -1)
+		}
+		return x
+	}
+
+	return t.Value
+}
+
 func isSpace(t *Token) bool {
 	return t.Type == PunctuationToken && t.Value == "·"
+}
+
+func lineBlocks(ts []*Token, v func(*Token) string, width int) []string {
+	var pieces = []string{""}
+	var spaces []*Token
+	for _, t := range ts {
+		if isSpace(t) {
+			spaces = append(spaces, t)
+			pieces = append(pieces, "")
+		} else {
+			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t)
+		}
+	}
+
+	//	log.Print("PIECES")
+	//	for _, p := range pieces {
+	//		log.Printf("%q", p)
+	//	}
+
+	//log.Printf("allowed width: %d", allowedWidth)
+	var lines []string = []string{""}
+	var curRuneCount = 0
+	var onePieceOnLine bool
+	for i, p := range pieces {
+		var lastPiece = (len(pieces)-1 == i)
+
+		c := utf8.RuneCountInString(p) + 1 // for the space
+		if lastPiece {
+			c -= 1 // except the last piece
+		}
+
+		if curRuneCount+c > width {
+			lines = append(lines, p)
+			curRuneCount = c
+			onePieceOnLine = true
+		} else {
+			nl := lines[len(lines)-1]
+			if onePieceOnLine {
+				nl += val(spaces[i-1])
+			}
+			nl += p
+			if !lastPiece {
+				//							log.Printf("%q adding space?", nl)
+				nl += val(spaces[i])
+			}
+			lines[len(lines)-1] = nl
+			curRuneCount += c + 1
+			onePieceOnLine = false
+		}
+	}
+
+	var o []string = make([]string, 0, len(lines))
+	for _, line := range lines {
+		// these are sort of quick fix hacks
+		// to avoid end of line spaces and
+		// empty lines, but really the code above
+		// should ultimately be fixed
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		o = append(o, line)
+	}
+
+	return o
+}
+
+func writeLines(w io.Writer, lines []string, prefix string, prefixFirst bool) {
+	for i, line := range lines {
+		lastLine := (i == len(lines)-1)
+		if i == 0 && !prefixFirst {
+			w.Write([]byte(line))
+		} else {
+			w.Write([]byte(prefix + line))
+		}
+
+		if !lastLine {
+			w.Write([]byte("\n"))
+		}
+	}
 }
 
 func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
@@ -162,74 +304,136 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 					block = append(block, cc.Token)
 				}
 
-				var pieces = []string{""}
-				var spaces []*Token
-				for _, t := range block {
-					if isSpace(t) {
-						spaces = append(spaces, t)
-						pieces = append(pieces, "")
-					} else {
-						pieces[len(pieces)-1] = pieces[len(pieces)-1] + val(t)
-					}
+				allowedWidth := maxWidth - offset
+				lines := lineBlocks(block, val, allowedWidth)
+				if len(lines) > 0 {
+					writeLines(w, lines, prefix+indent, afterFirstLine)
+					afterFirstLine = true
 				}
 
-				//	log.Print("PIECES")
-				//	for _, p := range pieces {
-				//		log.Printf("%q", p)
-				//	}
+				c = cc
+			default:
+				//	log.Print("DEFAU⦊")
+				// no need, WriteGBA should do this new line
+				//				if c.PrevSibling.Type == TokenNode {
+				//					w.Write([]byte("\n"))
+				//				}
+				WriteGBA(w, c, prefix+indent, indent)
+				c = c.NextSibling
+			}
+		}
+
+		if n.LastChild.Type == TokenNode {
+			w.Write([]byte(" "))
+		}
+		// will need to do overflow check
+		w.Write([]byte("⦉"))
+	case TextNode:
+		lines := strings.Split(n.Data, "\n")
+		for i, l := range lines {
+			lines[i] = prefix + l
+		}
+		out := strings.Join(lines, "\n")
+		w.Write([]byte(out + "\n"))
+	}
+}
+
+func WriteTex(w io.Writer, n *Node, prefix, indent string) {
+	switch n.Type {
+	case FragmentNode:
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteGBA(w, c, prefix, indent)
+		}
+	case ParagraphNode, ListNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		if n.Type == ParagraphNode {
+			w.Write([]byte(prefix + "\n"))
+		} else {
+			w.Write([]byte(prefix + "\\begin{itemize}\n"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteGBA(w, c, prefix+indent, indent)
+		}
+
+		if n.Type == ParagraphNode {
+			w.Write([]byte(prefix + "\n"))
+		} else {
+			w.Write([]byte(prefix + "\\end{itemize}\n"))
+		}
+
+		// always puts this on the next node
+		//		if n.NextSibling != nil {
+		//			w.Write([]byte("\n"))
+		//		}
+	case FootnoteNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "\\footnote{\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteGBA(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "}"))
+	case DisplayMathNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "\\[\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteGBA(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "\\]"))
+	case RunNode, ListItemNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+
+		if n.PrevSibling != nil && (n.PrevSibling.Type == RunNode || n.PrevSibling.Type == ListItemNode) {
+			w.Write([]byte("\n"))
+		}
+
+		var out string
+		if n.Type == RunNode {
+			out = prefix + ""
+		} else {
+			out = prefix + "\\item "
+		}
+
+		w.Write([]byte(out))
+
+		offset := utf8.RuneCountInString(out)
+		//log.Printf("offset; %d", offset)
+
+		//		lineBuffer = ""
+		//relOffset := 0
+
+		var afterFirstLine bool
+		// Looping over the children.
+		for c := n.FirstChild; c != nil; afterFirstLine = true {
+			//log.Printf("RUN NODE: %s", c.Type)
+			switch c.Type {
+			case TokenNode:
+				if c.PrevSibling != nil {
+					w.Write([]byte("\n"))
+				}
+
+				var block []*Token = []*Token{c.Token}
+
+				// in case its a token, go a find all tokens to next non-token
+				var cc *Node
+				for cc = c.NextSibling; cc != nil && cc.Type == TokenNode; cc = cc.NextSibling {
+					block = append(block, cc.Token)
+				}
 
 				allowedWidth := maxWidth - offset
-				//log.Printf("allowed width: %d", allowedWidth)
-				var lines []string = []string{""}
-				var curRuneCount = 0
-				var onePieceOnLine bool
-				for i, p := range pieces {
-					var lastPiece = (len(pieces)-1 == i)
-
-					c := utf8.RuneCountInString(p) + 1 // for the space
-					if lastPiece {
-						c -= 1 // except the last piece
-					}
-
-					if curRuneCount+c > allowedWidth {
-						lines = append(lines, p)
-						curRuneCount = c
-						onePieceOnLine = true
-					} else {
-						nl := lines[len(lines)-1]
-						if onePieceOnLine {
-							nl += val(spaces[i-1])
-						}
-						nl += p
-						if !lastPiece {
-							//							log.Printf("%q adding space?", nl)
-							nl += val(spaces[i])
-						}
-						lines[len(lines)-1] = nl
-						curRuneCount += c + 1
-						onePieceOnLine = false
-					}
-				}
-
-				for i, line := range lines {
-					// these are sort of quick fix hacks
-					// to avoid end of line spaces and
-					// empty lines, but really the code above
-					// should ultimately be fixed
-					line = strings.TrimSpace(line)
-					if line == "" {
-						continue
-					}
-
-					lastLine := (i == len(lines)-1)
-					if afterFirstLine {
-						w.Write([]byte(prefix + indent + line))
-					} else {
-						w.Write([]byte(line))
-					}
-					if !lastLine {
-						w.Write([]byte("\n"))
-					}
+				lines := lineBlocks(block, texval, allowedWidth)
+				if len(lines) > 0 {
+					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
 				}
 
@@ -399,8 +603,8 @@ const CloseMathOpaqueRune = '⧽'
 
 const WordToken = "word"
 const PunctuationToken = "punctuation"
-const OpaqueToken = "opaque"
 const SymbolToken = "symbol"
+const OpaqueToken = "opaque"
 
 type Token struct {
 	Type                 string
