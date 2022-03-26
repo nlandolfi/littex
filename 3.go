@@ -17,6 +17,10 @@ import (
 // var multilineComments = regexp.MustCompile("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/")
 
 func GBAReplacements(s string) string {
+	s = strings.Replace(s, "¶⦊", "¶ ⦊", -1)
+	s = strings.Replace(s, "†⦊", "† ⦊", -1)
+	s = strings.Replace(s, "◇⦊", "◇ ⦊", -1)
+	s = strings.Replace(s, "⁝⦊", "⁝ ⦊", -1)
 	s = strings.Replace(s, "¶ ⦊", "<div class='¶'>", -1)
 	s = strings.Replace(s, "† ⦊", "<div class='†'>", -1)
 	s = strings.Replace(s, "◇ ⦊", "<div class='◇'>", -1)
@@ -340,7 +344,7 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 			}
 		}
 
-		if n.LastChild.Type == TokenNode {
+		if n.LastChild != nil && n.LastChild.Type == TokenNode {
 			w.Write([]byte(" "))
 		}
 		// will need to do overflow check
