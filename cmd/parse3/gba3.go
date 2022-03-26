@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"log"
 	"os"
+	"text/template"
 
 	"github.com/greatbooksadventure/gba"
 )
@@ -34,8 +36,39 @@ func main() {
 	case "tex":
 		gba.WriteTex(os.Stdout, n, "", "  ")
 	case "tmpl":
-		// load template
-		// load in some helper functions
-		// execute it
+		bs, err := os.ReadFile(*tmpl)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Create a template, add the function map, and parse the text.
+		tmpl, err := template.New("").Funcs(
+			template.FuncMap{
+				"tex": func(n *gba.Node) string {
+					var b bytes.Buffer
+					gba.WriteTex(&b, n, "", "  ")
+					return b.String()
+				},
+				"texpi": func(n *gba.Node, pr, in string) string {
+					var b bytes.Buffer
+					gba.WriteTex(&b, n, pr, in)
+					return b.String()
+				},
+				"gba": func(n *gba.Node) string {
+					var b bytes.Buffer
+					gba.WriteGBA(&b, n, "", "  ")
+					return b.String()
+				},
+			},
+		).Parse(string(bs))
+		if err != nil {
+			log.Fatalf("parsing: %s", err)
+		}
+
+		// Run the template to verify the output.
+		err = tmpl.Execute(os.Stdout, n)
+		if err != nil {
+			log.Fatalf("execution: %s", err)
+		}
 	}
 }

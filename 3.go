@@ -48,6 +48,13 @@ type Node struct {
 	PrevSibling, NextSibling *Node
 }
 
+func (n *Node) Kids() (ks []*Node) {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ks = append(ks, c)
+	}
+	return
+}
+
 func class(n *html.Node) string {
 	for _, a := range n.Attr {
 		if a.Key == "class" {
@@ -217,6 +224,18 @@ func writeLines(w io.Writer, lines []string, prefix string, prefixFirst bool) {
 	}
 }
 
+func tokenBlockStartingAt(c *Node) (block []*Token, last *Node) {
+	block = append(block, c.Token)
+	last = c
+
+	var cc *Node
+	for cc = c.NextSibling; cc != nil && cc.Type == TokenNode; cc = cc.NextSibling {
+		block = append(block, cc.Token)
+		last = cc
+	}
+	return block, last
+}
+
 func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 	switch n.Type {
 	case FragmentNode:
@@ -296,14 +315,8 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 					w.Write([]byte("\n"))
 				}
 
-				var block []*Token = []*Token{c.Token}
-
 				// in case its a token, go a find all tokens to next non-token
-				var cc *Node
-				for cc = c.NextSibling; cc != nil && cc.Type == TokenNode; cc = cc.NextSibling {
-					block = append(block, cc.Token)
-				}
-
+				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
 				lines := lineBlocks(block, val, allowedWidth)
 				if len(lines) > 0 {
@@ -311,7 +324,7 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 					afterFirstLine = true
 				}
 
-				c = cc
+				c = lastTokenNode.NextSibling
 			default:
 				//	log.Print("DEFAU⦊")
 				// no need, WriteGBA should do this new line
@@ -409,14 +422,8 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 					w.Write([]byte("\n"))
 				}
 
-				var block []*Token = []*Token{c.Token}
-
 				// in case its a token, go a find all tokens to next non-token
-				var cc *Node
-				for cc = c.NextSibling; cc != nil && cc.Type == TokenNode; cc = cc.NextSibling {
-					block = append(block, cc.Token)
-				}
-
+				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
 				lines := lineBlocks(block, texval, allowedWidth)
 				if len(lines) > 0 {
@@ -424,7 +431,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 					afterFirstLine = true
 				}
 
-				c = cc
+				c = lastTokenNode.NextSibling
 			default:
 				WriteTex(w, c, prefix+indent, indent)
 				c = c.NextSibling
@@ -737,4 +744,32 @@ func (n *Node) AppendChild(c *Node) {
 	n.LastChild = c
 	c.Parent = n
 	c.PrevSibling = last
+}
+
+// Slides
+func (n *Node) SlideTitle() string {
+	if n.Type != ListItemNode {
+		panic("SlideTitle only for list items")
+	}
+	block, _ := tokenBlockStartingAt(n.FirstChild)
+	lines := lineBlocks(block, texval, maxWidth)
+	if len(lines) > 1 {
+		panic("SlideTitle multi-line")
+	}
+	return lines[0]
+}
+
+func (n *Node) SlideItems() []*Node {
+	// kids of the first ⁝ node
+	if n.Type != ListItemNode {
+		panic("SlideItems only for list items")
+	}
+	c := n.FirstChild
+	for c != nil && c.Type != ListNode {
+		c = c.NextSibling
+	}
+	if c == nil {
+		return nil
+	}
+	return c.Kids()
 }

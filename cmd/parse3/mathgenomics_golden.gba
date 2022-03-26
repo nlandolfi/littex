@@ -20,10 +20,10 @@
         ‣ we abbreviate the word “nucleotide” with “nt” ⦉
 
         ‣ we represent each of the four nucleotides with letters
-          ❲\NA❳, ❲\NT❳, ❲\NC❳, and ❲\NG❳ ⦉
+          A, T, C, and G ⦉
 
-        ‣ ribonucleic acid (RNA) has the nucleotide uracil ({\NU})
-          instead of thymine ({\NT}) ⦉
+        ‣ ribonucleic acid (RNA) has the nucleotide uracil (U)
+          instead of thymine (T) ⦉
       ⦉⦉
 
     ‣ a ❬nucleotide string❭ is a sequence in the set
@@ -181,31 +181,33 @@
       strings by defining ❲$s = \bar{f}(x)$❳ by
       ❲\[
         s_i = f(
-            \underbrace{
-              x_{3(i-1)+1 } x_{3(i-1)+2} x_{3(i-1)+3}
-            }_{\text{codon } i \text{ of } x}) ❳ ⦉
-    ⁝ ⦊
-      ‣ we call ❲$s$❳ the ❲sense❳ of ❲$x$❳; for example, the
-        sense of ATTCTTAAA is
-        ❲\[
+          \underbrace{
+            x_{3(i-1)+1 } x_{3(i-1)+2} x_{3(i-1)+3}
+          }_{\text{codon } i \text{ of } x}
+        )
+      \]❳
+      ⁝ ⦊
+        ‣ we call ❲$s$❳ the ❲sense❳ of ❲$x$❳; for example, the
+          sense of ATTCTTAAA is
+          ❲\[
             \bar{f}(
                 \underbrace{\underline{\text{ATT}}}_{\text{I}}
                 \underbrace{\underline{\text{CTT}}}_{\text{L}}
                 \underbrace{\underline{\text{AAA}}}_{\text{K}}
             ) = \text{ILK}
           \]❳ ⦉
-    ⦉
-  ⦉
-  ‣ since ❲$f$❳ is not one-to-one, neither is ❲$\bar{f}$❳
-    ⁝ ⦊
-      ‣ ❲$x$❳ and ❲$y$❳ are ❬sense-equivalent❭ if they have the
-        same sense; i.e., ❲$\bar{f}(x) = \bar{f}(y)$❳ ⦉
+      ⦉⦉
 
-      ‣ roughly speaking, ❲$x$❳ and ❲$y$❳ are sense-equivalent if
-        they “spell out the same thing” ⦉
+    ‣ since ❲$f$❳ is not one-to-one, neither is ❲$\bar{f}$❳
+      ⁝ ⦊
+        ‣ ❲$x$❳ and ❲$y$❳ are ❬sense-equivalent❭ if they have the
+          same sense; i.e., ❲$\bar{f}(x) = \bar{f}(y)$❳ ⦉
 
-      ‣ e.g., CGTCGC and CGACGG are sense-equivalent because
-        ❲$
+        ‣ roughly speaking, ❲$x$❳ and ❲$y$❳ are sense-equivalent
+          if they “spell out the same thing” ⦉
+
+        ‣ e.g., CGTCGC and CGACGG are sense-equivalent because
+          ❲$
             \bar{f}(
                 \underbrace{\text{CGT}}_{\text{R}}
                 \underbrace{\text{CGC}}_{\text{R}}
@@ -213,11 +215,12 @@
                 \underbrace{\text{CGA}}_{\text{R}}
                 \underbrace{\text{CGG}}_{\text{R}}
             ) = \text{RR}$❳
-        ⁝ ⦊
-          ‣ in this case, because CGT, CGC, CGA, CGG are
-            synonyms for arginine (R) ⦉
-        ⦉⦉
-    ⦉⦉⦉
+          ⁝ ⦊
+            ‣ in this case, because CGT, CGC, CGA, CGG are
+              synonyms for arginine (R) ⦉
+          ⦉⦉
+      ⦉⦉
+  ⦉⦉
 
 ‣ Nucleotide substitutions
   ⁝ ⦊

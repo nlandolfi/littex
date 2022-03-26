@@ -1,0 +1,24 @@
+\documentclass[9pt]{extarticle}
+\input{mathgenomics_prelude.tex}
+\begin{document}
+{{ with $slides := .Kids }}
+  {{- with $tslide := index . 0 }}
+    \titleslide
+    { {{ $tslide.SlideTitle }} }
+    {1}
+    {2}
+    {3}
+    {4}
+  {{ end }}
+
+  {{- range $slide := slice . 1 -}}
+\slidei{ {{ $slide.SlideTitle }} }{
+{{ range $slide.SlideItems -}}
+
+  {{- texpi . "  " "  " -}}
+
+{{- end }}
+}
+  {{ end }}
+{{ end }}
+\end{document}

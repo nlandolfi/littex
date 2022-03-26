@@ -16,5 +16,14 @@ kierkegaard_work.pdf: halmos_prelude.tex kierkegaard_text.tex kierkegaard_work.t
 ok: kierkegaard_work.pdf
 	open kierkegaard_work.pdf
 
+mathgenomics_slides.tex: mathgenomics.gba slides.tmpl
+	go run gba3.go -in mathgenomics.gba -m tmpl -tmpl slides.tmpl > mathgenomics_slides.tex
+
+mathgenomics_slides.pdf: mathgenomics_slides.tex mathgenomics_prelude.tex slidemacros.tex
+	./latexrun mathgenomics_slides.tex
+
+os: mathgenomics_slides.pdf
+	open mathgenomics_slides.pdf
+
 spell:
 	aspell -c text.tex
