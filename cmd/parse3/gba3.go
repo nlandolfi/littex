@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -17,7 +16,7 @@ import (
 )
 
 var in = flag.String("in", "text.gba", "in file")
-var mode = flag.String("m", "json", "mode")
+var mode = flag.String("m", "gba", "mode")
 
 // var singlelineComments = regexp.MustCompile("/\/\/[^\r\n]*/")
 // var multilineComments = regexp.MustCompile("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/")
@@ -60,7 +59,19 @@ func class(n *html.Node) string {
 	return ""
 }
 
-const maxWidth int = 70 - 2
+const maxWidth int = 74
+
+func val(t *Token) string {
+	out := t.Value
+	if t.Implicit && isSpace(t) {
+		out = " "
+	}
+	return out
+}
+
+func isSpace(t *Token) bool {
+	return t.Type == PunctuationToken && t.Value == "·"
+}
 
 func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 	switch n.Type {
@@ -95,25 +106,98 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte(out))
 
 		offset := utf8.RuneCountInString(out)
+		//log.Printf("offset; %d", offset)
 
-		relOffset := 0
+		//		lineBuffer = ""
+		//relOffset := 0
 
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		var afterFirstLine bool
+		for c := n.FirstChild; c != nil; afterFirstLine = true {
 			switch c.Type {
 			case TokenNode:
-				runes := utf8.RuneCountInString(c.Token.Value)
-				if relOffset != 0 && runes+relOffset+offset > maxWidth {
-					w.Write([]byte("\n" + prefix + indent))
-					relOffset = 0
+
+				var block []*Token = []*Token{c.Token}
+
+				// in case its a token, go a find all tokens to next non-token
+				var cc *Node
+				for cc = c.NextSibling; cc != nil && cc.Type == TokenNode; cc = cc.NextSibling {
+					block = append(block, cc.Token)
 				}
-				w.Write([]byte(c.Token.Value))
-				relOffset += runes
+
+				var pieces = []string{""}
+				var spaces []*Token
+				for _, t := range block {
+					if isSpace(t) {
+						spaces = append(spaces, t)
+						pieces = append(pieces, "")
+					} else {
+						pieces[len(pieces)-1] = pieces[len(pieces)-1] + val(t)
+					}
+				}
+
+				//	log.Print("PIECES")
+				//	for _, p := range pieces {
+				//		log.Printf("%q", p)
+				//	}
+
+				allowedWidth := maxWidth - offset
+				//log.Printf("allowed width: %d", allowedWidth)
+				var lines []string = []string{""}
+				var curRuneCount = 0
+				var onePieceOnLine bool
+				for i, p := range pieces {
+					var lastPiece = (len(pieces)-1 == i)
+
+					c := utf8.RuneCountInString(p) + 1 // for the space
+					if lastPiece {
+						c -= 1 // except the last piece
+					}
+
+					if curRuneCount+c > allowedWidth {
+						lines = append(lines, p)
+						curRuneCount = c
+						onePieceOnLine = true
+					} else {
+						nl := lines[len(lines)-1]
+						if onePieceOnLine {
+							nl += val(spaces[i-1])
+						}
+						nl += p
+						if !lastPiece {
+							//							log.Printf("%q adding space?", nl)
+							nl += val(spaces[i])
+						}
+						lines[len(lines)-1] = nl
+						curRuneCount += c + 1
+						onePieceOnLine = false
+					}
+				}
+
+				//log.Print("LINES")
+				//for _, p := range lines {
+				//		log.Printf("%q", p)
+				//	}
+
+				for i, line := range lines {
+					lastLine := (i == len(lines)-1)
+					if afterFirstLine {
+						w.Write([]byte(prefix + indent + line))
+					} else {
+						w.Write([]byte(line))
+					}
+					if !lastLine {
+						w.Write([]byte("\n"))
+					}
+					afterFirstLine = true
+				}
+
+				c = cc
 			default:
 				if c.PrevSibling.Type == TokenNode {
 					w.Write([]byte("\n"))
 				}
 				WriteGBA(w, n, prefix+indent, indent)
-				relOffset = 0
+				c = c.NextSibling
 			}
 		}
 
@@ -309,7 +393,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Print(n)
+
 	switch *mode {
+	/* doesn't work cause node points have cycles
 	case "json":
 		bs, err = json.MarshalIndent(n, "", "  ")
 		if err != nil {
@@ -317,8 +404,11 @@ func main() {
 		}
 
 		fmt.Fprint(os.Stdout, string(bs))
+	*/
 	case "tex":
 		panic("d")
+	case "debug":
+		WriteDebug(os.Stdout, n, "", "  ")
 	case "gba":
 		WriteGBA(os.Stdout, n, "", "  ")
 	}
@@ -428,18 +518,13 @@ func LexText(s string) (tokens []*Token, err error) {
 	return
 }
 
-type TokenList []*Token
-
-func (ts TokenList) String() string {
-	var s strings.Builder
-
-	for _, t := range ts {
-		s.WriteString(t.Value)
+func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
+	fmt.Fprintf(w, "%s", n.Type)
+	if n.Type == TokenNode {
+		fmt.Fprintf(w, ":%v", n.Token)
 	}
-
-	return s.String()
-}
-
-func ToGBAFormat(indent, max int, tokens []*Token) string {
-	return TokenList(tokens).String()
+	fmt.Fprintf(w, "\n")
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		WriteDebug(w, c, prefix+indent, indent)
+	}
 }
