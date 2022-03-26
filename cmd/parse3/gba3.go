@@ -36,7 +36,7 @@ const FootnoteNode = "†"
 const DisplayMathNode = "◇"
 const RunNode = "‖"
 const TextNode = "text"
-const TokenNode = "?"
+const TokenNode = "token"
 
 type Node struct {
 	Type  string
@@ -62,6 +62,9 @@ func class(n *html.Node) string {
 const maxWidth int = 74
 
 func val(t *Token) string {
+	if t.Type == OpaqueToken {
+		return string(OpaqueOpenRune) + t.Value + string(OpaqueCloseRune)
+	}
 	out := t.Value
 	if t.Implicit && isSpace(t) {
 		out = " "
@@ -113,9 +116,9 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 
 		var afterFirstLine bool
 		for c := n.FirstChild; c != nil; afterFirstLine = true {
+			//log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
-
 				var block []*Token = []*Token{c.Token}
 
 				// in case its a token, go a find all tokens to next non-token
@@ -173,11 +176,6 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 					}
 				}
 
-				//log.Print("LINES")
-				//for _, p := range lines {
-				//		log.Printf("%q", p)
-				//	}
-
 				for i, line := range lines {
 					lastLine := (i == len(lines)-1)
 					if afterFirstLine {
@@ -193,10 +191,11 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 
 				c = cc
 			default:
+				//	log.Print("DEFAU⦊")
 				if c.PrevSibling.Type == TokenNode {
 					w.Write([]byte("\n"))
 				}
-				WriteGBA(w, n, prefix+indent, indent)
+				WriteGBA(w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
 		}
@@ -231,7 +230,6 @@ func unmarshalText(in *html.Node) (tokens []*Node, err error) {
 		return
 	}
 
-	//	var prev *Node
 	for _, t := range ts {
 		tn := &Node{Type: TokenNode, Token: t}
 		tokens = append(tokens, tn)
@@ -239,47 +237,17 @@ func unmarshalText(in *html.Node) (tokens []*Node, err error) {
 	return
 }
 
-/*
-		tn := &Node{Type: TokenNode, Token: t}
-
-		child.Parent = parent
-		child.PrevSibling = prev
-
-		if prev == nil { // dont check in.LastChild, cause we skip some nodes
-			n.FirstChild = child
-		} else {
-			prev.NextSibling = child
-		}
-
-		prev = child
-
-		tn.PrevSibling = prev
-		if prev != nil {
-			prev.NextSibling = tn
-		}
-		if i == 0 {
-			parent.FirstChild = tn
-		}
-		if i == len(tokens)-1 {
-			parent.LastChild = tn
-		}
-		prev = tn
-	}
-*/
-
 func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	var n Node
 
 	switch in.Type {
 	case html.TextNode:
-		/*
-			if strings.TrimSpace(in.Data) == "" {
-				return nil, nil
-			}
-			n.Type = TextNode
-			n.Data = in.Data
-			return &n, nil
-		*/
+		if strings.TrimSpace(in.Data) == "" {
+			return nil, nil
+		}
+		n.Type = TextNode
+		n.Data = in.Data
+		return &n, nil
 	case html.ElementNode:
 		switch in.DataAtom {
 		case atom.Div:
@@ -295,49 +263,29 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case c == "fragment":
 				n.Type = FragmentNode
 			}
+			log.Printf("CLASS: %s", class(in))
 
-			var prev *Node
 			for c := in.FirstChild; c != nil; c = c.NextSibling {
-				if c.Type == html.TextNode {
+				switch c.Type {
+				case html.TextNode:
 					ts, err := unmarshalText(c)
 					if err != nil {
 						return nil, err
 					}
 
 					for _, child := range ts {
-						child.Parent = &n
-						child.PrevSibling = prev
-
-						if prev == nil { // dont check in.LastChild, cause we skip some nodes
-							n.FirstChild = child
-						} else {
-							prev.NextSibling = child
-						}
-
-						prev = child
+						n.AppendChild(child)
 					}
-				} else {
+				default:
 					child, err := unmarshalHTML(c, &n)
 					if err != nil {
 						return nil, err
 					}
-					if child == nil { // for example an empty text node
-						continue
+					if child != nil {
+						n.AppendChild(child)
 					}
-
-					child.Parent = &n
-					child.PrevSibling = prev
-
-					if prev == nil { // dont check in.LastChild, cause we skip some nodes
-						n.FirstChild = child
-					} else {
-						prev.NextSibling = child
-					}
-
-					prev = child
 				}
 			}
-			n.LastChild = prev
 		default:
 			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 		}
@@ -350,7 +298,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 
 func Parse3(s string) (*Node, error) {
 	s = GBAReplacements(s)
-	//fmt.Fprint(os.Stdout, s)
+	fmt.Fprint(os.Stdout, s)
 
 	var fragment html.Node = html.Node{
 		Type:     html.ElementNode,
@@ -367,14 +315,24 @@ func Parse3(s string) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i, n := range ns {
-		if i == 0 {
-			fragment.FirstChild = n
-		}
-		if i == len(ns)-1 {
-			fragment.LastChild = n
-		}
-		n.Parent = &fragment
+	for _, n := range ns {
+		/*
+			if n.Type == html.ElementNode {
+				log.Printf("%s:%s", n.DataAtom, class(n))
+			} else if n.Type == html.TextNode {
+				log.Printf("text")
+			}
+		*/
+		fragment.AppendChild(n)
+	}
+	for c := fragment.FirstChild; c != nil; c = c.NextSibling {
+		/*
+			if c.Type == html.ElementNode {
+				log.Printf("%s:%s", c.DataAtom, class(c))
+			} else if c.Type == html.TextNode {
+				log.Printf("text")
+			}
+		*/
 	}
 	//	html.Render(os.Stdout, &fragment)
 	nGBA, err := UnmarshalHTML(&fragment)
@@ -393,7 +351,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Print(n)
+	//log.Print(n)
 
 	switch *mode {
 	/* doesn't work cause node points have cycles
@@ -414,8 +372,8 @@ func main() {
 	}
 }
 
-const OpenOpaqueRune = '❲'
-const CloseOpaqueRune = '❳'
+const OpaqueOpenRune = '❲'
+const OpaqueCloseRune = '❳'
 
 /*
 const OpenMathOpaqueRune = '⧼'
@@ -436,7 +394,8 @@ type Token struct {
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("%s(%q)%d:%d", t.Type, t.Value, t.StartLine, t.StartChar)
+	// return fmt.Sprintf("%s(%q)%d:%d", t.Type, t.Value, t.StartLine, t.StartChar)
+	return fmt.Sprintf("%s(%q)", t.Type, val(t))
 }
 
 func LexText(s string) (tokens []*Token, err error) {
@@ -451,7 +410,7 @@ func LexText(s string) (tokens []*Token, err error) {
 
 	for _, r := range s {
 		if opaque {
-			if r == CloseOpaqueRune {
+			if r == OpaqueCloseRune {
 				opaque = false
 				continue
 			}
@@ -460,7 +419,7 @@ func LexText(s string) (tokens []*Token, err error) {
 		}
 
 		switch {
-		case r == OpenOpaqueRune:
+		case r == OpaqueOpenRune:
 			tokens = append(tokens, &Token{
 				Type:  OpaqueToken,
 				Value: "",
@@ -519,7 +478,7 @@ func LexText(s string) (tokens []*Token, err error) {
 }
 
 func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
-	fmt.Fprintf(w, "%s", n.Type)
+	fmt.Fprintf(w, prefix+"%s", n.Type)
 	if n.Type == TokenNode {
 		fmt.Fprintf(w, ":%v", n.Token)
 	}
@@ -528,3 +487,54 @@ func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
 		WriteDebug(w, c, prefix+indent, indent)
 	}
 }
+
+// InsertBefore inserts newChild as a child of n, immediately before oldChild
+// in the sequence of n's children. oldChild may be nil, in which case newChild
+// is appended to the end of n's children.
+//
+// It will panic if newChild already has a parent or siblings.
+func (n *Node) InsertBefore(newChild, oldChild *Node) {
+	if newChild.Parent != nil || newChild.PrevSibling != nil || newChild.NextSibling != nil {
+		panic("html: InsertBefore called for an attached child Node")
+	}
+	var prev, next *Node
+	if oldChild != nil {
+		prev, next = oldChild.PrevSibling, oldChild
+	} else {
+		prev = n.LastChild
+	}
+	if prev != nil {
+		prev.NextSibling = newChild
+	} else {
+		n.FirstChild = newChild
+	}
+	if next != nil {
+		next.PrevSibling = newChild
+	} else {
+		n.LastChild = newChild
+	}
+	newChild.Parent = n
+	newChild.PrevSibling = prev
+	newChild.NextSibling = next
+}
+
+// AppendChild adds a node c as a child of n.
+//
+// It will panic if c already has a parent or siblings.
+func (n *Node) AppendChild(c *Node) {
+	if c.Parent != nil || c.PrevSibling != nil || c.NextSibling != nil {
+		panic("html: AppendChild called for an attached child Node")
+	}
+	last := n.LastChild
+	if last != nil {
+		last.NextSibling = c
+	} else {
+		n.FirstChild = c
+	}
+	n.LastChild = c
+	c.Parent = n
+	c.PrevSibling = last
+}
+
+// RemoveChild removes a node c that is a child of n. Afterwards, c will have
+// no parent and no siblings.

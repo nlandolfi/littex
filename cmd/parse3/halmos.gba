@@ -1,25 +1,25 @@
 ¶ ⦊
  ‖ A pack of wolves, a bunch of grapes, or a flock of pigeons are
-   all examples of sets of things.
+   all examples of sets of things. ⦉
 
  ‖ The mathematical concept of a set can be used as the foundation
-   for all known mathematics.
+   for all known mathematics. ⦉
 
  ‖ The purpose of this little book is to develop the basic
-   properties of sets.
+   properties of sets. ⦉
 
  ‖ Incidentally, to avoid terminological monotony, we shall
-   sometimes say ‹collection› instead of ‹set›.
+   sometimes say ‹collection› instead of ‹set›. ⦉
 
  ‖ The word “class” is sometimes also used in this context, but
-   there is a slight danger in doing so.
+   there is a slight danger in doing so. ⦉
 
  ‖ The reason is that in some approaches to set theory “class” has
-   a special technical meaning.
+   a special technical meaning. ⦉
 
  ‖ We shall have occasion to refer to this again a little later.
    † ⦊
-    ‖ See the end of Section 3.
+    ‖ See the end of Section 3. ⦉
    ⦉⦉
 ⦉
 
@@ -77,7 +77,7 @@
  ‖ If ❲x❳ belongs to ❲A❳ (❲$x$❳ is an element of ❲$A$❳, ❲$x$❳ is
    contained in ❲$A$❳), we shall write
    ◇ ⦊
-     ‖ x ∈ A.
+     ‖ x ∈ A. ⦉
    ⦉⦉
 
  ‖ This version of the Greek letter epsilon is so often used to
@@ -116,11 +116,11 @@
  ‖ The equality of two sets ❲$A$❳ and ❲$B$❳ is universally denoted by
    the familiar symbol
    ◇ ⦊
-     ‖ A = B;
+     ‖ A = B; ⦉
    ⦉
    the fact that ❲$A$❳ and ❲$B$❳ are not equal is expressed by writing
    ◇ ⦊
-     ‖ A ≠ B.
+     ‖ A ≠ B. ⦉
    ⦉⦉
 
  ‖ The most basic property of belonging is its relation to equality,
@@ -139,8 +139,8 @@
 
 ¶ ⦊
  ‖ With greater pretentiousness and less clarity: a set is determined
-   by its extension.⦉
-}
+   by its extension. ⦉
+⦉
 
 ¶ ⦊
  ‖ It is valuable to understand that the axiom of extension is not
@@ -170,11 +170,11 @@
    element of ❲$B$❳, we say that ❲$A$❳ is a ‹subset› of ❲$B$❳, or $B$
    ‹includes› ❲$A$❳, and we write
    ◇ ⦊
-     ‖ A ⊂ B.
+     ‖ A ⊂ B. ⦉
    ⦉
    or
    ◇ ⦊
-     ‖ B ⊃ A.
+     ‖ B ⊃ A. ⦉
    ⦉⦉
 
  ‖ The wording of the definition implies that each set must be
@@ -197,43 +197,43 @@
 ¶ ⦊
  ‖ If ❲$A$❳ and ❲$B$❳ are sets such that ❲$A ⊂ B$❳ and
    ❲$B ⊂ A$❳, then ❲$A$❳ and ❲$B$❳ have the same elements and
-   therefore, by the axiom of extension, ❲$A = B$❳.
+   therefore, by the axiom of extension, ❲$A = B$❳. ⦉
 
  ‖ This fact is described by saying that set inclusion is
-   ‹antisymmetric›.
+   ‹antisymmetric›. ⦉
 
- ‖ (In this respect, set inclusion behaves differently from equality.
+ ‖ (In this respect, set inclusion behaves differently from equality. ⦉
 
  ‖ Equality is ‹symmetric›, in the sense that if ❲$A = B$❳, then
-   necessarily ❲$B = A$❳.)
+   necessarily ❲$B = A$❳.) ⦉
 
  ‖ The axiom of extension can, in fact, be reformulated in these
    terms: if ❲$A$❳ and ❲$B$❳ are sets, then a necessary and
    sufficient condition that ❲$A = B$❳ is that both ❲$A ⊂ B$❳
-   and ❲$B ⊂ A$❳.
+   and ❲$B ⊂ A$❳. ⦉
 
  ‖ Correspondingly, almost all proofs of equalities between two sets
    ❲$A$❳ and ❲$B$❳ are split into two parts; first show that
-   ❲$A ⊂ B$❳, and then show that ❲$B ⊂ A$❳.
+   ❲$A ⊂ B$❳, and then show that ❲$B ⊂ A$❳. ⦉
 ⦉
 
 ¶ ⦊
  ‖ Observe that belonging (❲$∈$❳) and inclusion (❲$⊂$❳) are
-   conceptually very different things indeed.
+   conceptually very different things indeed. ⦉
 
  ‖ One important difference has already manifested itself above:
    inclusion is always reflexive, whereas it is not at all clear that
-   belonging is every reflexive.
+   belonging is every reflexive. ⦉
 
- ‖ That is: ❲$A ⊂ A$❳ is always true; is ❲$A ∈ A$❳ ever true?
+ ‖ That is: ❲$A ⊂ A$❳ is always true; is ❲$A ∈ A$❳ ever true? ⦉
 
  ‖ It is certainly not true of any reasonable set that anyone has
-   ever seen.
+   ever seen. ⦉
 
  ‖ Observe, along the same lines, that inclusion is transitive,
-   whereas belonging is not.
+   whereas belonging is not. ⦉
 
  ‖ Everyday examples, involving, for instance, super-organizations
    whose members are organizations, will readily occur to the
-   interested reader.
+   interested reader. ⦉
 ⦉
