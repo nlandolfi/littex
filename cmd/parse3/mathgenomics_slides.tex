@@ -2,12 +2,11 @@
 \input{mathgenomics_prelude.tex}
 \begin{document}
 
+    % if we assume the last node of this slide is the list
+    % AND the number of items is ocrrect, this works,
+    % otherwise it breaks
     \titleslide
-    { Basic mathematical genomics }
-    {1}
-    {2}
-    {3}
-    {4}
+    { Basic mathematical genomics }{ Nick Landolfi and Dan O'Neill }{ Stanford University }{ N. C. Landolfi \& D. C. O'Neill }{ Revision: January 2022 }
   \slidei{ DNA }{
   \item deoxyribonucleic acid (DNA) is a molecule which we can
     represent as a string
@@ -203,14 +202,14 @@
   \item the \t{index} $j$ is in $\set{1, \dots, m}$ and the
         \t{replacement} nucleotide $b$ is in
         $\set{\NA, \NT, \NC, \NG}$
-  \item the \t{(j,b)-mutation} of $x$ is the nucleotide string
+  \item the \t{$(j,b)$-mutation} of $x$ is the nucleotide string
         $y$ defined by $y_j = b$ and $y_i = x_i$ for all
         $i \neq j$
         \begin{itemize}
       \item i.e., $y$ is the same as $x$ except at index $j$,
                     where it has nucleotide $b$
-      \item e.g., the $(3, \NA)$-mutation of $\text{CG\underline{T}}$
-                    is $\text{CG\underline{A}}$ (we swapped T in position 3
+      \item e.g., the (3,A)-mutation of $\text{CG\underline{T}}$ is
+                    $\text{CG\underline{A}}$ (we swapped T in position 3
                     with A)
         \end{itemize}
     \end{itemize}
@@ -220,7 +219,7 @@
   \item a substitution is \t{synonymous (silent)} if it does not
         change the sense
         \begin{itemize}
-      \item e.g. (3, C) on CG\underline{T} with result
+      \item e.g. (3,C) on CG\underline{T} with result
                     CG\underline{C}, since
                     $
                 f(\text{CG\underline{T}}) =

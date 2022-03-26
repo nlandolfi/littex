@@ -234,14 +234,14 @@
           ❬replacement❭ nucleotide ❲$b$❳ is in
           ❲$\set{\NA, \NT, \NC, \NG}$❳⦉
 
-        ‣ the ❬(j,b)-mutation❭ of ❲$x$❳ is the nucleotide string ❲$y$❳
+        ‣ the ❬❲$(j,b)$❳-mutation❭ of ❲$x$❳ is the nucleotide string ❲$y$❳
           defined by
           ❲$y_j = b$❳ and  ❲$y_i = x_i$❳ for all ❲$i \neq j$❳
           ⁝ ⦊
             ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index ❲$j$❳,
               where it has nucleotide ❲$b$❳⦉
 
-            ‣ e.g., the ❲$(3, \NA)$❳-mutation of
+            ‣ e.g., the (3,A)-mutation of
               ❲$\text{CG\underline{T}}$❳
               is ❲$\text{CG\underline{A}}$❳ (we swapped T in position
               3 with A)⦉
@@ -254,7 +254,7 @@
         ‣ a substitution is ❬synonymous (silent)❭ if it does not
           change the sense
           ⁝ ⦊
-            ‣ e.g. (3, C) on ❲CG\underline{T}❳ with
+            ‣ e.g. (3,C) on ❲CG\underline{T}❳ with
               result ❲CG\underline{C}❳, since
               ❲$
                 f(\text{CG\underline{T}}) =

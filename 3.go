@@ -84,6 +84,10 @@ func texval(t *Token) string {
 		return t.Value
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
+		case '&':
+			return "\\&"
+		case '%':
+			return "\\%"
 		case '‹':
 			return "\\textit{"
 		case '›':
@@ -747,7 +751,7 @@ func (n *Node) AppendChild(c *Node) {
 }
 
 // Slides
-func (n *Node) SlideTitle() string {
+func (n *Node) FirstTokenString() string {
 	if n.Type != ListItemNode {
 		panic("SlideTitle only for list items")
 	}
@@ -759,7 +763,7 @@ func (n *Node) SlideTitle() string {
 	return lines[0]
 }
 
-func (n *Node) SlideItems() []*Node {
+func (n *Node) FirstListNode() *Node {
 	// kids of the first ⁝ node
 	if n.Type != ListItemNode {
 		panic("SlideItems only for list items")
@@ -768,8 +772,5 @@ func (n *Node) SlideItems() []*Node {
 	for c != nil && c.Type != ListNode {
 		c = c.NextSibling
 	}
-	if c == nil {
-		return nil
-	}
-	return c.Kids()
+	return c
 }

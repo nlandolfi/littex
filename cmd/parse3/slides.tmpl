@@ -3,17 +3,19 @@
 \begin{document}
 {{ with $slides := .Kids }}
   {{- with $tslide := index . 0 }}
+    % if we assume the last node of this slide is the list
+    % AND the number of items is ocrrect, this works,
+    % otherwise it breaks
     \titleslide
-    { {{ $tslide.SlideTitle }} }
-    {1}
-    {2}
-    {3}
-    {4}
+    { {{ $tslide.FirstTokenString }} }
+    {{- range $tslide.FirstListNode.Kids -}}
+      { {{  .FirstTokenString }} }
+    {{- end }}
   {{ end }}
 
   {{- range $slide := slice . 1 -}}
-\slidei{ {{ $slide.SlideTitle }} }{
-{{ range $slide.SlideItems -}}
+\slidei{ {{ $slide.FirstTokenString }} }{
+{{ range $slide.FirstListNode.Kids -}}
 
   {{- texpi . "  " "  " -}}
 
