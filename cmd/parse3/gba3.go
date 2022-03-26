@@ -10,6 +10,7 @@ import (
 
 var in = flag.String("in", "text.gba", "in file")
 var mode = flag.String("m", "gba", "mode")
+var tmpl = flag.String("tmpl", "text.tmpl", "template")
 
 func main() {
 	flag.Parse()
@@ -26,20 +27,15 @@ func main() {
 	//log.Print(n)
 
 	switch *mode {
-	/* doesn't work cause node points have cycles
-	case "json":
-		bs, err = json.MarshalIndent(n, "", "  ")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Fprint(os.Stdout, string(bs))
-	*/
-	case "tex":
-		panic("d")
 	case "debug":
 		gba.WriteDebug(os.Stdout, n, "", "  ")
 	case "gba":
 		gba.WriteGBA(os.Stdout, n, "", "  ")
+	case "tex":
+		gba.WriteTex(os.Stdout, n, "", "  ")
+	case "tmpl":
+		// load template
+		// load in some helper functions
+		// execute it
 	}
 }

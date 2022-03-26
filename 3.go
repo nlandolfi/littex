@@ -82,7 +82,7 @@ func texval(t *Token) string {
 		case '›':
 			return "}"
 		case '«':
-			return "\textbf{"
+			return "\\textbf{"
 		case '»':
 			return "}"
 		case '❬':
@@ -123,7 +123,7 @@ func texval(t *Token) string {
 		}
 		return t.Value
 	case OpaqueToken:
-		x := t.Value[1 : len(t.Value)-1]
+		x := t.Value
 		for r, to := range latexMathReplacements {
 			x = strings.Replace(x, string(r), to, -1)
 		}
@@ -335,82 +335,69 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		}
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
+	default:
+		log.Printf("%+v", n)
+		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+	}
+}
+
+func writeKids(
+	w io.Writer, n *Node, in, pr string,
+	write func(w io.Writer, n *Node, pr, in string),
+) {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		write(w, c, pr, in)
 	}
 }
 
 func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 	switch n.Type {
 	case FragmentNode:
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteGBA(w, c, prefix, indent)
-		}
-	case ParagraphNode, ListNode:
+		writeKids(w, n, prefix, indent, WriteTex)
+	case ParagraphNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n"))
+	case ListNode:
+		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		if n.Type == ParagraphNode {
-			w.Write([]byte(prefix + "\n"))
-		} else {
-			w.Write([]byte(prefix + "\\begin{itemize}\n"))
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteGBA(w, c, prefix+indent, indent)
-		}
-
-		if n.Type == ParagraphNode {
-			w.Write([]byte(prefix + "\n"))
-		} else {
-			w.Write([]byte(prefix + "\\end{itemize}\n"))
-		}
-
-		// always puts this on the next node
-		//		if n.NextSibling != nil {
-		//			w.Write([]byte("\n"))
-		//		}
+		w.Write([]byte(prefix + "\\begin{itemize}\n"))
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n" + prefix + "\\end{itemize}"))
 	case FootnoteNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "\\footnote{\n"))
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteGBA(w, c, prefix+indent, indent)
-		}
+		// the first little bit here removes the space.
+		// it means there is no way to have a space in between
+		// text and a footnote, but I don't think there's a way
+		// to specify that within .gba files.
+		// Could in the future check if the previous child here was a token
+		// and a non implicit space token
+		w.Write([]byte(prefix + "\\ifhmode\\unskip\\fi\\footnote{\n"))
+		writeKids(w, n, prefix+indent, indent, WriteTex)
 		w.Write([]byte("\n" + prefix + "}"))
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(prefix + "\\[\n"))
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteGBA(w, c, prefix+indent, indent)
-		}
+		writeKids(w, n, prefix+indent, indent, WriteTex)
 		w.Write([]byte("\n" + prefix + "\\]"))
 	case RunNode, ListItemNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 
-		if n.PrevSibling != nil && (n.PrevSibling.Type == RunNode || n.PrevSibling.Type == ListItemNode) {
-			w.Write([]byte("\n"))
+		var offset int
+		if n.Type == ListItemNode {
+			out := prefix + "\\item "
+			w.Write([]byte(out))
+			offset = utf8.RuneCountInString(out)
 		}
-
-		var out string
-		if n.Type == RunNode {
-			out = prefix + ""
-		} else {
-			out = prefix + "\\item "
-		}
-
-		w.Write([]byte(out))
-
-		offset := utf8.RuneCountInString(out)
-		//log.Printf("offset; %d", offset)
-
-		//		lineBuffer = ""
-		//relOffset := 0
 
 		var afterFirstLine bool
 		// Looping over the children.
@@ -418,7 +405,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			//log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
-				if c.PrevSibling != nil {
+				if c.PrevSibling != nil && c.PrevSibling.Type != RunNode {
 					w.Write([]byte("\n"))
 				}
 
@@ -439,28 +426,12 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 
 				c = cc
 			default:
-				//	log.Print("DEFAU⦊")
-				// no need, WriteGBA should do this new line
-				//				if c.PrevSibling.Type == TokenNode {
-				//					w.Write([]byte("\n"))
-				//				}
-				WriteGBA(w, c, prefix+indent, indent)
+				WriteTex(w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
 		}
-
-		if n.LastChild.Type == TokenNode {
-			w.Write([]byte(" "))
-		}
-		// will need to do overflow check
-		w.Write([]byte("⦉"))
-	case TextNode:
-		lines := strings.Split(n.Data, "\n")
-		for i, l := range lines {
-			lines[i] = prefix + l
-		}
-		out := strings.Join(lines, "\n")
-		w.Write([]byte(out + "\n"))
+	default:
+		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
 }
 
@@ -490,6 +461,8 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	var n Node
 
 	switch in.Type {
+	case html.CommentNode:
+		return nil, nil // for now
 	case html.TextNode:
 		log.Printf("warning, unexpected text node")
 		if strings.TrimSpace(in.Data) == "" {
