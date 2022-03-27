@@ -104,6 +104,10 @@ func texval(t *Token) string {
 			return "\\t{"
 		case '❭':
 			return "}"
+		case '⁅':
+			return "\\c{"
+		case '⁆':
+			return "}"
 		case '❮':
 			return "\\textbf{"
 		case '❯':
@@ -668,6 +672,8 @@ func LexText(s string) (tokens []*Token, err error) {
 				//StartChar: char,
 			})
 		case unicode.IsPunct(r):
+			// TODO should we detect that if the previous token was a word
+			// then add the hyphen so that clear-cut lexes as a word?
 			tokens = append(tokens, &Token{
 				Type:  PunctuationToken,
 				Value: string(r),
@@ -758,6 +764,9 @@ func (n *Node) AppendChild(c *Node) {
 func (n *Node) FirstTokenString() string {
 	if n.Type != ListItemNode {
 		panic("SlideTitle only for list items")
+	}
+	if n.FirstChild == nil {
+		return ""
 	}
 	block, _ := tokenBlockStartingAt(n.FirstChild)
 	lines := lineBlocks(block, texval, maxWidth)

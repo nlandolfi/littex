@@ -21,11 +21,16 @@ func main() {
 	}
 	s := string(bs)
 	// only heuristics
-	// each of the first three are incomplete, in fact
+	// each of the first several are incomplete, in fact
 	s = strings.Replace(s, "\\textit{", "‹", -1)
 	s = strings.Replace(s, "\\textbf{", "«", -1)
 	s = strings.Replace(s, "\\%", "%", -1)
 	s = strings.Replace(s, "\\footnote", "†", -1)
+	s = strings.Replace(s, "\\t{", "❬", -1)
+	s = strings.Replace(s, "\\c{", "⁅", -1)
+	s = strings.Replace(s, "\\item", "‣", -1)
+	s = strings.Replace(s, "\\begin{itemize}", "⁝ ⦊", -1)
+	s = strings.Replace(s, "\\end{itemize}", "⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
 	s = strings.Replace(s, "``", "“", -1)
 	s = strings.Replace(s, "''", "”", -1)
