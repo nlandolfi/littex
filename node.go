@@ -64,16 +64,16 @@ func (t NodeType) String() string {
 type NodeClass string
 
 const (
-	ErrorClass       = "gba3-error"
-	FragmentClass    = "gba3-fragment"
-	ParagraphClass   = "gba3-paragraph"
-	FootnoteClass    = "gba3-footnote"
-	DisplayMathClass = "gba3-displaymath"
-	RunClass         = "gba3-run"
-	TextClass        = "gba3-text"
-	TokenClass       = "gba3-token"
-	ListClass        = "gba3-list"
-	ListItemClass    = "gba3-listitem"
+	ErrorClass       = "error"
+	FragmentClass    = "fragment"
+	ParagraphClass   = "paragraph"
+	FootnoteClass    = "footnote"
+	DisplayMathClass = "displaymath"
+	RunClass         = "run"
+	TextClass        = "text"
+	TokenClass       = "token"
+	ListClass        = "list"
+	ListItemClass    = "listitem"
 )
 
 type Attribute html.Attribute
@@ -133,12 +133,43 @@ func (n *Node) AppendChild(c *Node) {
 	c.PrevSibling = last
 }
 
-func classOf(n *html.Node) string {
+func littypeOf(n *html.Node) string {
 	for _, a := range n.Attr {
-		if a.Key == "class" {
+		if a.Key == "data-littype" {
 			return a.Val
 		}
 	}
 
 	return ""
 }
+
+// Convenient for templates (read slides) {{{
+
+func (n *Node) FirstTokenString() string {
+	if n.Type != ListItemNode {
+		panic("FirstTokenSTring only for list items")
+	}
+	if n.FirstChild == nil {
+		return ""
+	}
+	block, _ := tokenBlockStartingAt(n.FirstChild)
+	lines := lineBlocks(block, Tex, maxWidth)
+	if len(lines) > 1 {
+		panic("FirstTokenString is multi-line")
+	}
+	return lines[0]
+}
+
+func (n *Node) FirstListNode() *Node {
+	// kids of the first ⁝ node
+	if n.Type != ListItemNode {
+		panic("FirstListNode only for list items")
+	}
+	c := n.FirstChild
+	for c != nil && c.Type != ListNode {
+		c = c.NextSibling
+	}
+	return c
+}
+
+// }}}

@@ -113,11 +113,6 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 
 				c = lastTokenNode.NextSibling
 			default:
-				//	log.Print("DEFAU⦊")
-				// no need, WriteLit should do this new line
-				//				if c.PrevSibling.Type == TokenNode {
-				//					w.Write([]byte("\n"))
-				//				}
 				WriteLit(w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}

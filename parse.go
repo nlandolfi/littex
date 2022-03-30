@@ -18,7 +18,7 @@ func ParseHTML(s string) (*Node, error) {
 		Data:     "div",
 		Attr: []html.Attribute{
 			html.Attribute{
-				Key: "class", Val: "fragment",
+				Key: "data-littype", Val: "fragment",
 			},
 		},
 	}
@@ -44,12 +44,12 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "†⦊", "† ⦊", -1)
 	s = strings.Replace(s, "◇⦊", "◇ ⦊", -1)
 	s = strings.Replace(s, "⁝⦊", "⁝ ⦊", -1)
-	s = strings.Replace(s, "¶ ⦊", "<div class='¶'>", -1)
-	s = strings.Replace(s, "† ⦊", "<div class='†'>", -1)
-	s = strings.Replace(s, "◇ ⦊", "<div class='◇'>", -1)
-	s = strings.Replace(s, "‖", "<div class='‖'>", -1)
-	s = strings.Replace(s, "⁝ ⦊", "<div class='⁝'>", -1)
-	s = strings.Replace(s, "‣", "<div class='‣'>", -1)
+	s = strings.Replace(s, "¶ ⦊", "<div data-littype='"+ParagraphClass+"'>", -1)
+	s = strings.Replace(s, "† ⦊", "<div data-littype='"+FootnoteClass+"'>", -1)
+	s = strings.Replace(s, "◇ ⦊", "<div data-littype='"+DisplayMathClass+"'>", -1)
+	s = strings.Replace(s, "‖", "<div data-littype='"+RunClass+"'>", -1)
+	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"'>", -1)
+	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	return s
 }
@@ -130,4 +130,95 @@ var order = []*regexp.Regexp{
 	dblqR,
 	sglqR,
 	sayR,
+}
+
+// func MarshalHTML(n *Node) *html.Node
+
+func UnmarshalHTML(in *html.Node) (*Node, error) {
+	return unmarshalHTML(in, nil)
+}
+
+func unmarshalHTMLText(in *html.Node) (tokens []*Node, err error) {
+	if in.Type != html.TextNode {
+		panic("die")
+	}
+
+	var ts []*Token
+	ts, err = Lex(in.Data)
+	if err != nil {
+		return
+	}
+
+	for _, t := range ts {
+		tn := &Node{Type: TokenNode, Token: t}
+		tokens = append(tokens, tn)
+	}
+	return
+}
+
+func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
+	var n Node
+
+	switch in.Type {
+	case html.CommentNode:
+		return nil, nil // for now
+	case html.TextNode:
+		log.Printf("warning, unexpected text node")
+		if strings.TrimSpace(in.Data) == "" {
+			return nil, nil
+		}
+		n.Type = TextNode
+		n.Data = in.Data
+		return &n, nil
+	case html.ElementNode:
+		switch in.DataAtom {
+		case atom.Div:
+			switch c := littypeOf(in); {
+			case c == ParagraphClass:
+				n.Type = ParagraphNode
+			case c == RunClass:
+				n.Type = RunNode
+			case c == DisplayMathClass:
+				n.Type = DisplayMathNode
+			case c == FootnoteClass:
+				n.Type = FootnoteNode
+			case c == ListClass:
+				n.Type = ListNode
+			case c == ListItemClass:
+				n.Type = ListItemNode
+			case c == FragmentClass:
+				n.Type = FragmentNode
+			default:
+				panic(fmt.Sprintf("unrecognized littype: %q", c))
+			}
+
+			for c := in.FirstChild; c != nil; c = c.NextSibling {
+				switch c.Type {
+				case html.TextNode:
+					ts, err := unmarshalHTMLText(c)
+					if err != nil {
+						return nil, err
+					}
+
+					for _, child := range ts {
+						n.AppendChild(child)
+					}
+				default:
+					child, err := unmarshalHTML(c, &n)
+					if err != nil {
+						return nil, err
+					}
+					if child != nil {
+						n.AppendChild(child)
+					}
+				}
+			}
+		default:
+			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
+		}
+	default:
+		return nil, fmt.Errorf("unsupported node type: %d", in.Type)
+	}
+
+	return &n, nil
 }

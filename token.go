@@ -15,6 +15,12 @@ const (
 	OpaqueToken
 )
 
+const OpaqueOpenRune = '❲'
+const OpaqueCloseRune = '❳'
+
+// const OpenMathOpaqueRune = '⧼'
+// const CloseMathOpaqueRune = '⧽'
+
 func (t TokenType) String() string {
 	switch t {
 	case ErrorToken:
