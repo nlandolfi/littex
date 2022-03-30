@@ -1,4 +1,4 @@
-module github.com/greatbooksadventure/lit
+module github.com/nlandolfi/lit
 
 go 1.17
 
