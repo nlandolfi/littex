@@ -28,16 +28,6 @@ func GBAReplacements(s string) string {
 	return s
 }
 
-func class(n *html.Node) string {
-	for _, a := range n.Attr {
-		if a.Key == "class" {
-			return a.Val
-		}
-	}
-
-	return ""
-}
-
 const maxWidth int = 74
 
 func val(t *Token) string {
@@ -396,7 +386,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	case html.ElementNode:
 		switch in.DataAtom {
 		case atom.Div:
-			switch c := class(in); {
+			switch c := classOf(in); {
 			case c == "¶":
 				n.Type = ParagraphNode
 			case c == "‖":
@@ -445,10 +435,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	return &n, nil
 }
 
-func Parse3(s string) (*Node, error) {
-	s = GBAReplacements(s)
-	//fmt.Fprint(os.Stdout, s)
-
+func ParseHTML(s string) (*Node, error) {
 	var fragment html.Node = html.Node{
 		Type:     html.ElementNode,
 		DataAtom: atom.Div,
@@ -465,27 +452,16 @@ func Parse3(s string) (*Node, error) {
 		return nil, err
 	}
 	for _, n := range ns {
-		/*
-			if n.Type == html.ElementNode {
-				log.Printf("%s:%s", n.DataAtom, class(n))
-			} else if n.Type == html.TextNode {
-				log.Printf("text")
-			}
-		*/
 		fragment.AppendChild(n)
 	}
-	for c := fragment.FirstChild; c != nil; c = c.NextSibling {
-		/*
-			if c.Type == html.ElementNode {
-				log.Printf("%s:%s", c.DataAtom, class(c))
-			} else if c.Type == html.TextNode {
-				log.Printf("text")
-			}
-		*/
-	}
-	//	html.Render(os.Stdout, &fragment)
 	nGBA, err := UnmarshalHTML(&fragment)
 	return nGBA, err
+
+}
+
+func ParseGBA(s string) (*Node, error) {
+	s = GBAReplacements(s)
+	return ParseHTML(s)
 }
 
 const OpaqueOpenRune = '❲'

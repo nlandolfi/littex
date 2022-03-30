@@ -37,7 +37,7 @@ func TestGolden(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		n, err := gba.Parse3(string(bs))
+		n, err := gba.ParseGBA(string(bs))
 		if err != nil {
 			t.Fatal(err)
 		}

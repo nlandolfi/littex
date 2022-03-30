@@ -61,6 +61,21 @@ func (t NodeType) String() string {
 	}
 }
 
+type NodeClass string
+
+const (
+	ErrorClass       = "gba3-error"
+	FragmentClass    = "gba3-fragment"
+	ParagraphClass   = "gba3-paragraph"
+	FootnoteClass    = "gba3-footnote"
+	DisplayMathClass = "gba3-displaymath"
+	RunClass         = "gba3-run"
+	TextClass        = "gba3-text"
+	TokenClass       = "gba3-token"
+	ListClass        = "gba3-list"
+	ListItemClass    = "gba3-listitem"
+)
+
 type Attribute html.Attribute
 
 func (n *Node) Kids() (ks []*Node) {
@@ -116,4 +131,14 @@ func (n *Node) AppendChild(c *Node) {
 	n.LastChild = c
 	c.Parent = n
 	c.PrevSibling = last
+}
+
+func classOf(n *html.Node) string {
+	for _, a := range n.Attr {
+		if a.Key == "class" {
+			return a.Val
+		}
+	}
+
+	return ""
 }
