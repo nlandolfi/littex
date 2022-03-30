@@ -354,6 +354,7 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		// will need to do overflow check
 		w.Write([]byte("⦉"))
 	case TextNode:
+		log.Printf("text nodes should not appear...")
 		lines := strings.Split(n.Data, "\n")
 		for i, l := range lines {
 			lines[i] = prefix + l
@@ -361,7 +362,7 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
 	default:
-		log.Printf("%+v", n)
+		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
 }
