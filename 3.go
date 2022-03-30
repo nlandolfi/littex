@@ -51,81 +51,13 @@ func val(t *Token) string {
 	return out
 }
 
-func texval(t *Token) string {
-	switch t.Type {
-	case WordToken:
-		return t.Value
-	case PunctuationToken:
-		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
-		case '&':
-			return "\\&"
-		case '%':
-			return "\\%"
-		case '‹':
-			return "\\textit{"
-		case '›':
-			return "}"
-		case '«':
-			return "\\textbf{"
-		case '»':
-			return "}"
-		case '❬':
-			return "\\t{"
-		case '❭':
-			return "}"
-		case '⁅':
-			return "\\c{"
-		case '⁆':
-			return "}"
-		case '❮':
-			return "\\textbf{"
-		case '❯':
-			return "}"
-		case '⧼':
-			return "\\t{"
-		case '⧽':
-			return "}"
-		case '“': //left
-			return "\\say{"
-		case '”': //right
-			return "}"
-		case '–': // en dash
-			return "--"
-		case '—': // em dash
-			return "---"
-		case '‘': // left
-			return "`"
-		case '’': // right
-			return "'"
-		case '᜶':
-			return "\\\\"
-		case '↦':
-			return "{\\indent}"
-		case '↤':
-			return "{\\noindent}"
-		}
-	case SymbolToken:
-		r, _ := utf8.DecodeRuneInString(t.Value)
-		if replacement, ok := LatexMathReplacements[r]; ok {
-			return replacement
-		}
-		return t.Value
-	case OpaqueToken:
-		x := t.Value
-		for r, to := range LatexMathReplacements {
-			x = strings.Replace(x, string(r), to, -1)
-		}
-		return x
-	}
-
-	return t.Value
-}
-
 func isSpace(t *Token) bool {
 	return t.Type == PunctuationToken && t.Value == "·"
 }
 
-func lineBlocks(ts []*Token, v func(*Token) string, width int) []string {
+type tokenStringer func(*Token) string
+
+func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
 	var pieces = []string{""}
 	var spaces []*Token
 	for _, t := range ts {
@@ -137,12 +69,6 @@ func lineBlocks(ts []*Token, v func(*Token) string, width int) []string {
 		}
 	}
 
-	//	log.Print("PIECES")
-	//	for _, p := range pieces {
-	//		log.Printf("%q", p)
-	//	}
-
-	//log.Printf("allowed width: %d", allowedWidth)
 	var lines []string = []string{""}
 	var curRuneCount = 0
 	var onePieceOnLine bool
@@ -165,7 +91,6 @@ func lineBlocks(ts []*Token, v func(*Token) string, width int) []string {
 			}
 			nl += p
 			if !lastPiece {
-				//							log.Printf("%q adding space?", nl)
 				nl += val(spaces[i])
 			}
 			lines[len(lines)-1] = nl
@@ -415,7 +340,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, texval, allowedWidth)
+				lines := lineBlocks(block, Tex, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
@@ -591,7 +516,7 @@ func (n *Node) FirstTokenString() string {
 		return ""
 	}
 	block, _ := tokenBlockStartingAt(n.FirstChild)
-	lines := lineBlocks(block, texval, maxWidth)
+	lines := lineBlocks(block, Tex, maxWidth)
 	if len(lines) > 1 {
 		panic("SlideTitle multi-line")
 	}

@@ -6,8 +6,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Node is a GBA node, similar to HTML, except
-// that text is lexed.
+// Node is a GBA node, similar to *html.Node, except that
+// we lex the html text nodes into Tokens.
 type Node struct {
 	Type  NodeType
 	Data  string
