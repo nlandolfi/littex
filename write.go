@@ -268,7 +268,7 @@ func (math *Math) write(w io.Writer, prefix string) (n int, err error) {
 
 func (math *Math) texWrite(w io.Writer, prefix string) (n int, err error) {
 	x := strings.TrimSpace(math.Token.Data[1 : len(math.Token.Data)-1])
-	for r, to := range latexMathReplacements {
+	for r, to := range LatexMathReplacements {
 		x = strings.Replace(x, string(r), to, -1)
 	}
 	return fmt.Fprint(w, prefix+"\n\\["+x+"\\]")
@@ -339,7 +339,7 @@ func (t *Token1) TexTokenString(prev *Token1) string {
 		//		return t.Data
 	case OpaqueToken1:
 		x := t.Data[1 : len(t.Data)-1]
-		for r, to := range latexMathReplacements {
+		for r, to := range LatexMathReplacements {
 			x = strings.Replace(x, string(r), to, -1)
 		}
 		return x

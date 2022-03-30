@@ -52,7 +52,7 @@ var recognizedPunctuation = map[rune]bool{
 	'·': true,
 }
 
-var latexMathReplacements = map[rune]string{
+var LatexMathReplacements = map[rune]string{
 	'→': "\\to",
 	'↦': "\\mapsto",
 	'≠': "\\neq",

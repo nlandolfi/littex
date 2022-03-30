@@ -14,15 +14,15 @@ import (
 
 var in = flag.String("in", "text.gba", "in file")
 
-var textitR = regexp.MustCompile(`\\textit{((.|\n)*)}`)
-var textbfR = regexp.MustCompile(`\\textbf{((.|\n)*)}`)
-var footnoteR = regexp.MustCompile(`\\footnote{((.|\n)*)}`)
-var tR = regexp.MustCompile(`\\t{((.|\n)*)}`)
-var cR = regexp.MustCompile(`\\c{((.|\n)*)}`)
-var dblqR = regexp.MustCompile("``((.|\n)*)''")
-var sglqR = regexp.MustCompile("`((.|\n)*)'")
-var sayR = regexp.MustCompile(`\\say{((.|\n)*)}`)
-var commentsR = regexp.MustCompile(`%(.n)`)
+var textitR = regexp.MustCompile(`\\textit{((.|\n)*?)}`)
+var textbfR = regexp.MustCompile(`\\textbf{((.|\n)*?)}`)
+var footnoteR = regexp.MustCompile(`\\footnote{((.|\n)*?)}`)
+var tR = regexp.MustCompile(`\\t{((.|\n)*?)}`)
+var cR = regexp.MustCompile(`\\c{((.|\n)*?)}`)
+var dblqR = regexp.MustCompile("``((.|\n)*)?''")
+var sglqR = regexp.MustCompile("`((.|\n)*)?'")
+var sayR = regexp.MustCompile(`\\say{((.|\n)*)?}`)
+var commentsR = regexp.MustCompile(`%(.*?)\n`)
 
 var res = map[*regexp.Regexp]string{
 	textitR:   "‹$1›",

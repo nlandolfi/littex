@@ -6,16 +6,13 @@ import (
 	"io"
 	"log"
 	"strings"
-	"unicode"
 	"unicode/utf8"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
-// var singlelineComments = regexp.MustCompile("/\/\/[^\r\n]*/")
-// var multilineComments = regexp.MustCompile("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/")
-
+// GBAReplacements turns a .gba file into parseable HTML form.
 func GBAReplacements(s string) string {
 	s = strings.Replace(s, "¶⦊", "¶ ⦊", -1)
 	s = strings.Replace(s, "†⦊", "† ⦊", -1)
@@ -29,34 +26,6 @@ func GBAReplacements(s string) string {
 	s = strings.Replace(s, "‣", "<div class='‣'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	return s
-}
-
-const FragmentNode = "fragment"
-const ParagraphNode = "¶"
-const FootnoteNode = "†"
-const DisplayMathNode = "◇"
-const RunNode = "‖"
-const TextNode = "text"
-const TokenNode = "token"
-const ListNode = "⁝"
-const ListItemNode = "‣"
-
-type Node struct {
-	Type  string
-	Data  string
-	Attr  []html.Attribute
-	Token *Token
-
-	Parent                   *Node `json:"-"`
-	FirstChild, LastChild    *Node
-	PrevSibling, NextSibling *Node
-}
-
-func (n *Node) Kids() (ks []*Node) {
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		ks = append(ks, c)
-	}
-	return
 }
 
 func class(n *html.Node) string {
@@ -137,13 +106,13 @@ func texval(t *Token) string {
 		}
 	case SymbolToken:
 		r, _ := utf8.DecodeRuneInString(t.Value)
-		if replacement, ok := latexMathReplacements[r]; ok {
+		if replacement, ok := LatexMathReplacements[r]; ok {
 			return replacement
 		}
 		return t.Value
 	case OpaqueToken:
 		x := t.Value
-		for r, to := range latexMathReplacements {
+		for r, to := range LatexMathReplacements {
 			x = strings.Replace(x, string(r), to, -1)
 		}
 		return x
@@ -255,6 +224,10 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 			WriteGBA(w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
+		if n.FirstChild == nil {
+			log.Printf("skipping empty paragraph or list")
+			return // just skip!
+		}
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -294,6 +267,10 @@ func WriteGBA(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\n" + prefix + "⦉"))
 	case RunNode, ListItemNode:
+		if n.FirstChild == nil {
+			log.Printf("skipping empty run")
+			return // just skip!
+		}
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -465,7 +442,7 @@ func unmarshalText(in *html.Node) (tokens []*Node, err error) {
 	}
 
 	var ts []*Token
-	ts, err = LexText(in.Data)
+	ts, err = Lex(in.Data)
 	if err != nil {
 		return
 	}
@@ -594,114 +571,6 @@ const OpenMathOpaqueRune = '⧼'
 const CloseMathOpaqueRune = '⧽'
 */
 
-const WordToken = "word"
-const PunctuationToken = "punctuation"
-const SymbolToken = "symbol"
-const OpaqueToken = "opaque"
-
-type Token struct {
-	Type                 string
-	Value                string
-	Implicit             bool
-	StartLine, StartChar int
-	width                int
-}
-
-func (t *Token) String() string {
-	// return fmt.Sprintf("%s(%q)%d:%d", t.Type, t.Value, t.StartLine, t.StartChar)
-	return fmt.Sprintf("%s(%q)", t.Type, val(t))
-}
-
-func LexText(s string) (tokens []*Token, err error) {
-	//	s = strings.TrimSpace(s)
-	//	lines := strings.Split(s, "\n")
-	//	for i, l := range lines {
-	//		lines[i] = strings.TrimSpace(l)
-	//	}
-	//	s = strings.Join(lines, " ")
-
-	var opaque bool
-
-	//	log.Printf("lexing %q", s)
-	for i, r := range s {
-		if opaque {
-			if r == OpaqueCloseRune {
-				opaque = false
-				continue
-			}
-			tokens[len(tokens)-1].Value += string(r)
-			continue
-		}
-
-		switch {
-		case r == OpaqueOpenRune:
-			tokens = append(tokens, &Token{
-				Type:  OpaqueToken,
-				Value: "",
-				//				StartLine: line,
-				//				StartChar: char,
-			})
-			opaque = true
-		case r == ' ':
-			if len(tokens) == 0 {
-				continue
-			}
-			if i == len(s)-1 {
-				continue // last one can't be an implicit space
-			}
-			last := tokens[len(tokens)-1]
-			if last.Type == WordToken ||
-				last.Type == SymbolToken ||
-				last.Type == OpaqueToken ||
-				(last.Type == PunctuationToken && last.Value != "·") {
-				// convert it to a space
-				tokens = append(tokens, &Token{
-					Type:     PunctuationToken,
-					Value:    "·",
-					Implicit: true,
-					//StartLine: line,
-					//StartChar: char,
-				})
-			}
-		case r == '\n' || r == '\r' || r == '\t':
-			continue
-		case unicode.IsSymbol(r):
-			tokens = append(tokens, &Token{
-				Type:  SymbolToken,
-				Value: string(r),
-				//StartLine: line,
-				//StartChar: char,
-			})
-		case unicode.IsPunct(r):
-			// TODO should we detect that if the previous token was a word
-			// then add the hyphen so that clear-cut lexes as a word?
-			tokens = append(tokens, &Token{
-				Type:  PunctuationToken,
-				Value: string(r),
-				//StartLine: line,
-				//StartChar: char,
-			})
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
-			if len(tokens) == 0 || tokens[len(tokens)-1].Type != WordToken { // start a new word
-				tokens = append(tokens, &Token{
-					Type:  WordToken,
-					Value: string(r),
-					//	StartLine: line,
-					//	StartChar: char,
-				})
-				continue
-			}
-			// continue that word
-			tokens[len(tokens)-1].Value += string(r)
-		default:
-			err = fmt.Errorf("unrecognized rune %q", r)
-			return
-		}
-	}
-
-	return
-}
-
 func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
 	fmt.Fprintf(w, prefix+"%s", n.Type)
 	if n.Type == TokenNode {
@@ -711,54 +580,6 @@ func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		WriteDebug(w, c, prefix+indent, indent)
 	}
-}
-
-// InsertBefore inserts newChild as a child of n, immediately before oldChild
-// in the sequence of n's children. oldChild may be nil, in which case newChild
-// is appended to the end of n's children.
-//
-// It will panic if newChild already has a parent or siblings.
-func (n *Node) InsertBefore(newChild, oldChild *Node) {
-	if newChild.Parent != nil || newChild.PrevSibling != nil || newChild.NextSibling != nil {
-		panic("html: InsertBefore called for an attached child Node")
-	}
-	var prev, next *Node
-	if oldChild != nil {
-		prev, next = oldChild.PrevSibling, oldChild
-	} else {
-		prev = n.LastChild
-	}
-	if prev != nil {
-		prev.NextSibling = newChild
-	} else {
-		n.FirstChild = newChild
-	}
-	if next != nil {
-		next.PrevSibling = newChild
-	} else {
-		n.LastChild = newChild
-	}
-	newChild.Parent = n
-	newChild.PrevSibling = prev
-	newChild.NextSibling = next
-}
-
-// AppendChild adds a node c as a child of n.
-//
-// It will panic if c already has a parent or siblings.
-func (n *Node) AppendChild(c *Node) {
-	if c.Parent != nil || c.PrevSibling != nil || c.NextSibling != nil {
-		panic("html: AppendChild called for an attached child Node")
-	}
-	last := n.LastChild
-	if last != nil {
-		last.NextSibling = c
-	} else {
-		n.FirstChild = c
-	}
-	n.LastChild = c
-	c.Parent = n
-	c.PrevSibling = last
 }
 
 // Slides
