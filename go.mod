@@ -1,4 +1,4 @@
-module github.com/greatbooksadventure/gba
+module github.com/greatbooksadventure/lit
 
 go 1.17
 

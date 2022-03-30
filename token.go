@@ -1,4 +1,4 @@
-package gba
+package lit
 
 import (
 	"fmt"

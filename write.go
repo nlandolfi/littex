@@ -1,0 +1,233 @@
+package lit
+
+import (
+	"fmt"
+	"io"
+	"log"
+	"strings"
+	"unicode/utf8"
+)
+
+// WriteDebug prints the node tree in a pretty format.
+func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
+	fmt.Fprintf(w, prefix+"%s", n.Type)
+	if n.Type == TokenNode {
+		fmt.Fprintf(w, ":%v", n.Token)
+	}
+	fmt.Fprintf(w, "\n")
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		WriteDebug(w, c, prefix+indent, indent)
+	}
+}
+
+func WriteLit(w io.Writer, n *Node, prefix, indent string) {
+	switch n.Type {
+	case FragmentNode:
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix, indent)
+		}
+	case ParagraphNode, ListNode:
+		if n.FirstChild == nil {
+			log.Printf("skipping empty paragraph or list")
+			return // just skip!
+		}
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		if n.Type == ParagraphNode {
+			w.Write([]byte(prefix + "¶ ⦊\n"))
+		} else {
+			w.Write([]byte(prefix + "⁝ ⦊\n"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "⦉"))
+	case FootnoteNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "† ⦊\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "⦉"))
+	case DisplayMathNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "◇ ⦊\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "⦉"))
+	case RunNode, ListItemNode:
+		if n.FirstChild == nil {
+			log.Printf("skipping empty run")
+			return // just skip!
+		}
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+
+		if n.PrevSibling != nil && (n.PrevSibling.Type == RunNode || n.PrevSibling.Type == ListItemNode) {
+			w.Write([]byte("\n"))
+		}
+
+		var out string
+		if n.Type == RunNode {
+			out = prefix + "‖ "
+		} else {
+			out = prefix + "‣ "
+		}
+
+		w.Write([]byte(out))
+
+		offset := utf8.RuneCountInString(out)
+		//log.Printf("offset; %d", offset)
+
+		//		lineBuffer = ""
+		//relOffset := 0
+
+		var afterFirstLine bool
+		// Looping over the children.
+		for c := n.FirstChild; c != nil; afterFirstLine = true {
+			//log.Printf("RUN NODE: %s", c.Type)
+			switch c.Type {
+			case TokenNode:
+				if c.PrevSibling != nil {
+					w.Write([]byte("\n"))
+				}
+
+				// in case its a token, go a find all tokens to next non-token
+				block, lastTokenNode := tokenBlockStartingAt(c)
+				allowedWidth := maxWidth - offset
+				lines := lineBlocks(block, val, allowedWidth)
+				if len(lines) > 0 {
+					writeLines(w, lines, prefix+indent, afterFirstLine)
+					afterFirstLine = true
+				}
+
+				c = lastTokenNode.NextSibling
+			default:
+				//	log.Print("DEFAU⦊")
+				// no need, WriteLit should do this new line
+				//				if c.PrevSibling.Type == TokenNode {
+				//					w.Write([]byte("\n"))
+				//				}
+				WriteLit(w, c, prefix+indent, indent)
+				c = c.NextSibling
+			}
+		}
+
+		if n.LastChild != nil && n.LastChild.Type == TokenNode {
+			w.Write([]byte(" "))
+		}
+		// will need to do overflow check
+		w.Write([]byte("⦉"))
+	case TextNode:
+		log.Printf("text nodes should not appear...")
+		lines := strings.Split(n.Data, "\n")
+		for i, l := range lines {
+			lines[i] = prefix + l
+		}
+		out := strings.Join(lines, "\n")
+		w.Write([]byte(out + "\n"))
+	default:
+		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
+		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+	}
+}
+
+func WriteTex(w io.Writer, n *Node, prefix, indent string) {
+	switch n.Type {
+	case FragmentNode:
+		writeKids(w, n, prefix, indent, WriteTex)
+	case ParagraphNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n"))
+	case ListNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "\\begin{itemize}\n"))
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n" + prefix + "\\end{itemize}"))
+	case FootnoteNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		// the first little bit here removes the space.
+		// it means there is no way to have a space in between
+		// text and a footnote, but I don't think there's a way
+		// to specify that within .gba files.
+		// Could in the future check if the previous child here was a token
+		// and a non implicit space token
+		w.Write([]byte(prefix + "\\ifhmode\\unskip\\fi\\footnote{\n"))
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n" + prefix + "}"))
+	case DisplayMathNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "\\[\n"))
+		writeKids(w, n, prefix+indent, indent, WriteTex)
+		w.Write([]byte("\n" + prefix + "\\]"))
+	case RunNode, ListItemNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+
+		var offset int
+		if n.Type == ListItemNode {
+			out := prefix + "\\item "
+			w.Write([]byte(out))
+			offset = utf8.RuneCountInString(out)
+		}
+
+		var afterFirstLine bool
+		// Looping over the children.
+		for c := n.FirstChild; c != nil; afterFirstLine = true {
+			//log.Printf("RUN NODE: %s", c.Type)
+			switch c.Type {
+			case TokenNode:
+				if c.PrevSibling != nil && c.PrevSibling.Type != RunNode {
+					w.Write([]byte("\n"))
+				}
+
+				// in case its a token, go a find all tokens to next non-token
+				block, lastTokenNode := tokenBlockStartingAt(c)
+				allowedWidth := maxWidth - offset
+				lines := lineBlocks(block, Tex, allowedWidth)
+				if len(lines) > 0 {
+					writeLines(w, lines, prefix+indent, afterFirstLine)
+					afterFirstLine = true
+				}
+
+				c = lastTokenNode.NextSibling
+			default:
+				WriteTex(w, c, prefix+indent, indent)
+				c = c.NextSibling
+			}
+		}
+	default:
+		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+	}
+}
+
+type nodeWriter func(w io.Writer, n *Node, pr, in string)
+
+func writeKids(
+	w io.Writer, n *Node, in, pr string,
+	write nodeWriter,
+) {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		write(w, c, pr, in)
+	}
+}
