@@ -105,7 +105,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, val, allowedWidth)
+				lines := lineBlocks(block, Val, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
@@ -233,7 +233,7 @@ func writeKids(
 
 const maxWidth int = 74
 
-func val(t *Token) string {
+func Val(t *Token) string {
 	if t.Type == OpaqueToken {
 		return string(OpaqueOpenRune) + t.Value + string(OpaqueCloseRune)
 	}
@@ -280,11 +280,11 @@ func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
 		} else {
 			nl := lines[len(lines)-1]
 			if onePieceOnLine {
-				nl += val(spaces[i-1])
+				nl += v(spaces[i-1])
 			}
 			nl += p
 			if !lastPiece {
-				nl += val(spaces[i])
+				nl += v(spaces[i])
 			}
 			lines[len(lines)-1] = nl
 			curRuneCount += c + 1

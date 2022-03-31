@@ -46,7 +46,7 @@ type Token struct {
 
 func (t *Token) String() string {
 	// return fmt.Sprintf("%s(%q)%d:%d", t.Type, t.Value, t.StartLine, t.StartChar)
-	return fmt.Sprintf("%s(%q)", t.Type, val(t))
+	return fmt.Sprintf("%s(%q)", t.Type, Val(t))
 }
 
 func Lex(s string) (tokens []*Token, err error) {
