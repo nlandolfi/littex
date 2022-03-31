@@ -53,13 +53,21 @@ func Tex(t *Token) string {
 			return "'"
 		case '᜶':
 			return "\\\\"
+		case '⸤':
+			return "\\textsc{"
+		case '⸥':
+			return "}"
+		}
+	case SymbolToken:
+		r, _ := utf8.DecodeRuneInString(t.Value)
+		switch r {
+		case '᜶':
+			return "\\\\"
 		case '↦':
 			return "{\\indent}"
 		case '↤':
 			return "{\\noindent}"
 		}
-	case SymbolToken:
-		r, _ := utf8.DecodeRuneInString(t.Value)
 		if replacement, ok := LatexMathReplacements[r]; ok {
 			return replacement
 		}

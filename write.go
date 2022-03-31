@@ -201,7 +201,11 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 				allowedWidth := maxWidth - offset
 				lines := lineBlocks(block, Tex, allowedWidth)
 				if len(lines) > 0 {
-					writeLines(w, lines, prefix+indent, afterFirstLine)
+					//					writeLines(w, lines, prefix+indent, afterFirstLine)
+					w.Write([]byte(strings.Join(lines, " ")))
+					if afterFirstLine {
+						afterFirstLine = true
+					}
 					afterFirstLine = true
 				}
 

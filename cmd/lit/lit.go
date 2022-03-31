@@ -10,7 +10,7 @@ import (
 	"path"
 	"text/template"
 
-	"github.com/greatbooksadventure/lit"
+	"github.com/nlandolfi/lit"
 )
 
 var inmode = flag.String("i", "", "the type of the input file")
@@ -29,11 +29,11 @@ func main() {
 
 	if *inmode == "" {
 		switch path.Ext(*in) {
-		case "lit":
+		case ".lit":
 			*inmode = "lit"
-		case "tex":
+		case ".tex":
 			*inmode = "tex"
-		case "html":
+		case ".html":
 			*inmode = "html"
 		default:
 			*inmode = "lit"
@@ -62,11 +62,11 @@ func main() {
 
 	if *outmode == "" && *out != "" {
 		switch path.Ext(*out) {
-		case "lit":
+		case ".lit":
 			*outmode = "lit"
-		case "tex":
+		case ".tex":
 			*outmode = "tex"
-		case "html":
+		case ".html":
 			*outmode = "html"
 		default:
 			*outmode = "lit"
@@ -87,7 +87,7 @@ func main() {
 	switch *outmode {
 	case "debug":
 		lit.WriteDebug(w, n, "", "  ")
-	case "lit":
+	case "", "lit":
 		lit.WriteLit(w, n, "", "  ")
 	case "tex":
 		lit.WriteTex(w, n, "", "  ")

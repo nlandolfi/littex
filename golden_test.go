@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/greatbooksadventure/lit"
+	"github.com/nlandolfi/lit"
 )
 
 func TestGolden(t *testing.T) {

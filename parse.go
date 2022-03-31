@@ -102,6 +102,7 @@ func ParseTex(s string) (*Node, error) {
 
 var textitR = regexp.MustCompile(`\\textit{((.|\n)*?)}`)
 var textbfR = regexp.MustCompile(`\\textbf{((.|\n)*?)}`)
+var textscR = regexp.MustCompile(`\\textsc{((.|\n)*?)}`)
 var footnoteR = regexp.MustCompile(`\\footnote{((.|\n)*?)}`)
 var tR = regexp.MustCompile(`\\t{((.|\n)*?)}`)
 var cR = regexp.MustCompile(`\\c{((.|\n)*?)}`)
@@ -114,6 +115,7 @@ var res = map[*regexp.Regexp]string{
 	textitR:   "‹$1›",
 	textbfR:   "«$1»",
 	footnoteR: "† ⦊ ‖ $1 ⦉⦉",
+	textscR:   "⸤$1⸥",
 	tR:        "❬$1❭",
 	cR:        "⁅$1⁆",
 	dblqR:     "“$1”",
@@ -125,6 +127,7 @@ var order = []*regexp.Regexp{
 	textitR,
 	textbfR,
 	footnoteR,
+	textscR,
 	tR,
 	cR,
 	dblqR,
