@@ -2,6 +2,7 @@ package lit
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -133,6 +134,16 @@ func (n *Node) AppendChild(c *Node) {
 	c.PrevSibling = last
 }
 
+func getAttr(as []Attribute, k string) string {
+	for _, a := range as {
+		if a.Key == k {
+			return a.Val
+		}
+	}
+
+	return ""
+}
+
 func littypeOf(n *html.Node) string {
 	for _, a := range n.Attr {
 		if a.Key == "data-littype" {
@@ -141,6 +152,25 @@ func littypeOf(n *html.Node) string {
 	}
 
 	return ""
+}
+
+func litlisttypeOf(a []html.Attribute) string {
+	for _, at := range a {
+		if at.Key == "data-litlisttype" {
+			return at.Val
+		}
+	}
+
+	return "unordered"
+}
+
+func (n *Node) setAttr(k, v string) {
+	for _, a := range n.Attr {
+		if a.Key == k {
+			a.Val = v
+		}
+	}
+	n.Attr = append(n.Attr, Attribute{Key: k, Val: v})
 }
 
 // Convenient for templates (read slides) {{{
@@ -155,7 +185,7 @@ func (n *Node) FirstTokenString() string {
 	block, _ := tokenBlockStartingAt(n.FirstChild)
 	lines := lineBlocks(block, Tex, maxWidth)
 	if len(lines) > 1 {
-		panic("FirstTokenString is multi-line")
+		return strings.Join(lines, "\n")
 	}
 	return lines[0]
 }
@@ -168,6 +198,13 @@ func (n *Node) FirstListNode() *Node {
 	c := n.FirstChild
 	for c != nil && c.Type != ListNode {
 		c = c.NextSibling
+	}
+	if c == nil {
+		// quick fix for "‣ Slide title ⦉" fillers
+		li := &Node{Type: ListItemNode}
+		l := &Node{Type: ListNode}
+		l.AppendChild(li)
+		return l
 	}
 	return c
 }

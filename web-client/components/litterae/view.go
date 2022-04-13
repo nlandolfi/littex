@@ -131,7 +131,7 @@ func (s *State) render(n *lit.Node) *browser.Node {
 	case lit.TextNode:
 		return s.Theme.Text("text node")
 	case lit.TokenNode:
-		return s.Theme.Text("token node")
+		return s.renderToken(n)
 	case lit.ListNode:
 		return s.Theme.Text("list node")
 	case lit.ListItemNode:
@@ -146,45 +146,89 @@ func (s *State) renderFragment(n *lit.Node) *browser.Node {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		children = append(children, s.render(c))
 	}
-	return ui.VStack(children...).Border(browser.Border{
-		Width: browser.Size{Value: 1, Unit: browser.UnitPX},
-		Type:  browser.BorderSolid,
-		Color: "black",
-	})
+	o := ui.VStack(children...).
+		Border(browser.Border{
+			Width: browser.Size{Value: 1, Unit: browser.UnitPX},
+			Type:  browser.BorderSolid,
+			Color: "black",
+		}).
+		Width(browser.Size{Value: 90, Unit: browser.UnitPG}).
+		PaddingPX(20)
+	return o
 }
 
 func (s *State) renderParagraph(n *lit.Node) *browser.Node {
 	children := make([]*browser.Node, 0)
+	children = append(children, s.Theme.Text("\t"))
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		children = append(children, s.render(c))
 	}
-	return ui.VStack(children...).Border(browser.Border{
-		Width: browser.Size{Value: 1, Unit: browser.UnitPX},
-		Type:  browser.BorderSolid,
-		Color: "gray",
-	}).MarginPX(2)
+	o := browser.Node{
+		Type:     html.ElementNode,
+		DataAtom: atom.P,
+		Children: children,
+	}
+	o.Style.FontFamily = "Computer Modern Serif"
+	o.Style.TextAlign = browser.TextAlignJustify
+	o.Style.FontSize = browser.Size{Value: 2.2, Unit: browser.UnitEM}
+	// o.Style.Display = browser.DisplayFlex
+	// o.Style.FlexDirection = browser.FlexDirectionRow
+	// o.Style.FlexWrap = browser.FlexWrapWrap
+	return &o
+	/*
+		return o.Border(browser.Border{
+			Width: browser.Size{Value: 1, Unit: browser.UnitPX},
+			Type:  browser.BorderSolid,
+			Color: "gray",
+		}).MarginPX(2)
+	*/
 }
 
 func (s *State) renderRun(n *lit.Node) *browser.Node {
 	children := make([]*browser.Node, 0)
+	children = append(children, s.Theme.Text(" "))
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		children = append(children, s.render(c))
 	}
-	return ui.VStack(children...).Border(browser.Border{
-		Width: browser.Size{Value: 1, Unit: browser.UnitPX},
-		Type:  browser.BorderSolid,
-		Color: "green",
-	}).MarginPX(2)
+	o := browser.Node{
+		Type:     html.ElementNode,
+		DataAtom: atom.Span,
+		Children: children,
+	}
+	//o.Style.Display = browser.DisplayFlex
+	//o.Style.FlexDirection = browser.FlexDirectionRow
+	// o.Style.FlexWrap = browser.FlexWrapWrap
+	return o.MarginPX(2).
+		Width(browser.Size{Value: 100, Unit: browser.UnitPC})
+	/*
+		.Border(browser.Border{
+			Width: browser.Size{Value: 1, Unit: browser.UnitPX},
+			Type:  browser.BorderSolid,
+			Color: "green",
+		})
+	*/
 }
 
 func (s *State) renderToken(n *lit.Node) *browser.Node {
-	return &browser.Node{
+	t := lit.Val(n.Token)
+	//	if t == " " {
+	//		t = "·"
+	//	}
+	o := &browser.Node{
 		Type:     html.ElementNode,
 		DataAtom: atom.Span,
 		Children: []*browser.Node{
-			s.Theme.Text(lit.Val(n)),
+			s.Theme.Text(t),
 		},
 	}
+	return o
+	/*
+		return o.Border(browser.Border{
+			Width: browser.Size{Value: 1, Unit: browser.UnitPX},
+			Type:  browser.BorderSolid,
+			Color: "red",
+		})
+	*/
 }
 
 /*

@@ -27,20 +27,30 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
-		if n.FirstChild == nil {
-			log.Printf("skipping empty paragraph or list")
-			return // just skip!
-		}
+		/*
+			if n.FirstChild == nil {
+				log.Printf("skipping empty paragraph or list")
+				return // just skip!
+			}
+		*/
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		if n.Type == ParagraphNode {
+		switch n.Type {
+		case ParagraphNode:
 			w.Write([]byte(prefix + "¶ ⦊\n"))
-		} else {
-			w.Write([]byte(prefix + "⁝ ⦊\n"))
+		case ListNode:
+			switch getAttr(n.Attr, "list-type") {
+			case "ordered":
+				w.Write([]byte(prefix + "𝍫 ⦊\n"))
+			default: // includes unordered
+				w.Write([]byte(prefix + "⁝ ⦊\n"))
+			}
+		default:
+			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteLit(w, c, prefix+indent, indent)
@@ -65,10 +75,12 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\n" + prefix + "⦉"))
 	case RunNode, ListItemNode:
-		if n.FirstChild == nil {
-			log.Printf("skipping empty run")
-			return // just skip!
-		}
+		/*
+			if n.FirstChild == nil {
+				log.Printf("skipping empty run")
+				return // just skip!
+			}
+		*/
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -151,9 +163,20 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "\\begin{itemize}\n"))
+		lt := getAttr(n.Attr, "list-type")
+		switch lt {
+		case "ordered":
+			w.Write([]byte(prefix + "\\begin{enumerate}\n"))
+		default: // unordered
+			w.Write([]byte(prefix + "\\begin{itemize}\n"))
+		}
 		writeKids(w, n, prefix+indent, indent, WriteTex)
-		w.Write([]byte("\n" + prefix + "\\end{itemize}"))
+		switch lt {
+		case "ordered":
+			w.Write([]byte("\n" + prefix + "\\end{enumerate}"))
+		default: // unordered
+			w.Write([]byte("\n" + prefix + "\\end{itemize}"))
+		}
 	case FootnoteNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))

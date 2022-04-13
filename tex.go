@@ -8,9 +8,20 @@ import (
 func Tex(t *Token) string {
 	switch t.Type {
 	case WordToken:
+		if utf8.RuneCountInString(t.Value) == 1 {
+			r, _ := utf8.DecodeRuneInString(t.Value)
+			if replacement, ok := LatexMathReplacements[r]; ok {
+				return replacement
+			}
+		}
 		return t.Value
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
+		case '·':
+			if t.Implicit {
+				return " "
+			}
+			return "·"
 		case '&':
 			return "\\&"
 		case '%':
@@ -64,9 +75,9 @@ func Tex(t *Token) string {
 		case '᜶':
 			return "\\\\"
 		case '↦':
-			return "{\\indent}"
+			return "\\indent"
 		case '↤':
-			return "{\\noindent}"
+			return "\\noindent"
 		}
 		if replacement, ok := LatexMathReplacements[r]; ok {
 			return replacement
@@ -80,6 +91,12 @@ func Tex(t *Token) string {
 		return x
 	}
 
+	if utf8.RuneCountInString(t.Value) == 1 {
+		r, _ := utf8.DecodeRuneInString(t.Value)
+		if replacement, ok := LatexMathReplacements[r]; ok {
+			return replacement
+		}
+	}
 	return t.Value
 }
 
@@ -94,18 +111,27 @@ var LatexMathReplacements = map[rune]string{
 	'⊇': "\\supseteq",
 	'⊂': "\\subset",
 	'⊆': "\\subseteq",
+	'⊊': "\\subsetneq",
 	'∅': "\\varnothing",
 	'∪': "\\cup",
 	'∩': "\\cap",
 	'×': "\\times",
 	'𝒞': "\\mathcal{C}",
+	'𝒰': "\\mathcal{U}",
+	'𝒱': "\\mathcal{V}",
+	'★': "\\star",
+	'𝒢': "\\mathcal{G}",
+	'ℋ': "\\mathcal{H}",
 	'∕': "/",
 	'∏': "\\prod",
 	'∑': "\\sum",
+	'≈': "\\approx",
 	'≡': "\\equiv",
 	'≪': "\\ll",
 	'≫': "\\gg",
 	'≦': "\\leqq",
+	'≥': "\\geq",
+	'≤': "\\leq",
 	'≺': "\\prec",
 	'≻': "\\succ",
 	'≼': "\\preceq",
@@ -123,9 +149,9 @@ var LatexMathReplacements = map[rune]string{
 	'∼': "\\sim",
 	'√': "\\sqrt",
 	'±': "\\pm",
-	'𝗥': "\\mathbfsf{R}",
-	'𝗤': "\\mathbfsf{Q}",
-	'𝗡': "\\mathbfsf{N}",
+	'𝗥': "\\R",
+	'𝗤': "\\Q",
+	'𝗡': "\\N",
 	'∇': "\\nabla",
 	'∂': "\\partial",
 	'α': "\\alpha",
@@ -154,4 +180,9 @@ var LatexMathReplacements = map[rune]string{
 	'χ': "\\chi",
 	'υ': "\\upsilon",
 	'ζ': "\\zeta",
+	'⇒': "\\implies",
+	'Ξ': "\\Xi",
+	'½': "\\nicefrac{1}{2}", // does not work?
+	'∖': "\\setminus",       // doesnot work?
+	'…': "\\dots",
 }

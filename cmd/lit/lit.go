@@ -35,6 +35,8 @@ func main() {
 			*inmode = "tex"
 		case ".html":
 			*inmode = "html"
+		case ".csv":
+			*inmode = "csv"
 		default:
 			*inmode = "lit"
 		}
@@ -53,6 +55,8 @@ func main() {
 		n, err = lit.ParseTex(string(bs))
 	case "lit":
 		n, err = lit.ParseLit(string(bs))
+	case "csv":
+		n, err = lit.ParseCSV(string(bs))
 	default:
 		log.Fatalf("unknown input type: %q", *inmode)
 	}

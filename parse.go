@@ -2,7 +2,9 @@ package lit
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"regexp"
 	"strings"
@@ -44,11 +46,13 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "†⦊", "† ⦊", -1)
 	s = strings.Replace(s, "◇⦊", "◇ ⦊", -1)
 	s = strings.Replace(s, "⁝⦊", "⁝ ⦊", -1)
+	s = strings.Replace(s, "𝍫⦊", "𝍫 ⦊", -1)
 	s = strings.Replace(s, "¶ ⦊", "<div data-littype='"+ParagraphClass+"'>", -1)
 	s = strings.Replace(s, "† ⦊", "<div data-littype='"+FootnoteClass+"'>", -1)
 	s = strings.Replace(s, "◇ ⦊", "<div data-littype='"+DisplayMathClass+"'>", -1)
 	s = strings.Replace(s, "‖", "<div data-littype='"+RunClass+"'>", -1)
-	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"'>", -1)
+	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='unordered'>", -1)
+	s = strings.Replace(s, "𝍫 ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='ordered'>", -1)
 	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	return s
@@ -65,7 +69,9 @@ func ParseTex(s string) (*Node, error) {
 	}
 	s = strings.Replace(s, "\\item", "‣", -1)
 	s = strings.Replace(s, "\\begin{itemize}", "⁝ ⦊", -1)
+	s = strings.Replace(s, "\\begin{enumerate}", "𝍫 ⦊", -1)
 	s = strings.Replace(s, "\\end{itemize}", "⦉", -1)
+	s = strings.Replace(s, "\\end{enumerate}", "⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
 	s = strings.Replace(s, "``", "“", -1)
 	s = strings.Replace(s, "''", "”", -1)
@@ -91,7 +97,11 @@ func ParseTex(s string) (*Node, error) {
 		ls := strings.Split(p, "\n")
 		for _, l := range ls {
 			fmt.Fprintf(w, "‖ ")
-			fmt.Fprint(w, l)
+			if len(l) > 0 && l[0] == '%' { // comments
+				fmt.Fprintf(w, "❲%s❳", l)
+			} else {
+				fmt.Fprint(w, l)
+			}
 			fmt.Fprintf(w, "⦉")
 		}
 		fmt.Fprintf(w, "⦉")
@@ -187,6 +197,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.Type = FootnoteNode
 			case c == ListClass:
 				n.Type = ListNode
+				n.setAttr("list-type", litlisttypeOf(in.Attr))
 			case c == ListItemClass:
 				n.Type = ListItemNode
 			case c == FragmentClass:
@@ -224,4 +235,38 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	}
 
 	return &n, nil
+}
+
+// super simple
+func ParseCSV(s string) (*Node, error) {
+	fragment := Node{Type: FragmentNode}
+
+	r := csv.NewReader(strings.NewReader(s))
+	for {
+		list := &Node{Type: ListNode}
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, field := range record {
+			li := &Node{Type: ListItemNode}
+			var ts []*Token
+			ts, err = Lex(field)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, t := range ts {
+				tn := &Node{Type: TokenNode, Token: t}
+				li.AppendChild(tn)
+			}
+			list.AppendChild(li)
+		}
+		fragment.AppendChild(list)
+	}
+
+	return &fragment, nil
 }

@@ -506,6 +506,8 @@ github.com/nlandolfi/accounts/act v0.0.0-20220318043022-2603b170687f h1:foFoOdt2
 github.com/nlandolfi/accounts/act v0.0.0-20220318043022-2603b170687f/go.mod h1:L/fDJFgRKAIk+buN1RXd/fu9AgjxaczMHG11TJH4UFg=
 github.com/nlandolfi/lit v0.0.0-20220331221758-f7e96cca0a34 h1:ICS8k+aFe8BWmHC/QQi1ub7++7J+pOPCRHB4fBCRkwI=
 github.com/nlandolfi/lit v0.0.0-20220331221758-f7e96cca0a34/go.mod h1:iLGYxoT5UZOde8KeW++wtLfArPMe8wU3cycogcdHIuY=
+github.com/nlandolfi/lit v0.0.0-20220331225429-01604222ec9a h1:+IoJB7H7NGCyUyNR/AVl/sdFjLSYMHM+ycBR2hV6D2Y=
+github.com/nlandolfi/lit v0.0.0-20220331225429-01604222ec9a/go.mod h1:iLGYxoT5UZOde8KeW++wtLfArPMe8wU3cycogcdHIuY=
 github.com/nlandolfi/spin v0.0.0-20220117043711-c7094f28c442 h1:wMHklDUtZ0bjx82szs7Ty59ARsYAK77YdKTDBBCuo4I=
 github.com/nlandolfi/spin v0.0.0-20220117043711-c7094f28c442/go.mod h1:N3wKxUvFglxg/RPcj56W80mvjOVCiiFS+lFEwzcz6MI=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
@@ -647,6 +649,8 @@ github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5q
 github.com/spf13/viper v1.7.1/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
 github.com/spinsrv/browser v0.0.0-20220227015057-a64a2e5838be h1:DLCUqk6oJr+tAN40rZtEcVQEq4RbPx2vLh5nNLO8gAo=
 github.com/spinsrv/browser v0.0.0-20220227015057-a64a2e5838be/go.mod h1:AjzXDy/EOESYOJBwPQaaIFDxZcrBOV9iOnpDvZaeLVs=
+github.com/spinsrv/browser v0.0.0-20220401000014-0073247a5f58 h1:PThZtJ2/OOZeG8IiJUEYcSiQRNzupHIzZ/5teCghWhQ=
+github.com/spinsrv/browser v0.0.0-20220401000014-0073247a5f58/go.mod h1:AjzXDy/EOESYOJBwPQaaIFDxZcrBOV9iOnpDvZaeLVs=
 github.com/spinsrv/spin v0.0.0-20220227015111-62d7c9ffe120 h1:qIszvuWsO9Ixh9V3uPPpXC8tnoTGwnsQzmEezC7Ovf0=
 github.com/spinsrv/spin v0.0.0-20220227015111-62d7c9ffe120/go.mod h1:cPNWYTopXC+0ZqWfH+N0grX+qixf9J5VHfVx98Fp/Xc=
 github.com/ssgreg/nlreturn/v2 v2.1.0/go.mod h1:E/iiPB78hV7Szg2YfRgyIrk1AD6JVMTRkkxBiELzh2I=
