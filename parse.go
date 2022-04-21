@@ -54,6 +54,7 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='unordered'>", -1)
 	s = strings.Replace(s, "𝍫 ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='ordered'>", -1)
 	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
+	s = strings.Replace(s, "§ ⦊", "<div data-littype='"+SectionClass+"'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	return s
 }
@@ -72,6 +73,8 @@ func ParseTex(s string) (*Node, error) {
 	s = strings.Replace(s, "\\begin{enumerate}", "𝍫 ⦊", -1)
 	s = strings.Replace(s, "\\end{itemize}", "⦉", -1)
 	s = strings.Replace(s, "\\end{enumerate}", "⦉", -1)
+	s = strings.Replace(s, "\\[", "◇ ⦊ ‖ ", -1)
+	s = strings.Replace(s, "\\]", "⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
 	s = strings.Replace(s, "``", "“", -1)
 	s = strings.Replace(s, "''", "”", -1)

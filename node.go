@@ -33,6 +33,7 @@ const (
 	TokenNode
 	ListNode
 	ListItemNode
+	SectionNode
 )
 
 func (t NodeType) String() string {
@@ -57,6 +58,8 @@ func (t NodeType) String() string {
 		return "⁝"
 	case ListItemNode:
 		return "‣"
+	case SectionNode:
+		return "§"
 	default:
 		panic(fmt.Sprintf("unknown node type: %d", t))
 	}
@@ -75,6 +78,7 @@ const (
 	TokenClass       = "token"
 	ListClass        = "list"
 	ListItemClass    = "listitem"
+	SectionClass     = "section"
 )
 
 type Attribute html.Attribute
