@@ -8,13 +8,17 @@ import (
 func Tex(t *Token) string {
 	switch t.Type {
 	case WordToken:
-		if utf8.RuneCountInString(t.Value) == 1 {
-			r, _ := utf8.DecodeRuneInString(t.Value)
+		var out = ""
+
+		for _, r := range t.Value {
 			if replacement, ok := LatexMathReplacements[r]; ok {
-				return replacement
+				out += replacement
+			} else {
+				out += string(r)
 			}
 		}
-		return t.Value
+
+		return out
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
 		case '·':
@@ -116,6 +120,7 @@ var LatexMathReplacements = map[rune]string{
 	'∪': "\\cup",
 	'∩': "\\cap",
 	'×': "\\times",
+	'𝒜': "\\mathcal{A}",
 	'𝒞': "\\mathcal{C}",
 	'𝒰': "\\mathcal{U}",
 	'𝒱': "\\mathcal{V}",
@@ -155,6 +160,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝗤': "\\Q",
 	'𝗡': "\\N",
 	'𝗭': "\\Z",
+	'𝗖': "\\C",
 	'∇': "\\nabla",
 	'∂': "\\partial",
 	'α': "\\alpha",
