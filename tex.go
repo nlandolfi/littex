@@ -12,7 +12,7 @@ func Tex(t *Token) string {
 
 		for _, r := range t.Value {
 			if replacement, ok := LatexMathReplacements[r]; ok {
-				out += replacement
+				out += replacement + " " // I think we need the space here.
 			} else {
 				out += string(r)
 			}
@@ -137,6 +137,7 @@ var LatexMathReplacements = map[rune]string{
 	'≪': "\\ll",
 	'≫': "\\gg",
 	'≦': "\\leqq",
+	'≧': "\\geqq",
 	'≥': "\\geq",
 	'≤': "\\leq",
 	'≺': "\\prec",
