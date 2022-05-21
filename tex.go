@@ -128,6 +128,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝒢': "\\mathcal{G}",
 	'ℋ': "\\mathcal{H}",
 	'𝒩': "\\mathcal{N}",
+	'𝒳': "\\mathcal{X}",
 	'ℓ': "\\ell",
 	'∕': "/",
 	'∏': "\\prod",
@@ -154,6 +155,7 @@ var LatexMathReplacements = map[rune]string{
 	'⋮': "\\vdots",
 	'⋯': "\\cdots",
 	'⋱': "\\ddots",
+	//	'·': "\\cdot", unfortunately currently used for space
 	'∼': "\\sim",
 	'√': "\\sqrt",
 	'±': "\\pm",
@@ -162,6 +164,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝗡': "\\N",
 	'𝗭': "\\Z",
 	'𝗖': "\\C",
+	'𝗣': "\\mathbfsf{P}",
 	'∇': "\\nabla",
 	'∂': "\\partial",
 	'α': "\\alpha",
@@ -186,13 +189,17 @@ var LatexMathReplacements = map[rune]string{
 	'τ': "\\tau",
 	'θ': "\\theta",
 	'ω': "\\omega",
+	'Ω': "\\Omega",
 	//	'ς':
 	'χ': "\\chi",
 	'υ': "\\upsilon",
 	'ζ': "\\zeta",
 	'⇒': "\\implies",
 	'Ξ': "\\Xi",
-	'½': "\\nicefrac{1}{2}", // does not work?
-	'∖': "\\setminus",       // doesnot work?
+	//	'½': "\\nicefrac{1}{2}", // does not work?
+	'∖': "\\setminus", // doesnot work?
 	'…': "\\dots",
+	'∔': "\\dotplus",
+	'|': "\\mid",
+	'⟂': "\\perp",
 }

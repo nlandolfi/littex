@@ -91,7 +91,11 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 
 		var out string
 		if n.Type == RunNode {
-			out = prefix + "‖ "
+			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
+				out = "‖ "
+			} else {
+				out = prefix + "‖ "
+			}
 		} else {
 			out = prefix + "‣ "
 		}
