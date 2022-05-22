@@ -177,7 +177,7 @@ func (n *Node) setAttr(k, v string) {
 	n.Attr = append(n.Attr, Attribute{Key: k, Val: v})
 }
 
-// Convenient for templates (read slides) {{{
+// Convenient for templates (esp. slides) {{{
 
 func (n *Node) FirstTokenString() string {
 	if n.Type != ListItemNode {

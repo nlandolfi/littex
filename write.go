@@ -361,3 +361,151 @@ func tokenBlockStartingAt(c *Node) (block []*Token, last *Node) {
 	}
 	return block, last
 }
+func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
+	switch n.Type {
+	case FragmentNode:
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteHTML(w, c, prefix, indent)
+		}
+	case ParagraphNode, ListNode:
+		/*
+			if n.FirstChild == nil {
+				log.Printf("skipping empty paragraph or list")
+				return // just skip!
+			}
+		*/
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		switch n.Type {
+		case ParagraphNode:
+			w.Write([]byte(prefix + "<p>\n"))
+		case ListNode:
+			switch getAttr(n.Attr, "list-type") {
+			case "ordered":
+				w.Write([]byte(prefix + "<ol>\n"))
+			default: // includes unordered
+				w.Write([]byte(prefix + "<li>\n"))
+			}
+		default:
+			panic("not reached")
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		switch n.Type {
+		case ParagraphNode:
+			w.Write([]byte(prefix + "</p>\n"))
+		case ListNode:
+			switch getAttr(n.Attr, "list-type") {
+			case "ordered":
+				w.Write([]byte(prefix + "</ol>\n"))
+			default: // includes unordered
+				w.Write([]byte(prefix + "</li>\n"))
+			}
+		default:
+			panic("not reached")
+		}
+	case FootnoteNode:
+		/*
+			if n.PrevSibling != nil {
+				w.Write([]byte("\n"))
+			}
+			w.Write([]byte(prefix + "† ⦊\n"))
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				WriteLit(w, c, prefix+indent, indent)
+			}
+			w.Write([]byte("\n" + prefix + "⦉"))
+		*/
+		w.Write([]byte("[footnote skipped in this version]"))
+	case DisplayMathNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<p>$$\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "$$</p>"))
+	case RunNode, ListItemNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+
+		if n.PrevSibling != nil && (n.PrevSibling.Type == RunNode || n.PrevSibling.Type == ListItemNode) {
+			w.Write([]byte("\n"))
+		}
+
+		var out string
+		if n.Type == RunNode {
+			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
+				out = "<span class='run'>"
+			} else {
+				out = prefix + "<span class='run'>"
+			}
+		} else {
+			out = prefix + "<li>"
+		}
+
+		w.Write([]byte(out))
+
+		offset := utf8.RuneCountInString(out)
+		//log.Printf("offset; %d", offset)
+
+		//		lineBuffer = ""
+		//relOffset := 0
+
+		var afterFirstLine bool
+		// Looping over the children.
+		for c := n.FirstChild; c != nil; afterFirstLine = true {
+			//log.Printf("RUN NODE: %s", c.Type)
+			switch c.Type {
+			case TokenNode:
+				if c.PrevSibling != nil {
+					w.Write([]byte("\n"))
+				}
+
+				// in case its a token, go a find all tokens to next non-token
+				block, lastTokenNode := tokenBlockStartingAt(c)
+				allowedWidth := maxWidth - offset
+				lines := lineBlocks(block, Val, allowedWidth)
+				if len(lines) > 0 {
+					writeLines(w, lines, prefix+indent, afterFirstLine)
+					afterFirstLine = true
+				}
+
+				c = lastTokenNode.NextSibling
+			default:
+				WriteLit(w, c, prefix+indent, indent)
+				c = c.NextSibling
+			}
+		}
+
+		if n.LastChild != nil && n.LastChild.Type == TokenNode {
+			w.Write([]byte(" "))
+		}
+		// will need to do overflow check
+		switch n.Type {
+		case RunNode:
+			w.Write([]byte("<span>"))
+		case ListItemNode:
+			w.Write([]byte("</li>"))
+		default:
+			panic("not reached")
+		}
+	case TextNode:
+		log.Printf("text nodes should not appear...")
+		lines := strings.Split(n.Data, "\n")
+		for i, l := range lines {
+			lines[i] = prefix + l
+		}
+		out := strings.Join(lines, "\n")
+		w.Write([]byte(out + "\n"))
+	default:
+		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
+		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+	}
+}
