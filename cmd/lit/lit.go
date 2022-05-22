@@ -95,6 +95,8 @@ func main() {
 		lit.WriteLit(w, n, "", "  ")
 	case "tex":
 		lit.WriteTex(w, n, "", "  ")
+	case "html":
+		lit.WriteHTMLInBody(w, n, "", "  ")
 	case "slides":
 		execute(w, slidesTemplate, n)
 	case "tmpl":

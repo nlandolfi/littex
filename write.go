@@ -2,6 +2,7 @@ package lit
 
 import (
 	"fmt"
+	"html"
 	"io"
 	"log"
 	"strings"
@@ -271,6 +272,10 @@ func Val(t *Token) string {
 	return out
 }
 
+func HTMLVal(t *Token) string {
+	return html.EscapeString(Val(t))
+}
+
 func isSpace(t *Token) bool {
 	return t.Type == PunctuationToken && t.Value == "·"
 }
@@ -361,6 +366,16 @@ func tokenBlockStartingAt(c *Node) (block []*Token, last *Node) {
 	}
 	return block, last
 }
+
+func WriteHTMLInBody(w io.Writer, n *Node, prefix, indent string) {
+	w.Write([]byte("<!DOCTYPE html>\n"))
+	w.Write([]byte(`<meta charset="utf-8"/>`))
+	w.Write([]byte("\n" + indent + "<body>\n"))
+	WriteHTML(w, n, prefix+indent+indent, indent)
+	w.Write([]byte("\n" + indent + "</body>\n"))
+	w.Write([]byte("</html>"))
+}
+
 func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 	switch n.Type {
 	case FragmentNode:
@@ -394,11 +409,11 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteHTML(w, c, prefix+indent, indent)
 		}
 		switch n.Type {
 		case ParagraphNode:
-			w.Write([]byte(prefix + "</p>\n"))
+			w.Write([]byte("\n" + prefix + "</p>\n"))
 		case ListNode:
 			switch getAttr(n.Attr, "list-type") {
 			case "ordered":
@@ -416,7 +431,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			}
 			w.Write([]byte(prefix + "† ⦊\n"))
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				WriteLit(w, c, prefix+indent, indent)
+				WriteHTML(w, c, prefix+indent, indent)
 			}
 			w.Write([]byte("\n" + prefix + "⦉"))
 		*/
@@ -427,7 +442,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte(prefix + "<p>$$\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteHTML(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "$$</p>"))
 	case RunNode, ListItemNode:
@@ -471,7 +486,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, Val, allowedWidth)
+				lines := lineBlocks(block, HTMLVal, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
@@ -479,7 +494,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 
 				c = lastTokenNode.NextSibling
 			default:
-				WriteLit(w, c, prefix+indent, indent)
+				WriteHTML(w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
 		}
