@@ -505,7 +505,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		// will need to do overflow check
 		switch n.Type {
 		case RunNode:
-			w.Write([]byte("<span>"))
+			w.Write([]byte("</span>"))
 		case ListItemNode:
 			w.Write([]byte("</li>"))
 		default:
