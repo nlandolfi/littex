@@ -273,6 +273,13 @@ func Val(t *Token) string {
 }
 
 func HTMLVal(t *Token) string {
+	switch t.Type {
+	case SymbolToken:
+		switch t.Value {
+		case "᜶":
+			return "<br />"
+		}
+	}
 	return html.EscapeString(Val(t))
 }
 

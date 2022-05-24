@@ -124,6 +124,8 @@ var LatexMathReplacements = map[rune]string{
 	'𝒞': "\\mathcal{C}",
 	'𝒰': "\\mathcal{U}",
 	'𝒱': "\\mathcal{V}",
+	'ℱ': "\\mathcal{F}",
+	'ℬ': "\\mathcal{B}",
 	'★': "\\star",
 	'𝒢': "\\mathcal{G}",
 	'ℋ': "\\mathcal{H}",
@@ -186,6 +188,8 @@ var LatexMathReplacements = map[rune]string{
 	'π': "\\pi",
 	'ρ': "\\rho",
 	'σ': "\\sigma",
+	'⇒': "\\Rightarrow",
+	'⇐': "\\Leftarrow",
 	'τ': "\\tau",
 	'θ': "\\theta",
 	'ω': "\\omega",
@@ -194,7 +198,7 @@ var LatexMathReplacements = map[rune]string{
 	'χ': "\\chi",
 	'υ': "\\upsilon",
 	'ζ': "\\zeta",
-	'⇒': "\\implies",
+	'⟹': "\\implies",
 	'Ξ': "\\Xi",
 	//	'½': "\\nicefrac{1}{2}", // does not work?
 	'∖': "\\setminus", // doesnot work?
