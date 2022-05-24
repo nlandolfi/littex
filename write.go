@@ -273,9 +273,23 @@ func Val(t *Token) string {
 }
 
 func HTMLVal(t *Token) string {
-	if t.Value == "᜶" {
+	switch t.Value {
+	case "᜶":
 		return "<br />"
+	case "‹":
+		return "<i>"
+	case "›":
+		return "</i>"
+	case "⸤":
+		return "<span class='smallcaps'>"
+	case "⸥":
+		return "</span>"
+	case "\\begin{flushright}":
+		return "<span class='flushright'>"
+	case "\\end{flushright}":
+		return "</span>"
 	}
+
 	return html.EscapeString(Val(t))
 }
 
