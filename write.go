@@ -478,9 +478,17 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		var out string
 		if n.Type == RunNode {
 			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
-				out = "<span class='run'>"
+				if n.Parent != nil && n.Parent.Type == DisplayMathNode {
+					out = ""
+				} else {
+					out = "<span class='run'>"
+				}
 			} else {
-				out = prefix + "<span class='run'>"
+				if n.Parent != nil && n.Parent.Type == DisplayMathNode {
+					out = prefix
+				} else {
+					out = prefix + "<span class='run'>"
+				}
 			}
 		} else {
 			out = prefix + "<li>"
