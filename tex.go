@@ -21,11 +21,11 @@ func Tex(t *Token) string {
 		return out
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
-		case '·':
+		case '␣':
 			if t.Implicit {
 				return " "
 			}
-			return "·"
+			return "␣"
 		case '&':
 			return "\\&"
 		case '%':
@@ -98,7 +98,7 @@ func Tex(t *Token) string {
 	if utf8.RuneCountInString(t.Value) == 1 {
 		r, _ := utf8.DecodeRuneInString(t.Value)
 		if replacement, ok := LatexMathReplacements[r]; ok {
-			return replacement
+			return replacement + " "
 		}
 	}
 	return t.Value
@@ -153,11 +153,11 @@ var LatexMathReplacements = map[rune]string{
 	'∄': "\\not\\exists",
 	'∞': "\\infty",
 	'∝': "\\propto",
-	'∘': "\\ocirc",
+	'∘': "\\circ",
 	'⋮': "\\vdots",
 	'⋯': "\\cdots",
 	'⋱': "\\ddots",
-	//	'·': "\\cdot", unfortunately currently used for space
+	'·': "\\cdot",
 	'∼': "\\sim",
 	'√': "\\sqrt",
 	'±': "\\pm",
@@ -166,6 +166,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝗡': "\\N",
 	'𝗭': "\\Z",
 	'𝗖': "\\C",
+	'𝗙': "\\F",
 	'𝗣': "\\mathbfsf{P}",
 	'∇': "\\nabla",
 	'∂': "\\partial",

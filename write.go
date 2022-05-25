@@ -276,6 +276,10 @@ func HTMLVal(t *Token) string {
 	switch t.Value {
 	case "᜶":
 		return "<br />"
+	case "«":
+		return "<b>"
+	case "»":
+		return "</b>"
 	case "‹":
 		return "<i>"
 	case "›":
@@ -294,7 +298,7 @@ func HTMLVal(t *Token) string {
 }
 
 func isSpace(t *Token) bool {
-	return t.Type == PunctuationToken && t.Value == "·"
+	return t.Type == PunctuationToken && t.Value == "␣"
 }
 
 type tokenStringer func(*Token) string
