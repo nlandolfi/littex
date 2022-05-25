@@ -288,6 +288,10 @@ func HTMLVal(t *Token) string {
 		return "<span class='smallcaps'>"
 	case "⸥":
 		return "</span>"
+	case "❬":
+		return "<span class='term'>"
+	case "❭":
+		return "</span>"
 	case "\\begin{flushright}":
 		return "<span class='flushright'>"
 	case "\\end{flushright}":
