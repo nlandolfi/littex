@@ -461,11 +461,11 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<p>$$\n"))
+		w.Write([]byte(prefix + "<p>\\[\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, prefix+indent, indent)
 		}
-		w.Write([]byte("\n" + prefix + "$$</p>"))
+		w.Write([]byte("\n" + prefix + "\\]</p>"))
 	case RunNode, ListItemNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
