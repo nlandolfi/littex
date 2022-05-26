@@ -699,7 +699,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
 		}
-		w.Write([]byte("\\end{flushright}"))
+		w.Write([]byte("</div>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
