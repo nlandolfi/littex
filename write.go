@@ -564,7 +564,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 					out = prefix + "<span class='run'>"
 				}
 			}
-		case ListNode:
+		case ListItemNode:
 			out = prefix + "<li>"
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
