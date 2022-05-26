@@ -497,7 +497,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			case "ordered":
 				w.Write([]byte(prefix + "<ol>\n"))
 			default: // includes unordered
-				w.Write([]byte(prefix + "<li>\n"))
+				w.Write([]byte(prefix + "<ul>\n"))
 			}
 		default:
 			panic("not reached")
@@ -513,7 +513,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			case "ordered":
 				w.Write([]byte(prefix + "</ol>\n"))
 			default: // includes unordered
-				w.Write([]byte(prefix + "</li>\n"))
+				w.Write([]byte(prefix + "</ul>\n"))
 			}
 		default:
 			panic("not reached")
