@@ -197,6 +197,8 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 		return &n, nil
 	case html.ElementNode:
 		switch in.DataAtom {
+		case atom.Center:
+			n.Type = CenterAlignNode
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:
