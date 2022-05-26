@@ -170,18 +170,29 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(prefix + "<!--" + n.Data + "-->"))
-	case TexOnlyNode:
+	case TexOnlyNode, RightAlignNode, CenterAlignNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<tex>\n"))
+		var dataatom string
+		switch n.Type {
+		case RightAlignNode:
+			dataatom = "right"
+		case CenterAlignNode:
+			dataatom = "center"
+		case TexOnlyNode:
+			dataatom = "tex"
+		default:
+			panic("not reached")
+		}
+		w.Write([]byte(prefix + "<" + dataatom + ">\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteLit(w, c, prefix+indent, indent)
 		}
-		w.Write([]byte("\n" + prefix + "</tex>"))
+		w.Write([]byte("\n" + prefix + "</" + dataatom + ">"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -312,6 +323,24 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteTex(w, c, indent, indent) // intentionally don't increase indent
 		}
+	case CenterAlignNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{center}"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("\\end{center}"))
+	case RightAlignNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{flushright}"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("\\end{flushright}"))
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
@@ -653,6 +682,24 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte(prefix + "<!--" + n.Data + "-->\n"))
 	case TexOnlyNode:
+	case CenterAlignNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<div style='text-align:center'>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("</div>"))
+	case RightAlignNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<div style='text-align:right'>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("\\end{flushright}"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))

@@ -36,6 +36,8 @@ const (
 	SectionNode
 	CommentNode
 	TexOnlyNode
+	CenterAlignNode
+	RightAlignNode
 )
 
 func (t NodeType) String() string {

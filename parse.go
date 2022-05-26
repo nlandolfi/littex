@@ -224,6 +224,10 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			switch in.Data {
 			case "tex":
 				n.Type = TexOnlyNode
+			case "right":
+				n.Type = RightAlignNode
+			case "center":
+				n.Type = CenterAlignNode
 			default:
 				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 			}
