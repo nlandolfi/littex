@@ -47,6 +47,7 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "◇⦊", "◇ ⦊", -1)
 	s = strings.Replace(s, "⁝⦊", "⁝ ⦊", -1)
 	s = strings.Replace(s, "𝍫⦊", "𝍫 ⦊", -1)
+	s = strings.Replace(s, "§⦊", "§ ⦊", -1)
 	s = strings.Replace(s, "¶ ⦊", "<div data-littype='"+ParagraphClass+"'>", -1)
 	s = strings.Replace(s, "† ⦊", "<div data-littype='"+FootnoteClass+"'>", -1)
 	s = strings.Replace(s, "◇ ⦊", "<div data-littype='"+DisplayMathClass+"'>", -1)
@@ -54,7 +55,9 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='unordered'>", -1)
 	s = strings.Replace(s, "𝍫 ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='ordered'>", -1)
 	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
-	s = strings.Replace(s, "§ ⦊", "<div data-littype='"+SectionClass+"'>", -1)
+	s = strings.Replace(s, "§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3'>", -1)
+	s = strings.Replace(s, "§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2'>", -1)
+	s = strings.Replace(s, "§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	return s
 }
@@ -177,7 +180,13 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 
 	switch in.Type {
 	case html.CommentNode:
-		return nil, nil // for now
+		if strings.TrimSpace(in.Data) == "" {
+			return nil, nil
+		}
+
+		n.Type = CommentNode
+		n.Data = in.Data
+		return &n, nil
 	case html.TextNode:
 		log.Printf("warning, unexpected text node")
 		if strings.TrimSpace(in.Data) == "" {
@@ -205,33 +214,43 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.Type = ListItemNode
 			case c == FragmentClass:
 				n.Type = FragmentNode
+			case c == SectionClass:
+				n.Type = SectionNode
+				n.setAttr("section-level", litsectionlevelOf(in.Attr))
 			default:
 				panic(fmt.Sprintf("unrecognized littype: %q", c))
 			}
-
-			for c := in.FirstChild; c != nil; c = c.NextSibling {
-				switch c.Type {
-				case html.TextNode:
-					ts, err := unmarshalHTMLText(c)
-					if err != nil {
-						return nil, err
-					}
-
-					for _, child := range ts {
-						n.AppendChild(child)
-					}
-				default:
-					child, err := unmarshalHTML(c, &n)
-					if err != nil {
-						return nil, err
-					}
-					if child != nil {
-						n.AppendChild(child)
-					}
-				}
+		case 0:
+			switch in.Data {
+			case "tex":
+				n.Type = TexOnlyNode
+			default:
+				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 			}
 		default:
 			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
+		}
+
+		for c := in.FirstChild; c != nil; c = c.NextSibling {
+			switch c.Type {
+			case html.TextNode:
+				ts, err := unmarshalHTMLText(c)
+				if err != nil {
+					return nil, err
+				}
+
+				for _, child := range ts {
+					n.AppendChild(child)
+				}
+			default:
+				child, err := unmarshalHTML(c, &n)
+				if err != nil {
+					return nil, err
+				}
+				if child != nil {
+					n.AppendChild(child)
+				}
+			}
 		}
 	default:
 		return nil, fmt.Errorf("unsupported node type: %d", in.Type)

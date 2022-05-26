@@ -36,9 +36,9 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		*/
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
-		}
-		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
-			w.Write([]byte("\n"))
+			if n.PrevSibling.Type == ParagraphNode {
+				w.Write([]byte("\n"))
+			}
 		}
 		switch n.Type {
 		case ParagraphNode:
@@ -75,7 +75,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "⦉"))
-	case RunNode, ListItemNode:
+	case RunNode, ListItemNode, SectionNode:
 		/*
 			if n.FirstChild == nil {
 				log.Printf("skipping empty run")
@@ -86,19 +86,33 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n"))
 		}
 
-		if n.PrevSibling != nil && (n.PrevSibling.Type == RunNode || n.PrevSibling.Type == ListItemNode) {
+		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 
 		var out string
-		if n.Type == RunNode {
+		switch n.Type {
+		case RunNode:
 			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
 				out = "‖ "
 			} else {
 				out = prefix + "‖ "
 			}
-		} else {
+		case ListItemNode:
 			out = prefix + "‣ "
+		case SectionNode:
+			switch getAttr(n.Attr, "section-level") {
+			case "1":
+				w.Write([]byte(prefix + "§ "))
+			case "2":
+				w.Write([]byte(prefix + "§§ "))
+			case "3":
+				w.Write([]byte(prefix + "§§§ "))
+			default:
+				w.Write([]byte(prefix + "§ "))
+			}
+		default:
+			panic("not reached")
 		}
 
 		w.Write([]byte(out))
@@ -148,6 +162,26 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		}
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
+	case CommentNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<!--" + n.Data + "-->"))
+	case TexOnlyNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<tex>\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "</tex>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -202,7 +236,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte(prefix + "\\[\n"))
 		writeKids(w, n, prefix+indent, indent, WriteTex)
 		w.Write([]byte("\n" + prefix + "\\]"))
-	case RunNode, ListItemNode:
+	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -212,6 +246,18 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			out := prefix + "\\item "
 			w.Write([]byte(out))
 			offset = utf8.RuneCountInString(out)
+		}
+		if n.Type == SectionNode {
+			switch getAttr(n.Attr, "section-level") {
+			case "1":
+				w.Write([]byte(indent + "\\section{"))
+			case "2":
+				w.Write([]byte(indent + "\\subsection{"))
+			case "3":
+				w.Write([]byte(indent + "\\subsubsection{"))
+			default:
+				w.Write([]byte(indent + "\\section{"))
+			}
 		}
 
 		var afterFirstLine bool
@@ -242,6 +288,29 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 				WriteTex(w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
+		}
+		if n.Type == SectionNode {
+			w.Write([]byte(indent + "}\n"))
+		}
+	case CommentNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		for _, line := range strings.Split(n.Data, "\n") {
+			if strings.TrimSpace(line) == "" {
+				continue
+			}
+			w.Write([]byte(indent + "%" + line + "\n"))
+		}
+	case TexOnlyNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
 		}
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -470,7 +539,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			WriteHTML(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "\\]</p>"))
-	case RunNode, ListItemNode:
+	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -480,7 +549,8 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 
 		var out string
-		if n.Type == RunNode {
+		switch n.Type {
+		case RunNode:
 			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
 				if n.Parent != nil && n.Parent.Type == DisplayMathNode {
 					out = ""
@@ -494,8 +564,19 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 					out = prefix + "<span class='run'>"
 				}
 			}
-		} else {
+		case ListNode:
 			out = prefix + "<li>"
+		case SectionNode:
+			switch getAttr(n.Attr, "section-level") {
+			case "1":
+				w.Write([]byte(prefix + "<h1>\n"))
+			case "2":
+				w.Write([]byte(prefix + "<h2>\n"))
+			case "3":
+				w.Write([]byte(prefix + "<h3>\n"))
+			default:
+				w.Write([]byte(prefix + "<h1>\n"))
+			}
 		}
 
 		w.Write([]byte(out))
@@ -541,6 +622,17 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("</span>"))
 		case ListItemNode:
 			w.Write([]byte("</li>"))
+		case SectionNode:
+			switch getAttr(n.Attr, "section-level") {
+			case "1":
+				w.Write([]byte(prefix + "</h1>\n"))
+			case "2":
+				w.Write([]byte(prefix + "</h2>\n"))
+			case "3":
+				w.Write([]byte(prefix + "</h3>\n"))
+			default:
+				w.Write([]byte(prefix + "</h1>\n"))
+			}
 		default:
 			panic("not reached")
 		}
@@ -552,6 +644,15 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
+	case CommentNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<!--" + n.Data + "-->\n"))
+	case TexOnlyNode:
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))

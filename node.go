@@ -34,6 +34,8 @@ const (
 	ListNode
 	ListItemNode
 	SectionNode
+	CommentNode
+	TexOnlyNode
 )
 
 func (t NodeType) String() string {
@@ -166,6 +168,16 @@ func litlisttypeOf(a []html.Attribute) string {
 	}
 
 	return "unordered"
+}
+
+func litsectionlevelOf(a []html.Attribute) string {
+	for _, at := range a {
+		if at.Key == "data-litsectionlevel" {
+			return at.Val
+		}
+	}
+
+	return "1"
 }
 
 func (n *Node) setAttr(k, v string) {
