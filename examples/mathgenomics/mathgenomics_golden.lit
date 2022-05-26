@@ -240,44 +240,48 @@
 
         ‣ the ❬❲$(j,b)$❳-mutation❭ of ❲$x$❳ is the nucleotide
           string ❲$y$❳ defined by ❲$y_j = b$❳ and ❲$y_i = x_i$❳ for
-          all ❲$i \neq j$❳ ⁝
-          ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index
-            ❲$j$❳, where it has nucleotide ❲$b$❳ ⦉
+          all ❲$i \neq j$❳
+          ⁝ ⦊
+            ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index
+              ❲$j$❳, where it has nucleotide ❲$b$❳ ⦉
 
-          ‣ e.g., the (3,A)-mutation of ❲$\text{CG\underline{T}}$❳
-            is ❲$\text{CG\underline{A}}$❳ (we swapped T in position
-            3 with A) ⦉⦉
+            ‣ e.g., the (3,A)-mutation of ❲$\text{CG\underline{T}}$❳
+              is ❲$\text{CG\underline{A}}$❳ (we swapped T in
+              position 3 with A) ⦉
+          ⦉⦉
       ⦉⦉
-  ⦉
-  ‣ we classify substitutions on codon-aligned nucleotide sequences
-    by their effect on the sense
-    ⁝ ⦊
-      ‣ a substitution is ❬synonymous (silent)❭ if it does not
-        change the sense
-        ⁝ ⦊
-          ‣ e.g. (3,C) on ❲CG\underline{T}❳ with result
-            ❲CG\underline{C}❳, since
-            ❲$
+
+    ‣ we classify substitutions on codon-aligned nucleotide
+      sequences by their effect on the sense
+      ⁝ ⦊
+        ‣ a substitution is ❬synonymous (silent)❭ if it does not
+          change the sense
+          ⁝ ⦊
+            ‣ e.g. (3,C) on ❲CG\underline{T}❳ with result
+              ❲CG\underline{C}❳, since
+              ❲$
                 f(\text{CG\underline{T}}) =
                 f(\text{CG\underline{C}}) =
                 \text{R}
               $❳ ⦉
-        ⦉⦉
+          ⦉⦉
 
-      ‣ a substitution is ❬nonsynonymous❭ if it changes the sense
-        ⁝ ⦊
-          ‣ a substitution is ❬missense❭ if an amino codon became
-            a different amino codon
-            ⁝ ⦊
-              ‣ the ❬missense variants❭ of a protein are all
-                proteins which differ with it by one amino in
-                position ⦉
-            ⦉⦉
+        ‣ a substitution is ❬nonsynonymous❭ if it changes the
+          sense
+          ⁝ ⦊
+            ‣ a substitution is ❬missense❭ if an amino codon
+              became a different amino codon
+              ⁝ ⦊
+                ‣ the ❬missense variants❭ of a protein are all
+                  proteins which differ with it by one amino in
+                  position ⦉
+              ⦉⦉
 
-          ‣ a substitution is ❬nonsense (readstop)❭ if an amino
-            codon became a stop codon ⦉
+            ‣ a substitution is ❬nonsense (readstop)❭ if an amino
+              codon became a stop codon ⦉
 
-          ‣ a substitution is ❬nonstop (readthrough)❭ if a stop
-            codon became amino codon ⦉
-        ⦉⦉
-    ⦉⦉⦉
+            ‣ a substitution is ❬nonstop (readthrough)❭ if a stop
+              codon became amino codon ⦉
+          ⦉⦉
+      ⦉⦉
+  ⦉⦉

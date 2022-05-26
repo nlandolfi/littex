@@ -237,7 +237,7 @@
 
         ‣ the ❬❲$(j,b)$❳-mutation❭ of ❲$x$❳ is the nucleotide
           string ❲$y$❳ defined by ❲$y_j = b$❳ and ❲$y_i = x_i$❳ for
-          all ❲$i \neq j$❳ ⁝
+          all ❲$i \neq j$❳ ⁝⦊
           ‣ i.e., ❲$y$❳ is the same as ❲$x$❳ except at index
             ❲$j$❳, where it has nucleotide ❲$b$❳ ⦉
 
