@@ -101,15 +101,20 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		case ListItemNode:
 			out = prefix + "‣ "
 		case SectionNode:
+			w.Write([]byte(prefix))
+			if getAttr(n.Attr, "section-numbered") == "true" {
+				w.Write([]byte("#"))
+			}
+
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(prefix + "§ "))
+				w.Write([]byte("§ "))
 			case "2":
-				w.Write([]byte(prefix + "§§ "))
+				w.Write([]byte("§§ "))
 			case "3":
-				w.Write([]byte(prefix + "§§§ "))
+				w.Write([]byte("§§§ "))
 			default:
-				w.Write([]byte(prefix + "§ "))
+				w.Write([]byte("§ "))
 			}
 		default:
 			panic("not reached")
@@ -261,14 +266,18 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		if n.Type == SectionNode {
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(indent + "\\section{"))
+				w.Write([]byte(indent + "\\section"))
 			case "2":
-				w.Write([]byte(indent + "\\subsection{"))
+				w.Write([]byte(indent + "\\subsection"))
 			case "3":
-				w.Write([]byte(indent + "\\subsubsection{"))
+				w.Write([]byte(indent + "\\subsubsection"))
 			default:
-				w.Write([]byte(indent + "\\section{"))
+				w.Write([]byte(indent + "\\section"))
 			}
+			if getAttr(n.Attr, "section-numbered") == "false" {
+				w.Write([]byte("*"))
+			}
+			w.Write([]byte(indent + "{"))
 		}
 
 		var afterFirstLine bool

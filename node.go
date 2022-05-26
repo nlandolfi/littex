@@ -182,6 +182,16 @@ func litsectionlevelOf(a []html.Attribute) string {
 	return "1"
 }
 
+func litsectionnumbered(a []html.Attribute) string {
+	for _, at := range a {
+		if at.Key == "data-litsectionnumbered" {
+			return at.Val
+		}
+	}
+
+	return "false"
+}
+
 func (n *Node) setAttr(k, v string) {
 	for _, a := range n.Attr {
 		if a.Key == k {

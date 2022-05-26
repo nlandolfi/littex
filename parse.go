@@ -55,10 +55,14 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='unordered'>", -1)
 	s = strings.Replace(s, "𝍫 ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='ordered'>", -1)
 	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
-	s = strings.Replace(s, "§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3'>", -1)
-	s = strings.Replace(s, "§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2'>", -1)
-	s = strings.Replace(s, "§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1'>", -1)
+	s = strings.Replace(s, "#§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3' data-litsectionumbered='true'>", -1)
+	s = strings.Replace(s, "#§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2' data-litsectionumbered='true'>", -1)
+	s = strings.Replace(s, "#§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1' data-litsectionumbered='true'>", -1)
+	s = strings.Replace(s, "§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3' data-litsectionumbered='false'>", -1)
+	s = strings.Replace(s, "§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2' data-litsectionumbered='false'>", -1)
+	s = strings.Replace(s, "§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1' data-litsectionumbered='false'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
+	//	s = strings.Replace(s, "\\S", "§", -1)
 	return s
 }
 
@@ -219,6 +223,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case c == SectionClass:
 				n.Type = SectionNode
 				n.setAttr("section-level", litsectionlevelOf(in.Attr))
+				n.setAttr("section-numbered", litsectionnumbered(in.Attr))
 			default:
 				panic(fmt.Sprintf("unrecognized littype: %q", c))
 			}
