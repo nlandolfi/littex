@@ -688,7 +688,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("<div style='text-align:center'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
 	case RightAlignNode:
@@ -697,7 +697,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("<div style='text-align:right'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("\\end{flushright}"))
 	default:
