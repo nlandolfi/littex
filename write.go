@@ -743,7 +743,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("<div style='equation'>"))
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte("label{" + id + "}"))
+			w.Write([]byte("\\label{" + id + "}"))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
