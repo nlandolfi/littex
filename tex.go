@@ -131,6 +131,7 @@ var LatexMathReplacements = map[rune]string{
 	'ℋ': "\\mathcal{H}",
 	'𝒩': "\\mathcal{N}",
 	'𝒳': "\\mathcal{X}",
+	'𝒮': "\\mathcal{S}",
 	'ℓ': "\\ell",
 	'∕': "/",
 	'∏': "\\prod",
