@@ -741,17 +741,17 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte("<div style='equation'>"))
-		w.Write([]byte("\\beqin{equation}"))
+		w.Write([]byte(prefix + "<div style='equation'>"))
+		w.Write([]byte(prefix + "\\beqin{equation}\n"))
 
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
+			WriteHTML(w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte("\\label{" + id + "}"))
+			w.Write([]byte(prefix + indent + "\\label{" + id + "}\n"))
 		}
-		w.Write([]byte("\\end{equation}"))
-		w.Write([]byte("</div>"))
+		w.Write([]byte(prefix + "\\end{equation}"))
+		w.Write([]byte(prefix + "</div>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
