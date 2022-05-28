@@ -235,7 +235,11 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.Type = RightAlignNode
 			case "center":
 				n.Type = CenterAlignNode
+			case "equation":
+				n.Type = EquationNode
+				n.setAttr("id", getAttr(in.Attr, "id"))
 			default:
+				log.Printf("%+v", in)
 				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 			}
 		default:

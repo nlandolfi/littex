@@ -38,6 +38,7 @@ const (
 	TexOnlyNode
 	CenterAlignNode
 	RightAlignNode
+	EquationNode
 )
 
 func (t NodeType) String() string {
@@ -85,7 +86,7 @@ const (
 	SectionClass     = "section"
 )
 
-type Attribute html.Attribute
+type Attribute = html.Attribute
 
 func (n *Node) Kids() (ks []*Node) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {

@@ -198,6 +198,22 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "</" + dataatom + ">"))
+	case EquationNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<equation"))
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte(" " + "id='" + id + "'"))
+		}
+		w.Write([]byte(">\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "</equation>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -350,6 +366,18 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			WriteTex(w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("\\end{flushright}"))
+	case EquationNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{equation}"))
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte("\n" + prefix + "\\label{" + id + "}"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("\\end{equation}"))
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
@@ -590,13 +618,13 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		switch n.Type {
 		case RunNode:
 			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
-				if n.Parent != nil && n.Parent.Type == DisplayMathNode {
+				if n.Parent != nil && (n.Parent.Type == DisplayMathNode || n.Parent.Type == EquationNode) {
 					out = ""
 				} else {
 					out = "<span class='run'>"
 				}
 			} else {
-				if n.Parent != nil && n.Parent.Type == DisplayMathNode {
+				if n.Parent != nil && (n.Parent.Type == DisplayMathNode || n.Parent.Type == EquationNode) {
 					out = prefix
 				} else {
 					out = prefix + "<span class='run'>"
@@ -705,6 +733,18 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte("<div style='text-align:right'>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("</div>"))
+	case EquationNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<div style='equation'>"))
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte("label{" + id + "}"))
+		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
 		}
