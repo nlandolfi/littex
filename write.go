@@ -742,7 +742,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(prefix + "<div style='equation'>"))
-		w.Write([]byte(prefix + "\\beqin{equation}\n"))
+		w.Write([]byte(prefix + "\\[\\beqin{equation}\n"))
 
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, prefix+indent, indent) // intentionally don't increase indent
@@ -750,7 +750,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(prefix + indent + "\\label{" + id + "}\n"))
 		}
-		w.Write([]byte(prefix + "\\end{equation}"))
+		w.Write([]byte(prefix + "\\end{equation}\\]"))
 		w.Write([]byte(prefix + "</div>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
