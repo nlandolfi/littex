@@ -745,7 +745,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(prefix + "<div style='equation'>"))
-		w.Write([]byte(prefix + "\\beqin{equation}"))
+		w.Write([]byte(prefix + "\\begin{equation}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
