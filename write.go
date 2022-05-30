@@ -540,16 +540,16 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 	s := new(htmlWriteState)
 	writeHTML(s, w, n, prefix, indent)
 
-	fmt.Fprintf(w, "<div class='footnotes'>")
+	fmt.Fprintf(w, "<ol class='footnotes'>")
 	for i, f := range s.footnotes {
-		fmt.Fprintf(w, "<div id='footnote-%d'>", i+1)
+		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
 		for c := f.FirstChild; c != nil; c = f.NextSibling {
 			writeHTML(new(htmlWriteState), w, c, prefix+indent, indent)
 		}
 		fmt.Fprintf(w, "<a href='#footnote-%d'>↩︎</a>", i+1)
-		fmt.Fprintf(w, "</div>")
+		fmt.Fprintf(w, "</li>")
 	}
-	fmt.Fprintf(w, "</div>")
+	fmt.Fprintf(w, "</ol>")
 }
 
 type htmlWriteState struct {
@@ -589,7 +589,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, prefix+indent, indent)
+			writeHTML(s, w, c, prefix+indent, indent)
 		}
 		switch n.Type {
 		case ParagraphNode:
@@ -607,7 +607,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 	case FootnoteNode:
 		s.footnotes = append(s.footnotes, n)
 		d := len(s.footnotes)
-		fmt.Fprintf(w, "<sup id='footnote-%d-reference'><a href='footnote-%d'>%d</a></sup>", d, d, d)
+		fmt.Fprintf(w, "<sup id='footnote-%d-reference'><a href='#footnote-%d'>%d</a></sup>", d, d, d)
 
 		/*
 				if n.PrevSibling != nil {
@@ -626,7 +626,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte(prefix + "<p>\\[\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, prefix+indent, indent)
+			writeHTML(s, w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "\\]</p>"))
 	case RunNode, ListItemNode, SectionNode:
@@ -698,7 +698,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 
 				c = lastTokenNode.NextSibling
 			default:
-				WriteHTML(w, c, prefix+indent, indent)
+				writeHTML(s, w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
 		}
@@ -752,7 +752,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("<div style='text-align:center'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(s, w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
 	case RightAlignNode:
@@ -761,7 +761,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("<div style='text-align:right'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(s, w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
 	case EquationNode:
@@ -771,7 +771,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte(prefix + "<div style='equation'>"))
 		w.Write([]byte(prefix + "\\begin{equation}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(s, w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(prefix + indent + "\\label{" + id + "}"))
