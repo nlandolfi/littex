@@ -561,7 +561,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteHTML(w, c, prefix, indent)
+			writeHTML(s, w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
 		if n.PrevSibling != nil {
