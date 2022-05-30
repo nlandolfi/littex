@@ -608,18 +608,6 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		s.footnotes = append(s.footnotes, n)
 		d := len(s.footnotes)
 		fmt.Fprintf(w, "<sup id='footnote-%d-reference'><a href='#footnote-%d'>%d</a></sup>", d, d, d)
-
-		/*
-				if n.PrevSibling != nil {
-					w.Write([]byte("\n"))
-				}
-				w.Write([]byte(prefix + "† ⦊\n"))
-				for c := n.FirstChild; c != nil; c = c.NextSibling {
-					WriteHTML(w, c, prefix+indent, indent)
-				}
-				w.Write([]byte("\n" + prefix + "⦉"))
-			w.Write([]byte("[footnote skipped in this version]"))
-		*/
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
