@@ -543,7 +543,7 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 	fmt.Fprintf(w, "<div class='footnotes'>")
 	for i, f := range s.footnotes {
 		fmt.Fprintf(w, "<div id='footnote-%d'>", i+1)
-		writeHTML(nil, w, f, prefix, indent)
+		writeHTML(new(htmlWriteState), w, f, prefix, indent)
 		fmt.Fprintf(w, "<a href='#footnote-%d'>↩︎</a>", i+1)
 		fmt.Fprintf(w, "</div>")
 	}
