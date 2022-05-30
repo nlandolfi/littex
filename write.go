@@ -543,8 +543,8 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) error {
 	fmt.Fprintf(w, "<ol class='footnotes'>")
 	for i, f := range s.footnotes {
 		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
-		for c := f.FirstChild; c != nil; c = f.NextSibling {
-			writeHTML(new(htmlWriteState), w, c, prefix+indent, indent)
+		for c := f.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(nil, w, c, prefix+indent, indent)
 		}
 		fmt.Fprintf(w, "<a href='#footnote-%d'>↩︎</a>", i+1)
 		fmt.Fprintf(w, "</li>")
