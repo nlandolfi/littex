@@ -537,6 +537,24 @@ func WriteHTMLInBody(w io.Writer, n *Node, prefix, indent string) {
 }
 
 func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
+	s := new(htmlWriteState)
+	writeHTML(s, w, n, prefix, indent)
+
+	fmt.Fprintf(w, "<div class='footnotes'>")
+	for i, f := range s.footnotes {
+		fmt.Fprintf(w, "<div id='footnote-%d'>", i+1)
+		writeHTML(nil, w, f, prefix, indent)
+		fmt.Fprintf(w, "<a href='#footnote-%d'>↩︎</a>", i+1)
+		fmt.Fprintf(w, "</div>")
+	}
+	fmt.Fprintf(w, "</div>")
+}
+
+type htmlWriteState struct {
+	footnotes []*Node
+}
+
+func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -585,17 +603,21 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 			panic("not reached")
 		}
 	case FootnoteNode:
+		s.footnotes = append(s.footnotes, n)
+		d := len(s.footnotes)
+		fmt.Fprintf(w, "<sup id='footnote-%d-reference'><a href='footnote-%d'>%d</a></sup>", d, d, d)
+
 		/*
-			if n.PrevSibling != nil {
-				w.Write([]byte("\n"))
-			}
-			w.Write([]byte(prefix + "† ⦊\n"))
-			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				WriteHTML(w, c, prefix+indent, indent)
-			}
-			w.Write([]byte("\n" + prefix + "⦉"))
+				if n.PrevSibling != nil {
+					w.Write([]byte("\n"))
+				}
+				w.Write([]byte(prefix + "† ⦊\n"))
+				for c := n.FirstChild; c != nil; c = c.NextSibling {
+					WriteHTML(w, c, prefix+indent, indent)
+				}
+				w.Write([]byte("\n" + prefix + "⦉"))
+			w.Write([]byte("[footnote skipped in this version]"))
 		*/
-		w.Write([]byte("[footnote skipped in this version]"))
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
