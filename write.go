@@ -536,7 +536,7 @@ func WriteHTMLInBody(w io.Writer, n *Node, prefix, indent string) {
 	w.Write([]byte("</html>"))
 }
 
-func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
+func WriteHTML(w io.Writer, n *Node, prefix, indent string) error {
 	s := new(htmlWriteState)
 	writeHTML(s, w, n, prefix, indent)
 
@@ -550,25 +550,20 @@ func WriteHTML(w io.Writer, n *Node, prefix, indent string) {
 		fmt.Fprintf(w, "</li>")
 	}
 	fmt.Fprintf(w, "</ol>")
+	return nil
 }
 
 type htmlWriteState struct {
 	footnotes []*Node
 }
 
-func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
+func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteHTML(w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
-		/*
-			if n.FirstChild == nil {
-				log.Printf("skipping empty paragraph or list")
-				return // just skip!
-			}
-		*/
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -767,7 +762,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte(prefix + "\\end{equation}"))
 		w.Write([]byte(prefix + "</div>"))
 	default:
-		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
-		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}
+	return nil
 }
