@@ -220,4 +220,8 @@ var LatexMathReplacements = map[rune]string{
 	'∔': "\\dotplus",
 	'|': "\\mid",
 	'⟂': "\\perp",
+	'Π': "\\Pi",
+	'¬': "\\neg",
+	'∨': "\\lor",
+	'∧': "\\land",
 }

@@ -433,6 +433,10 @@ func HTMLVal(t *Token) string {
 		return "</span>"
 	}
 
+	if t.Type == OpaqueToken {
+		return t.Value
+	}
+
 	return html.EscapeString(Val(t))
 }
 
