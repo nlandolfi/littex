@@ -181,6 +181,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝗙': "\\F",
 	'𝗘': "\\E",
 	'𝗣': "\\mathbfsf{P}",
+	'𝗦': "\\mathbfsf{S}",
 	'∇': "\\nabla",
 	'∂': "\\partial",
 	'α': "\\alpha",
