@@ -202,6 +202,7 @@ var LatexMathReplacements = map[rune]string{
 	'π': "\\pi",
 	'ρ': "\\rho",
 	'σ': "\\sigma",
+	'Σ': "\\Sigma",
 	'⇒': "\\Rightarrow",
 	'⇐': "\\Leftarrow",
 	'τ': "\\tau",
