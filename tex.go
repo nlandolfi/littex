@@ -226,4 +226,5 @@ var LatexMathReplacements = map[rune]string{
 	'¬': "\\neg",
 	'∨': "\\lor",
 	'∧': "\\land",
+	'Ψ': "\\Psi",
 }
