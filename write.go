@@ -542,13 +542,13 @@ func WriteHTMLInBody(w io.Writer, n *Node, prefix, indent string) {
 
 func WriteHTML(w io.Writer, n *Node, prefix, indent string) error {
 	s := new(htmlWriteState)
-	writeHTML(s, w, n, prefix, indent)
+	writeHTML(HTMLVal, s, w, n, prefix, indent)
 
 	fmt.Fprintf(w, "<ol class='footnotes'>")
 	for i, f := range s.footnotes {
 		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
 		for c := f.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(nil, w, c, prefix+indent, indent)
+			writeHTML(HTMLVal, nil, w, c, prefix+indent, indent)
 		}
 		fmt.Fprintf(w, "<a href='#footnote-%d-reference'>↩︎</a>", i+1)
 		fmt.Fprintf(w, "</li>")
@@ -561,11 +561,11 @@ type htmlWriteState struct {
 	footnotes []*Node
 }
 
-func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
+func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, prefix, indent)
+			writeHTML(val, s, w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
 		if n.PrevSibling != nil {
@@ -588,7 +588,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, prefix+indent, indent)
+			writeHTML(val, s, w, c, prefix+indent, indent)
 		}
 		switch n.Type {
 		case ParagraphNode:
@@ -613,7 +613,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 		}
 		w.Write([]byte(prefix + "<p>\\[\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, prefix+indent, indent)
+			writeHTML(Tex, s, w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "\\]</p>"))
 	case RunNode, ListItemNode, SectionNode:
@@ -677,7 +677,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, HTMLVal, allowedWidth)
+				lines := lineBlocks(block, val, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
@@ -685,7 +685,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 
 				c = lastTokenNode.NextSibling
 			default:
-				writeHTML(s, w, c, prefix+indent, indent)
+				writeHTML(val, s, w, c, prefix+indent, indent)
 				c = c.NextSibling
 			}
 		}
@@ -739,7 +739,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 		}
 		w.Write([]byte("<div style='text-align:center'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
 	case RightAlignNode:
@@ -748,7 +748,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 		}
 		w.Write([]byte("<div style='text-align:right'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
 	case EquationNode:
@@ -758,7 +758,7 @@ func writeHTML(s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) e
 		w.Write([]byte(prefix + "<div style='equation'>"))
 		w.Write([]byte(prefix + "\\begin{equation}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(prefix + indent + "\\label{" + id + "}"))
