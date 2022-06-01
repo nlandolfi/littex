@@ -228,4 +228,5 @@ var LatexMathReplacements = map[rune]string{
 	'∧': "\\land",
 	'Ψ': "\\Psi",
 	'Γ': "\\Gamma",
+	'Δ': "\\Delta",
 }
