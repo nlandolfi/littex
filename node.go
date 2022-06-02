@@ -39,6 +39,7 @@ const (
 	CenterAlignNode
 	RightAlignNode
 	EquationNode
+	ImageNode
 )
 
 func (t NodeType) String() string {
@@ -191,6 +192,16 @@ func litsectionnumbered(a []html.Attribute) string {
 	}
 
 	return "false"
+}
+
+func litimgsrc(a []html.Attribute) string {
+	for _, at := range a {
+		if at.Key == "src" {
+			return at.Val
+		}
+	}
+
+	return ""
 }
 
 func (n *Node) setAttr(k, v string) {

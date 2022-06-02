@@ -203,6 +203,10 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 		switch in.DataAtom {
 		case atom.Center:
 			n.Type = CenterAlignNode
+		case atom.Img:
+			n.Type = ImageNode
+			n.setAttr("src", getAttr(in.Attr, "src"))
+			n.setAttr("width", getAttr(in.Attr, "width"))
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:

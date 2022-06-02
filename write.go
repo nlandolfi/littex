@@ -214,6 +214,18 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "</equation>"))
+	case ImageNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + fmt.Sprintf("<img src=\"%s\"", getAttr(n.Attr, "src"))))
+		if width := getAttr(n.Attr, "width"); width != "" {
+			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
+		}
+		w.Write([]byte("/>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -378,6 +390,21 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			WriteTex(w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("\\end{equation}"))
+	case ImageNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + fmt.Sprintf("\\includegraphics")))
+		if width := getAttr(n.Attr, "width"); width != "" {
+			if width[len(width)-1] == '%' {
+				width = "0." + width[:len(width)-1] + "\\textwidth"
+			}
+			w.Write([]byte(fmt.Sprintf("[width=%s]", width)))
+		}
+		w.Write([]byte(fmt.Sprintf("{%s}", getAttr(n.Attr, "src"))))
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
@@ -765,6 +792,18 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 		}
 		w.Write([]byte(prefix + "\\end{equation}"))
 		w.Write([]byte(prefix + "</div>"))
+	case ImageNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + fmt.Sprintf("<img src=\"%s\"", getAttr(n.Attr, "src"))))
+		if width := getAttr(n.Attr, "width"); width != "" {
+			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
+		}
+		w.Write([]byte("/>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}
