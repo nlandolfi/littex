@@ -229,4 +229,10 @@ var LatexMathReplacements = map[rune]string{
 	'Ψ': "\\Psi",
 	'Γ': "\\Gamma",
 	'Δ': "\\Delta",
+	'⊔': "\\sqcup",
+	'ℑ': "\\Im",
+	'ℜ': "\\Re",
+	'∠': "\\angle",
+	'⊤': "\\top",
+	'⊥': "\\perp",
 }
