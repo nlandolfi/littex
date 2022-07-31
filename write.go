@@ -458,6 +458,8 @@ func HTMLVal(t *Token) string {
 		return "<span class='flushright'>"
 	case "\\end{flushright}":
 		return "</span>"
+	case "↦":
+		return "&nbsp;&nbsp;&nbsp;&nbsp;"
 	}
 
 	if t.Type == OpaqueToken {

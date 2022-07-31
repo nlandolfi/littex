@@ -197,6 +197,7 @@ var LatexMathReplacements = map[rune]string{
 	'ξ': "\\xi",
 	'κ': "\\kappa",
 	'λ': "\\lambda",
+	'Λ': "\\Lambda ",
 	'μ': "\\mu",
 	'ν': "\\nu",
 	'ο': "\\omicron",
@@ -220,8 +221,8 @@ var LatexMathReplacements = map[rune]string{
 	'∖': "\\setminus", // doesnot work?
 	'…': "\\dots",
 	'∔': "\\dotplus",
-	'|': "\\mid",
-	'⟂': "\\perp",
+	'|': "\\mid ",
+	'⟂': "\\perp ",
 	'Π': "\\Pi",
 	'¬': "\\neg",
 	'∨': "\\lor",
@@ -233,6 +234,6 @@ var LatexMathReplacements = map[rune]string{
 	'ℑ': "\\Im",
 	'ℜ': "\\Re",
 	'∠': "\\angle",
-	'⊤': "\\top",
+	'⊤': "\\top ",
 	'⊥': "\\perp",
 }
