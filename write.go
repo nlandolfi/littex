@@ -523,6 +523,8 @@ func HTMLVal(t *Token) string {
 		return "</span>"
 	case "↦":
 		return "&nbsp;&nbsp;&nbsp;&nbsp;"
+	case "＆":
+		return "\\&"
 	}
 
 	if t.Type == OpaqueToken {
@@ -886,9 +888,6 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
-		}
-		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte(prefix + indent + "\\label{" + id + "}"))
 		}
 		w.Write([]byte(prefix + "</div>"))
 	case ProofNode:

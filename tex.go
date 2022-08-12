@@ -28,6 +28,8 @@ func Tex(t *Token) string {
 			return "␣"
 		case '&':
 			return "\\&"
+		case '＆':
+			return "&"
 		case '%':
 			return "\\%"
 		case '‹':
