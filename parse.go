@@ -242,6 +242,13 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case "equation":
 				n.Type = EquationNode
 				n.setAttr("id", getAttr(in.Attr, "id"))
+			case "statement":
+				n.Type = StatementNode
+				n.setAttr("id", getAttr(in.Attr, "id"))
+				n.setAttr("type", getAttr(in.Attr, "type"))
+				n.setAttr("text", getAttr(in.Attr, "text"))
+			case "proof":
+				n.Type = ProofNode
 			default:
 				log.Printf("%+v", in)
 				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)

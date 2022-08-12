@@ -40,6 +40,8 @@ const (
 	RightAlignNode
 	EquationNode
 	ImageNode
+	StatementNode
+	ProofNode
 )
 
 func (t NodeType) String() string {

@@ -226,6 +226,41 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
 		}
 		w.Write([]byte("/>"))
+	case StatementNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<statement"))
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte(" " + "id='" + id + "'"))
+		}
+		if t := getAttr(n.Attr, "type"); t != "" {
+			w.Write([]byte(" " + "type='" + t + "'"))
+		}
+		if text := getAttr(n.Attr, "text"); text != "" {
+			w.Write([]byte(" " + "text='" + text + "'"))
+		}
+		w.Write([]byte(">\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "</statement>"))
+	case ProofNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<proof"))
+		w.Write([]byte(">\n"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, prefix+indent, indent)
+		}
+		w.Write([]byte("\n" + prefix + "</proof>"))
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -405,6 +440,34 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte(fmt.Sprintf("[width=%s]", width)))
 		}
 		w.Write([]byte(fmt.Sprintf("{%s}", getAttr(n.Attr, "src"))))
+	case StatementNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		t := "statement"
+		if tt := getAttr(n.Attr, "type"); tt != "" {
+			t = tt
+		}
+		w.Write([]byte(fmt.Sprintf("\\begin{%s}", t)))
+		if text := getAttr(n.Attr, "text"); text != "" {
+			w.Write([]byte(fmt.Sprintf("[%s]", text)))
+		}
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte("\n" + prefix + "\\label{" + id + "}"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte(fmt.Sprintf("\\end{%s}", t)))
+	case ProofNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{proof}"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("\\end{proof}"))
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
@@ -806,6 +869,37 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
 		}
 		w.Write([]byte("/>"))
+	case StatementNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		t := "statement"
+		if tt := getAttr(n.Attr, "type"); tt != "" {
+			t = tt
+		}
+		w.Write([]byte(prefix + fmt.Sprintf("<div class='%s'", t)))
+		if text := getAttr(n.Attr, "text"); text != "" {
+			w.Write([]byte(fmt.Sprintf(" text='%s'", text)))
+		}
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte(fmt.Sprintf(" id='%s'", id)))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+		}
+		if id := getAttr(n.Attr, "id"); id != "" {
+			w.Write([]byte(prefix + indent + "\\label{" + id + "}"))
+		}
+		w.Write([]byte(prefix + "</div>"))
+	case ProofNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(prefix + "<div class='proof'>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte(prefix + "</div>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}
