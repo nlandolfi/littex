@@ -74,6 +74,12 @@ func Tex(t *Token) string {
 			return "\\textsc{"
 		case '⸥':
 			return "}"
+		case '⅛':
+			return "$\\nicefrace{1}{8}$"
+		case '½':
+			return "$\\nicefrace{1}{2}$"
+		case '¼':
+			return "$\\nicefrace{1}{4}$"
 		}
 	case SymbolToken:
 		r, _ := utf8.DecodeRuneInString(t.Value)

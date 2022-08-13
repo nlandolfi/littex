@@ -102,7 +102,7 @@ func Lex(s string) (tokens []*Token, err error) {
 				Type:  PunctuationToken,
 				Value: string(r),
 			})
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
+		case unicode.IsLetter(r) || unicode.IsNumber(r):
 			if len(tokens) == 0 || tokens[len(tokens)-1].Type != WordToken { // start a new word
 				tokens = append(tokens, &Token{
 					Type:  WordToken,
