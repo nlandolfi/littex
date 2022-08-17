@@ -42,6 +42,7 @@ const (
 	ImageNode
 	StatementNode
 	ProofNode
+	LinkNode
 )
 
 func (t NodeType) String() string {

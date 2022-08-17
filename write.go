@@ -261,6 +261,8 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix+indent, indent)
 		}
 		w.Write([]byte("\n" + prefix + "</proof>"))
+	case LinkNode:
+		panic("TODO: links not implemented")
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -468,6 +470,8 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			WriteTex(w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("\\end{proof}"))
+	case LinkNode:
+		panic("TODO: links not implemented")
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
@@ -903,6 +907,13 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte(prefix + "</div>"))
+	case LinkNode:
+		w.Write([]byte(prefix + fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
+		w.Write([]byte("/>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte(prefix + "</a>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}

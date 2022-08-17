@@ -63,6 +63,8 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1' data-litsectionnumbered='false'>", -1)
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	//	s = strings.Replace(s, "\\S", "§", -1)
+	re := regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
+	s = re.ReplaceAllString(s, `<a href='$2'>$1</a>`)
 	return s
 }
 
@@ -207,6 +209,9 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			n.Type = ImageNode
 			n.setAttr("src", getAttr(in.Attr, "src"))
 			n.setAttr("width", getAttr(in.Attr, "width"))
+		case atom.A:
+			n.Type = LinkNode
+			n.setAttr("href", getAttr(in.Attr, "href"))
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:

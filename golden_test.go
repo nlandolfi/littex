@@ -36,6 +36,7 @@ func TestGolden(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		t.Logf(c.file)
 
 		n, err := lit.ParseLit(string(bs))
 		if err != nil {
