@@ -525,6 +525,10 @@ func HTMLVal(t *Token) string {
 		return "&nbsp;&nbsp;&nbsp;&nbsp;"
 	case "＆":
 		return "\\&"
+	case "⁅":
+		return "<span class='typewriter'>"
+	case "⁆":
+		return "</span>"
 	}
 
 	if t.Type == OpaqueToken {

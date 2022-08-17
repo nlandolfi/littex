@@ -28,6 +28,8 @@ func Tex(t *Token) string {
 			return "␣"
 		case '&':
 			return "\\&"
+		case '_':
+			return "\\_"
 		case '＆':
 			return "&"
 		case '%':
@@ -126,7 +128,7 @@ var LatexMathReplacements = map[rune]string{
 	'⊊': "\\subsetneq",
 	'∅': "\\varnothing",
 	'∪': "\\cup",
-	'∩': "\\cap",
+	'∩': "\\cap ",
 	'×': "\\times ",
 	'★': "\\star",
 	'𝒜': "\\mathcal{A}",
