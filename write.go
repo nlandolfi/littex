@@ -895,7 +895,7 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 			w.Write([]byte(fmt.Sprintf(" id='%s'", id)))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte(prefix + "</div>"))
 	case ProofNode:
@@ -904,7 +904,7 @@ func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Nod
 		}
 		w.Write([]byte(prefix + "<div class='proof'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, prefix+indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte(prefix + "</div>"))
 	case LinkNode:
