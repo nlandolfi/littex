@@ -37,6 +37,27 @@ func ParseHTML(s string) (*Node, error) {
 }
 
 func ParseLit(s string) (*Node, error) {
+	/*
+		var b bytes.Buffer
+
+		var prev rune
+		var left bool = truek
+		for _, r := range s {
+			if r == '$' && prev != '\\' {
+				if left {
+					b.WriteRune('⟅')
+					left = false
+				} else {
+					b.WriteRune('⟆')
+					left = true
+				}
+			} else {
+				b.WriteRune(r)
+			}
+			prev = r
+		}
+	*/
+
 	s = litReplace(s)
 	return ParseHTML(s)
 }
@@ -133,6 +154,7 @@ var sglqR = regexp.MustCompile("`((.|\n)*)?'")
 var sayR = regexp.MustCompile(`\\say{((.|\n)*)?}`)
 var commentsR = regexp.MustCompile(`%(.*?)\n`)
 
+// useful: https://gist.github.com/claybridges/8f9d51a1dc365f2e64fa
 var res = map[*regexp.Regexp]string{
 	textitR:   "‹$1›",
 	textbfR:   "«$1»",
