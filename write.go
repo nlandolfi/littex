@@ -39,12 +39,6 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			WriteLit(w, c, prefix, indent)
 		}
 	case ParagraphNode, ListNode:
-		/*
-			if n.FirstChild == nil {
-				log.Printf("skipping empty paragraph or list")
-				return // just skip!
-			}
-		*/
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 			if n.PrevSibling.Type == ParagraphNode {
@@ -87,18 +81,8 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\n" + prefix + "⦉"))
 	case RunNode, ListItemNode, SectionNode:
-		/*
-			if n.FirstChild == nil {
-				log.Printf("skipping empty run")
-				return // just skip!
-			}
-		*/
 		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
-		}
-
-		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
+			w.Write([]byte("\n\n"))
 		}
 
 		var out string
@@ -181,10 +165,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte(out + "\n"))
 	case CommentNode:
 		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
-		}
-		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
+			w.Write([]byte("\n\n"))
 		}
 		w.Write([]byte(prefix + "<!--" + n.Data + "-->"))
 	case TexOnlyNode, RightAlignNode, CenterAlignNode:
@@ -233,9 +214,9 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + fmt.Sprintf("<img src=\"%s\"", getAttr(n.Attr, "src"))))
+		w.Write([]byte(prefix + fmt.Sprintf("<img src='%s'", getAttr(n.Attr, "src"))))
 		if width := getAttr(n.Attr, "width"); width != "" {
-			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
+			w.Write([]byte(fmt.Sprintf(" width='%s'", width)))
 		}
 		w.Write([]byte("/>"))
 	case StatementNode:
@@ -267,8 +248,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<proof"))
-		w.Write([]byte(">\n"))
+		w.Write([]byte(prefix + "<proof>\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteLit(w, c, prefix+indent, indent)
 		}
