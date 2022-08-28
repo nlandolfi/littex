@@ -5,7 +5,7 @@ import (
 	"unicode/utf8"
 )
 
-func Tex(t *Token) string {
+func Tex(t *Token, inMath bool) string {
 	switch t.Type {
 	case WordToken:
 		var out = ""
@@ -80,6 +80,12 @@ func Tex(t *Token) string {
 			return "$\\nicefrace{1}{2}$"
 		case '¼':
 			return "$\\nicefrace{1}{4}$"
+		case '_':
+			if !inMath {
+				return "\\_"
+			} else {
+				return "_"
+			}
 		}
 	case SymbolToken:
 		r, _ := utf8.DecodeRuneInString(t.Value)

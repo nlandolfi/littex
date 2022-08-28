@@ -482,7 +482,10 @@ func writeKids(
 
 const maxWidth int = 74
 
-func Val(t *Token) string {
+func Val(t *Token, inMath bool) string {
+	if inMath {
+		return Tex(t, inMath)
+	}
 	if t.Type == OpaqueToken {
 		return string(OpaqueOpenRune) + t.Value + string(OpaqueCloseRune)
 	}
@@ -493,7 +496,7 @@ func Val(t *Token) string {
 	return out
 }
 
-func HTMLVal(t *Token) string {
+func HTMLVal(t *Token, inMath bool) string {
 	switch t.Value {
 	case "᜶":
 		return "<br />"
@@ -531,24 +534,28 @@ func HTMLVal(t *Token) string {
 		return t.Value
 	}
 
-	return html.EscapeString(Val(t))
+	return html.EscapeString(Val(t, inMath))
 }
 
 func isSpace(t *Token) bool {
 	return t.Type == PunctuationToken && t.Value == "␣"
 }
 
-type tokenStringer func(*Token) string
+type tokenStringer func(t *Token, inMath bool) string
 
 func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
 	var pieces = []string{""}
 	var spaces []*Token
+	var inMath bool
 	for _, t := range ts {
 		if isSpace(t) {
 			spaces = append(spaces, t)
 			pieces = append(pieces, "")
 		} else {
-			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t)
+			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t, inMath)
+		}
+		if t.Type == SymbolToken && t.Value == "$" {
+			inMath = !inMath
 		}
 	}
 
@@ -570,11 +577,11 @@ func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
 		} else {
 			nl := lines[len(lines)-1]
 			if onePieceOnLine {
-				nl += v(spaces[i-1])
+				nl += v(spaces[i-1], false) // assume it's always right to write as text
 			}
 			nl += p
 			if !lastPiece {
-				nl += v(spaces[i])
+				nl += v(spaces[i], false) // assume it's always right to write as text
 			}
 			lines[len(lines)-1] = nl
 			curRuneCount += c + 1
@@ -655,7 +662,7 @@ type htmlWriteState struct {
 	footnotes []*Node
 }
 
-func writeHTML(val func(t *Token) string, s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
+func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
