@@ -2,12 +2,14 @@ package lit
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
 )
 
-// Node is a GBA node, similar to *html.Node, except that
+// Node is a LIT node, similar to *html.Node, except that
 // we lex the html text nodes into Tokens.
 type Node struct {
 	Type  NodeType
@@ -69,6 +71,24 @@ func (t NodeType) String() string {
 		return "‣"
 	case SectionNode:
 		return "§"
+	case CommentNode:
+		return "comment"
+	case TexOnlyNode:
+		return "tex"
+	case CenterAlignNode:
+		return "center"
+	case RightAlignNode:
+		return "right"
+	case EquationNode:
+		return "equation"
+	case ImageNode:
+		return "image"
+	case StatementNode:
+		return "statement"
+	case ProofNode:
+		return "statement"
+	case LinkNode:
+		return "link"
 	default:
 		panic(fmt.Sprintf("unknown node type: %d", t))
 	}
@@ -214,6 +234,18 @@ func (n *Node) setAttr(k, v string) {
 		}
 	}
 	n.Attr = append(n.Attr, Attribute{Key: k, Val: v})
+}
+
+func (n *Node) SectionNumbered() bool {
+	return getAttr(n.Attr, "section-numbered") == "true"
+}
+
+func (n *Node) SectionLevel() int {
+	i, err := strconv.Atoi(getAttr(n.Attr, "section-level"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return i
 }
 
 // Convenient for templates (esp. slides) {{{

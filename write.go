@@ -12,8 +12,19 @@ import (
 // WriteDebug prints the node tree in a pretty format.
 func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
 	fmt.Fprintf(w, prefix+"%s", n.Type)
-	if n.Type == TokenNode {
+	switch n.Type {
+	case TokenNode:
 		fmt.Fprintf(w, ":%v", n.Token)
+	}
+	if len(n.Attr) > 0 {
+		fmt.Fprintf(w, "(")
+		for i, a := range n.Attr {
+			fmt.Fprintf(w, "%s=%q", a.Key, a.Val)
+			if i != len(n.Attr)-1 {
+				fmt.Fprintf(w, ", ")
+			}
+		}
+		fmt.Fprintf(w, ")")
 	}
 	fmt.Fprintf(w, "\n")
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -102,16 +113,17 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			out = prefix + "‣ "
 		case SectionNode:
 			w.Write([]byte(prefix))
-			if getAttr(n.Attr, "section-numbered") == "true" {
+			if n.SectionNumbered() {
 				w.Write([]byte("#"))
 			}
 
-			switch getAttr(n.Attr, "section-level") {
-			case "1":
+			// maybe don't bother with these helper functions Section*
+			switch n.SectionLevel() {
+			case 1:
 				w.Write([]byte("§ "))
-			case "2":
+			case 2:
 				w.Write([]byte("§§ "))
-			case "3":
+			case 3:
 				w.Write([]byte("§§§ "))
 			default:
 				w.Write([]byte("§ "))
