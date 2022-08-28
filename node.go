@@ -9,17 +9,19 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Node is a LIT node, similar to *html.Node, except that
-// we lex the html text nodes into Tokens.
+// Node is similar to *html.Node.
+//
+// The main difference is that we lex HTML text nodes
+// into TokenNodes.
 type Node struct {
-	Type  NodeType
-	Data  string
-	Attr  []Attribute
-	Token *Token
+	Type  NodeType    // The Type of Node, see NodeType.
+	Data  string      // The data, as in html.Node.
+	Attr  []Attribute // The attributes, as in html.Node.
+	Token *Token      // The token value if Type==TokenNode; see Token.
 
 	Parent                   *Node `json:"-"`
-	FirstChild, LastChild    *Node
-	PrevSibling, NextSibling *Node
+	FirstChild, LastChild    *Node `json:"-"`
+	PrevSibling, NextSibling *Node `json:"-"`
 }
 
 type NodeType int
@@ -258,7 +260,7 @@ func (n *Node) FirstTokenString() string {
 		return ""
 	}
 	block, _ := tokenBlockStartingAt(n.FirstChild)
-	lines := lineBlocks(block, Tex, maxWidth)
+	lines := lineBlocks(block, Tex, true, maxWidth)
 	if len(lines) > 1 {
 		return strings.Join(lines, "\n")
 	}

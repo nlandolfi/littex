@@ -137,7 +137,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, Val, allowedWidth)
+				lines := lineBlocks(block, Val, false, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
@@ -350,7 +350,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, Tex, allowedWidth)
+				lines := lineBlocks(block, Tex, true, allowedWidth)
 				if len(lines) > 0 {
 					//					writeLines(w, lines, prefix+indent, afterFirstLine)
 					w.Write([]byte(strings.Join(lines, " ")))
@@ -516,13 +516,9 @@ func HTMLVal(t *Token, inMath bool) string {
 		return "<span class='term'>"
 	case "❭":
 		return "</span>"
-	case "\\begin{flushright}":
-		return "<span class='flushright'>"
-	case "\\end{flushright}":
-		return "</span>"
 	case "↦":
 		return "&nbsp;&nbsp;&nbsp;&nbsp;"
-	case "＆":
+	case "＆": // This is a full-width &
 		return "\\&"
 	case "⁅":
 		return "<span class='typewriter'>"
@@ -543,7 +539,7 @@ func isSpace(t *Token) bool {
 
 type tokenStringer func(t *Token, inMath bool) string
 
-func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
+func lineBlocks(ts []*Token, v tokenStringer, shouldEscapeInMath bool, width int) []string {
 	var pieces = []string{""}
 	var spaces []*Token
 	var inMath bool
@@ -552,7 +548,7 @@ func lineBlocks(ts []*Token, v tokenStringer, width int) []string {
 			spaces = append(spaces, t)
 			pieces = append(pieces, "")
 		} else {
-			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t, inMath)
+			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t, inMath && shouldEscapeInMath)
 		}
 		if t.Type == SymbolToken && t.Value == "$" {
 			inMath = !inMath
@@ -778,7 +774,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, val, allowedWidth)
+				lines := lineBlocks(block, val, true, allowedWidth)
 				if len(lines) > 0 {
 					writeLines(w, lines, prefix+indent, afterFirstLine)
 					afterFirstLine = true
