@@ -880,7 +880,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte("<" + dataatom + ">"))
+		w.Write([]byte("<" + dataatom))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
 		}

@@ -236,16 +236,22 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			n.setAttr("href", getAttr(in.Attr, "href"))
 		case atom.Table:
 			n.Type = TableNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Thead:
 			n.Type = TableHeadNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Tbody:
 			n.Type = TableBodyNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Tr:
 			n.Type = TableRowNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Th:
 			n.Type = THNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Td:
 			n.Type = TDNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:

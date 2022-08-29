@@ -175,6 +175,14 @@ func (n *Node) AppendChild(c *Node) {
 	c.PrevSibling = last
 }
 
+func copyAttr(as []Attribute) []Attribute {
+	var out []Attribute = make([]Attribute, len(as))
+	for i, a := range as {
+		as[i] = a
+	}
+	return out
+}
+
 func getAttr(as []Attribute, k string) string {
 	for _, a := range as {
 		if a.Key == k {
