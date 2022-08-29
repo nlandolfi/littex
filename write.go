@@ -168,7 +168,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte("\n\n"))
 		}
 		w.Write([]byte(prefix + "<!--" + n.Data + "-->"))
-	case TexOnlyNode, RightAlignNode, CenterAlignNode:
+	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -183,6 +183,18 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			dataatom = "center"
 		case TexOnlyNode:
 			dataatom = "tex"
+		case TableNode:
+			dataatom = "table"
+		case TableHeadNode:
+			dataatom = "thead"
+		case TableBodyNode:
+			dataatom = "tbody"
+		case TableRowNode:
+			dataatom = "tr"
+		case THNode:
+			dataatom = "th"
+		case TDNode:
+			dataatom = "td"
 		default:
 			panic("not reached")
 		}
@@ -255,6 +267,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		w.Write([]byte("\n" + prefix + "</proof>"))
 	case LinkNode:
 		panic("TODO: links not implemented")
+
 	default:
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
@@ -848,6 +861,30 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
 		}
 		w.Write([]byte("</div>"))
+	case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
+		var dataatom string
+		switch n.Type {
+		case TableNode:
+			dataatom = "table"
+		case TableHeadNode:
+			dataatom = "thead"
+		case TableBodyNode:
+			dataatom = "tbody"
+		case TableRowNode:
+			dataatom = "tr"
+		case THNode:
+			dataatom = "th"
+		case TDNode:
+			dataatom = "td"
+		}
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<" + dataatom + ">"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
+		}
+		w.Write([]byte("</" + dataatom + ">"))
 	case EquationNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))

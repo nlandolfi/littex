@@ -234,6 +234,18 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 		case atom.A:
 			n.Type = LinkNode
 			n.setAttr("href", getAttr(in.Attr, "href"))
+		case atom.Table:
+			n.Type = TableNode
+		case atom.Thead:
+			n.Type = TableHeadNode
+		case atom.Tbody:
+			n.Type = TableBodyNode
+		case atom.Tr:
+			n.Type = TableRowNode
+		case atom.Th:
+			n.Type = THNode
+		case atom.Td:
+			n.Type = TDNode
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:

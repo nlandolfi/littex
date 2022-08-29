@@ -47,6 +47,12 @@ const (
 	StatementNode
 	ProofNode
 	LinkNode
+	TableNode
+	TableHeadNode
+	TableBodyNode
+	TableRowNode
+	THNode
+	TDNode
 )
 
 func (t NodeType) String() string {
