@@ -198,7 +198,14 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		default:
 			panic("not reached")
 		}
-		w.Write([]byte(prefix + "<" + dataatom + ">\n"))
+		w.Write([]byte(prefix + "<" + dataatom))
+		switch n.Type {
+		case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
+			for _, a := range n.Attr {
+				w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+			}
+		}
+		w.Write([]byte(">\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteLit(w, c, prefix+indent, indent)
 		}

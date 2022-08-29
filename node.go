@@ -178,7 +178,7 @@ func (n *Node) AppendChild(c *Node) {
 func copyAttr(as []Attribute) []Attribute {
 	var out []Attribute = make([]Attribute, len(as))
 	for i, a := range as {
-		as[i] = a
+		out[i] = a
 	}
 	return out
 }
