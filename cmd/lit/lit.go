@@ -88,15 +88,19 @@ func main() {
 		defer f.Close()
 	}
 
+	var opts = &lit.WriteOpts{
+		Prefix: "",
+		Indent: "  ",
+	}
 	switch *outmode {
 	case "debug":
-		lit.WriteDebug(w, n, "", "  ")
+		lit.WriteDebug(w, n, opts)
 	case "", "lit":
-		lit.WriteLit(w, n, "", "  ")
+		lit.WriteLit(w, n, opts)
 	case "tex":
-		lit.WriteTex(w, n, "", "  ")
+		lit.WriteTex(w, n, opts)
 	case "html":
-		lit.WriteHTMLInBody(w, n, "", "  ")
+		lit.WriteHTMLInBody(w, n, opts)
 	case "slides":
 		execute(w, slidesTemplate, n)
 	case "tmpl":
@@ -116,17 +120,17 @@ func execute(w io.Writer, t string, n *lit.Node) {
 		template.FuncMap{
 			"tex": func(n *lit.Node) string {
 				var b bytes.Buffer
-				lit.WriteTex(&b, n, "", "  ")
+				lit.WriteTex(&b, n, &lit.WriteOpts{Prefix: "    ", Indent: ""})
 				return b.String()
 			},
 			"texpi": func(n *lit.Node, pr, in string) string {
 				var b bytes.Buffer
-				lit.WriteTex(&b, n, pr, in)
+				lit.WriteTex(&b, n, &lit.WriteOpts{Prefix: pr, Indent: in})
 				return b.String()
 			},
 			"lit": func(n *lit.Node) string {
 				var b bytes.Buffer
-				lit.WriteLit(&b, n, "", "  ")
+				lit.WriteLit(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
 				return b.String()
 			},
 		},

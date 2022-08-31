@@ -43,6 +43,7 @@ const (
 	CenterAlignNode
 	RightAlignNode
 	EquationNode
+	SubequationsNode
 	ImageNode
 	StatementNode
 	ProofNode
@@ -274,7 +275,7 @@ func (n *Node) FirstTokenString() string {
 		return ""
 	}
 	block, _ := tokenBlockStartingAt(n.FirstChild)
-	lines := lineBlocks(block, Tex, true, maxWidth)
+	lines := lineBlocks(block, Tex, new(WriteOpts), true, maxWidth)
 	if len(lines) > 1 {
 		return strings.Join(lines, "\n")
 	}

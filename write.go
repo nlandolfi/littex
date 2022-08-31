@@ -9,9 +9,28 @@ import (
 	"unicode/utf8"
 )
 
+type WriteOpts struct {
+	Prefix, Indent string
+	InMath         bool
+}
+
+func InMath(o *WriteOpts) *WriteOpts {
+	var out WriteOpts = *o
+	out.InMath = true
+	return &out
+}
+
+func Indented(o *WriteOpts) *WriteOpts {
+	return &WriteOpts{
+		Prefix: o.Prefix + o.Indent,
+		Indent: o.Indent,
+		InMath: o.InMath,
+	}
+}
+
 // WriteDebug prints the node tree in a pretty format.
-func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
-	fmt.Fprintf(w, prefix+"%s", n.Type)
+func WriteDebug(w io.Writer, n *Node, opts *WriteOpts) {
+	fmt.Fprintf(w, opts.Prefix+"%s", n.Type)
 	switch n.Type {
 	case TokenNode:
 		fmt.Fprintf(w, ":%v", n.Token)
@@ -28,15 +47,18 @@ func WriteDebug(w io.Writer, n *Node, prefix, indent string) {
 	}
 	fmt.Fprintf(w, "\n")
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		WriteDebug(w, c, prefix+indent, indent)
+		WriteDebug(w, c, &WriteOpts{
+			Prefix: opts.Prefix + opts.Indent,
+			Indent: opts.Indent,
+		})
 	}
 }
 
-func WriteLit(w io.Writer, n *Node, prefix, indent string) {
+func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix, indent)
+			WriteLit(w, c, opts)
 		}
 	case ParagraphNode, ListNode:
 		if n.PrevSibling != nil {
@@ -47,39 +69,39 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		}
 		switch n.Type {
 		case ParagraphNode:
-			w.Write([]byte(prefix + "¶ ⦊\n"))
+			w.Write([]byte(opts.Prefix + "¶ ⦊\n"))
 		case ListNode:
 			switch getAttr(n.Attr, "list-type") {
 			case "ordered":
-				w.Write([]byte(prefix + "𝍫 ⦊\n"))
+				w.Write([]byte(opts.Prefix + "𝍫 ⦊\n"))
 			default: // includes unordered
-				w.Write([]byte(prefix + "⁝ ⦊\n"))
+				w.Write([]byte(opts.Prefix + "⁝ ⦊\n"))
 			}
 		default:
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "⦉"))
+		w.Write([]byte("\n" + opts.Prefix + "⦉"))
 	case FootnoteNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "† ⦊\n"))
+		w.Write([]byte(opts.Prefix + "† ⦊\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "⦉"))
+		w.Write([]byte("\n" + opts.Prefix + "⦉"))
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "◇ ⦊\n"))
+		w.Write([]byte(opts.Prefix + "◇ ⦊\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "⦉"))
+		w.Write([]byte("\n" + opts.Prefix + "⦉"))
 	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n\n"))
@@ -91,12 +113,12 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			if n.PrevSibling == nil && n.Parent != nil && n.Parent.Type == ListItemNode {
 				out = "‖ "
 			} else {
-				out = prefix + "‖ "
+				out = opts.Prefix + "‖ "
 			}
 		case ListItemNode:
-			out = prefix + "‣ "
+			out = opts.Prefix + "‣ "
 		case SectionNode:
-			w.Write([]byte(prefix))
+			w.Write([]byte(opts.Prefix))
 			if n.SectionNumbered() {
 				w.Write([]byte("#"))
 			}
@@ -137,15 +159,15 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, Val, false, allowedWidth)
+				lines := lineBlocks(block, Val, opts, false, allowedWidth)
 				if len(lines) > 0 {
-					writeLines(w, lines, prefix+indent, afterFirstLine)
+					writeLines(w, lines, opts.Prefix+opts.Indent, afterFirstLine)
 					afterFirstLine = true
 				}
 
 				c = lastTokenNode.NextSibling
 			default:
-				WriteLit(w, c, prefix+indent, indent)
+				WriteLit(w, c, Indented(opts))
 				c = c.NextSibling
 			}
 		}
@@ -159,7 +181,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		log.Printf("text nodes should not appear...")
 		lines := strings.Split(n.Data, "\n")
 		for i, l := range lines {
-			lines[i] = prefix + l
+			lines[i] = opts.Prefix + l
 		}
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
@@ -167,8 +189,8 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n\n"))
 		}
-		w.Write([]byte(prefix + "<!--" + n.Data + "-->"))
-	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
+		w.Write([]byte(opts.Prefix + "<!--" + n.Data + "-->"))
+	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, SubequationsNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -195,21 +217,29 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 			dataatom = "th"
 		case TDNode:
 			dataatom = "td"
+		case SubequationsNode:
+			dataatom = "subequations"
 		default:
 			panic("not reached")
 		}
-		w.Write([]byte(prefix + "<" + dataatom))
+		w.Write([]byte(opts.Prefix + "<" + dataatom))
 		switch n.Type {
 		case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
 			for _, a := range n.Attr {
 				w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
 			}
 		}
-		w.Write([]byte(">\n"))
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+		w.Write([]byte(">"))
+		if n.FirstChild != nil {
+			w.Write([]byte("\n"))
 		}
-		w.Write([]byte("\n" + prefix + "</" + dataatom + ">"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, Indented(opts))
+		}
+		if n.FirstChild != nil {
+			w.Write([]byte("\n" + opts.Prefix))
+		}
+		w.Write([]byte("</" + dataatom + ">"))
 	case EquationNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -217,15 +247,15 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<equation"))
+		w.Write([]byte(opts.Prefix + "<equation"))
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(" " + "id='" + id + "'"))
 		}
 		w.Write([]byte(">\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "</equation>"))
+		w.Write([]byte("\n" + opts.Prefix + "</equation>"))
 	case ImageNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -233,7 +263,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + fmt.Sprintf("<img src='%s'", getAttr(n.Attr, "src"))))
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("<img src='%s'", getAttr(n.Attr, "src"))))
 		if width := getAttr(n.Attr, "width"); width != "" {
 			w.Write([]byte(fmt.Sprintf(" width='%s'", width)))
 		}
@@ -245,7 +275,7 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<statement"))
+		w.Write([]byte(opts.Prefix + "<statement"))
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(" " + "id='" + id + "'"))
 		}
@@ -257,9 +287,9 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte(">\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "</statement>"))
+		w.Write([]byte("\n" + opts.Prefix + "</statement>"))
 	case ProofNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -267,11 +297,11 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<proof>\n"))
+		w.Write([]byte(opts.Prefix + "<proof>\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, prefix+indent, indent)
+			WriteLit(w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "</proof>"))
+		w.Write([]byte("\n" + opts.Prefix + "</proof>"))
 	case LinkNode:
 		panic("TODO: links not implemented")
 
@@ -281,15 +311,15 @@ func WriteLit(w io.Writer, n *Node, prefix, indent string) {
 	}
 }
 
-func WriteTex(w io.Writer, n *Node, prefix, indent string) {
+func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 	switch n.Type {
 	case FragmentNode:
-		writeKids(w, n, prefix, indent, WriteTex)
+		writeKids(w, n, opts, WriteTex)
 	case ParagraphNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		writeKids(w, n, prefix+indent, indent, WriteTex)
+		writeKids(w, n, Indented(opts), WriteTex)
 		w.Write([]byte("\n"))
 	case ListNode:
 		if n.PrevSibling != nil {
@@ -298,16 +328,16 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		lt := getAttr(n.Attr, "list-type")
 		switch lt {
 		case "ordered":
-			w.Write([]byte(prefix + "\\begin{enumerate}\n"))
+			w.Write([]byte(opts.Prefix + "\\begin{enumerate}\n"))
 		default: // unordered
-			w.Write([]byte(prefix + "\\begin{itemize}\n"))
+			w.Write([]byte(opts.Prefix + "\\begin{itemize}\n"))
 		}
-		writeKids(w, n, prefix+indent, indent, WriteTex)
+		writeKids(w, n, Indented(opts), WriteTex)
 		switch lt {
 		case "ordered":
-			w.Write([]byte("\n" + prefix + "\\end{enumerate}"))
+			w.Write([]byte("\n" + opts.Prefix + "\\end{enumerate}"))
 		default: // unordered
-			w.Write([]byte("\n" + prefix + "\\end{itemize}"))
+			w.Write([]byte("\n" + opts.Prefix + "\\end{itemize}"))
 		}
 	case FootnoteNode:
 		if n.PrevSibling != nil {
@@ -319,16 +349,16 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		// to specify that within .gba files.
 		// Could in the future check if the previous child here was a token
 		// and a non implicit space token
-		w.Write([]byte(prefix + "\\ifhmode\\unskip\\fi\\footnote{\n"))
-		writeKids(w, n, prefix+indent, indent, WriteTex)
-		w.Write([]byte("\n" + prefix + "}"))
+		w.Write([]byte(opts.Prefix + "\\ifhmode\\unskip\\fi\\footnote{\n"))
+		writeKids(w, n, Indented(opts), WriteTex)
+		w.Write([]byte("\n" + opts.Prefix + "}"))
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "\\[\n"))
-		writeKids(w, n, prefix+indent, indent, WriteTex)
-		w.Write([]byte("\n" + prefix + "\\]"))
+		w.Write([]byte(opts.Prefix + "\\[\n"))
+		writeKids(w, n, Indented(InMath(opts)), WriteTex)
+		w.Write([]byte("\n" + opts.Prefix + "\\]"))
 	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -336,25 +366,25 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 
 		var offset int
 		if n.Type == ListItemNode {
-			out := prefix + "\\item "
+			out := opts.Prefix + "\\item "
 			w.Write([]byte(out))
 			offset = utf8.RuneCountInString(out)
 		}
 		if n.Type == SectionNode {
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(indent + "\\section"))
+				w.Write([]byte(opts.Prefix + "\\section"))
 			case "2":
-				w.Write([]byte(indent + "\\subsection"))
+				w.Write([]byte(opts.Prefix + "\\subsection"))
 			case "3":
-				w.Write([]byte(indent + "\\subsubsection"))
+				w.Write([]byte(opts.Prefix + "\\subsubsection"))
 			default:
-				w.Write([]byte(indent + "\\section"))
+				w.Write([]byte(opts.Prefix + "\\section"))
 			}
 			if getAttr(n.Attr, "section-numbered") == "false" {
 				w.Write([]byte("*"))
 			}
-			w.Write([]byte(indent + "{"))
+			w.Write([]byte("{"))
 		}
 
 		var afterFirstLine bool
@@ -370,7 +400,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, Tex, true, allowedWidth)
+				lines := lineBlocks(block, Tex, opts, true, allowedWidth)
 				if len(lines) > 0 {
 					//					writeLines(w, lines, prefix+indent, afterFirstLine)
 					w.Write([]byte(strings.Join(lines, " ")))
@@ -382,12 +412,12 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 
 				c = lastTokenNode.NextSibling
 			default:
-				WriteTex(w, c, prefix+indent, indent)
+				WriteTex(w, c, Indented(opts))
 				c = c.NextSibling
 			}
 		}
 		if n.Type == SectionNode {
-			w.Write([]byte(indent + "}\n"))
+			w.Write([]byte("}\n"))
 		}
 	case CommentNode:
 		if n.PrevSibling != nil {
@@ -400,14 +430,14 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			if strings.TrimSpace(line) == "" {
 				continue
 			}
-			w.Write([]byte(indent + "%" + line + "\n"))
+			w.Write([]byte(opts.Prefix + "%" + line + "\n"))
 		}
 	case TexOnlyNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, opts)
 		}
 	case CenterAlignNode:
 		if n.PrevSibling != nil {
@@ -415,7 +445,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\\begin{center}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, opts)
 		}
 		w.Write([]byte("\\end{center}"))
 	case RightAlignNode:
@@ -424,7 +454,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\\begin{flushright}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, opts)
 		}
 		w.Write([]byte("\\end{flushright}"))
 	case EquationNode:
@@ -433,12 +463,21 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\\begin{equation}"))
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte("\n" + prefix + "\\label{" + id + "}"))
+			w.Write([]byte("\n" + opts.Prefix + "\\label{" + id + "}"))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, InMath(opts))
 		}
 		w.Write([]byte("\\end{equation}"))
+	case SubequationsNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{subequations}"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, InMath(opts))
+		}
+		w.Write([]byte("\\end{subequations}"))
 	case ImageNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -446,7 +485,7 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + fmt.Sprintf("\\includegraphics")))
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("\\includegraphics")))
 		if width := getAttr(n.Attr, "width"); width != "" {
 			if width[len(width)-1] == '%' {
 				width = "0." + width[:len(width)-1] + "\\textwidth"
@@ -467,10 +506,10 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 			w.Write([]byte(fmt.Sprintf("[%s]", text)))
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte("\n" + prefix + "\\label{" + id + "}"))
+			w.Write([]byte("\n" + opts.Prefix + "\\label{" + id + "}"))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, opts)
 		}
 		w.Write([]byte(fmt.Sprintf("\\end{%s}", t)))
 	case ProofNode:
@@ -479,24 +518,55 @@ func WriteTex(w io.Writer, n *Node, prefix, indent string) {
 		}
 		w.Write([]byte("\\begin{proof}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, indent, indent) // intentionally don't increase indent
+			WriteTex(w, c, opts)
 		}
 		w.Write([]byte("\\end{proof}"))
 	case LinkNode:
-		panic("TODO: links not implemented")
+	case TableNode:
+		//		w.Write([]byte(fmt.Sprintf("\\begin{table}\n")))
+		// TODO: one day write table...
+		w.Write([]byte(fmt.Sprintf("\n\\vspace{0.3cm}\n\\begin{tabular}{%s}\n", getAttr(n.Attr, "tex"))))
+		// TODO write the alignments at some point
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("\\end{tabular}\n\\vspace{0.1cm}\n"))
+		//		w.Write([]byte(fmt.Sprintf("\\end{table}\n")))
+	case TableHeadNode:
+		// TODO write some rules \toprule, \bottomrule, etc
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+	case TableBodyNode:
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+	case TableRowNode:
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("\\\\\n"))
+	case THNode, TDNode:
+		if n.PrevSibling != nil && (n.PrevSibling.Type == THNode || n.PrevSibling.Type == TDNode) {
+			w.Write([]byte(" & "))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
 	default:
 		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
 }
 
-type nodeWriter func(w io.Writer, n *Node, pr, in string)
+type nodeWriter func(w io.Writer, n *Node, opts *WriteOpts)
 
 func writeKids(
-	w io.Writer, n *Node, in, pr string,
+	w io.Writer, n *Node, opts *WriteOpts,
 	write nodeWriter,
 ) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		write(w, c, pr, in)
+		write(w, c, opts)
 	}
 }
 
@@ -559,10 +629,10 @@ func isSpace(t *Token) bool {
 
 type tokenStringer func(t *Token, inMath bool) string
 
-func lineBlocks(ts []*Token, v tokenStringer, shouldEscapeInMath bool, width int) []string {
+func lineBlocks(ts []*Token, v tokenStringer, opts *WriteOpts, shouldEscapeInMath bool, width int) []string {
 	var pieces = []string{""}
 	var spaces []*Token
-	var inMath bool
+	var inMath bool = opts.InMath
 	for _, t := range ts {
 		if isSpace(t) {
 			spaces = append(spaces, t)
@@ -571,6 +641,9 @@ func lineBlocks(ts []*Token, v tokenStringer, shouldEscapeInMath bool, width int
 			pieces[len(pieces)-1] = pieces[len(pieces)-1] + v(t, inMath && shouldEscapeInMath)
 		}
 		if t.Type == SymbolToken && t.Value == "$" {
+			if opts.InMath {
+				panic("$ in math")
+			}
 			inMath = !inMath
 		}
 	}
@@ -648,24 +721,24 @@ func tokenBlockStartingAt(c *Node) (block []*Token, last *Node) {
 	return block, last
 }
 
-func WriteHTMLInBody(w io.Writer, n *Node, prefix, indent string) {
+func WriteHTMLInBody(w io.Writer, n *Node, opts *WriteOpts) {
 	w.Write([]byte("<!DOCTYPE html>\n"))
 	w.Write([]byte(`<meta charset="utf-8"/>`))
-	w.Write([]byte("\n" + indent + "<body>\n"))
-	WriteHTML(w, n, prefix+indent+indent, indent)
-	w.Write([]byte("\n" + indent + "</body>\n"))
+	w.Write([]byte("\n" + opts.Indent + "<body>\n"))
+	WriteHTML(w, n, Indented(Indented(opts)))
+	w.Write([]byte("\n" + opts.Indent + "</body>\n"))
 	w.Write([]byte("</html>"))
 }
 
-func WriteHTML(w io.Writer, n *Node, prefix, indent string) error {
+func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 	s := new(htmlWriteState)
-	writeHTML(HTMLVal, s, w, n, prefix, indent)
+	writeHTML(HTMLVal, s, w, n, opts)
 
 	fmt.Fprintf(w, "<ol class='footnotes'>")
 	for i, f := range s.footnotes {
 		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
 		for c := f.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(HTMLVal, nil, w, c, prefix+indent, indent)
+			writeHTML(HTMLVal, nil, w, c, Indented(opts))
 		}
 		fmt.Fprintf(w, "<a href='#footnote-%d-reference'>↩︎</a>", i+1)
 		fmt.Fprintf(w, "</li>")
@@ -678,11 +751,11 @@ type htmlWriteState struct {
 	footnotes []*Node
 }
 
-func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefix, indent string) error {
+func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts *WriteOpts) error {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, prefix, indent)
+			writeHTML(val, s, w, c, opts)
 		}
 	case ParagraphNode, ListNode:
 		if n.PrevSibling != nil {
@@ -693,29 +766,29 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		}
 		switch n.Type {
 		case ParagraphNode:
-			w.Write([]byte(prefix + "<p>\n"))
+			w.Write([]byte(opts.Prefix + "<p>\n"))
 		case ListNode:
 			switch getAttr(n.Attr, "list-type") {
 			case "ordered":
-				w.Write([]byte(prefix + "<ol>\n"))
+				w.Write([]byte(opts.Prefix + "<ol>\n"))
 			default: // includes unordered
-				w.Write([]byte(prefix + "<ul>\n"))
+				w.Write([]byte(opts.Prefix + "<ul>\n"))
 			}
 		default:
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, prefix+indent, indent)
+			writeHTML(val, s, w, c, Indented(opts))
 		}
 		switch n.Type {
 		case ParagraphNode:
-			w.Write([]byte("\n" + prefix + "</p>\n"))
+			w.Write([]byte("\n" + opts.Prefix + "</p>\n"))
 		case ListNode:
 			switch getAttr(n.Attr, "list-type") {
 			case "ordered":
-				w.Write([]byte(prefix + "</ol>\n"))
+				w.Write([]byte(opts.Prefix + "</ol>\n"))
 			default: // includes unordered
-				w.Write([]byte(prefix + "</ul>\n"))
+				w.Write([]byte(opts.Prefix + "</ul>\n"))
 			}
 		default:
 			panic("not reached")
@@ -728,11 +801,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<p>\\[\n"))
+		w.Write([]byte(opts.Prefix + "<p>\\[\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, prefix+indent, indent)
+			writeHTML(Tex, s, w, c, Indented(opts))
 		}
-		w.Write([]byte("\n" + prefix + "\\]</p>"))
+		w.Write([]byte("\n" + opts.Prefix + "\\]</p>"))
 	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -753,23 +826,23 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 				}
 			} else {
 				if n.Parent != nil && (n.Parent.Type == DisplayMathNode || n.Parent.Type == EquationNode) {
-					out = prefix
+					out = opts.Prefix
 				} else {
-					out = prefix + "<span class='run'>"
+					out = opts.Prefix + "<span class='run'>"
 				}
 			}
 		case ListItemNode:
-			out = prefix + "<li>"
+			out = opts.Prefix + "<li>"
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(prefix + "<h1>\n"))
+				w.Write([]byte(opts.Prefix + "<h1>\n"))
 			case "2":
-				w.Write([]byte(prefix + "<h2>\n"))
+				w.Write([]byte(opts.Prefix + "<h2>\n"))
 			case "3":
-				w.Write([]byte(prefix + "<h3>\n"))
+				w.Write([]byte(opts.Prefix + "<h3>\n"))
 			default:
-				w.Write([]byte(prefix + "<h1>\n"))
+				w.Write([]byte(opts.Prefix + "<h1>\n"))
 			}
 		}
 
@@ -794,15 +867,15 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 				// in case its a token, go a find all tokens to next non-token
 				block, lastTokenNode := tokenBlockStartingAt(c)
 				allowedWidth := maxWidth - offset
-				lines := lineBlocks(block, val, true, allowedWidth)
+				lines := lineBlocks(block, val, opts, true, allowedWidth)
 				if len(lines) > 0 {
-					writeLines(w, lines, prefix+indent, afterFirstLine)
+					writeLines(w, lines, opts.Prefix+opts.Indent, afterFirstLine)
 					afterFirstLine = true
 				}
 
 				c = lastTokenNode.NextSibling
 			default:
-				writeHTML(val, s, w, c, prefix+indent, indent)
+				writeHTML(val, s, w, c, Indented(opts))
 				c = c.NextSibling
 			}
 		}
@@ -822,13 +895,13 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(prefix + "</h1>\n"))
+				w.Write([]byte(opts.Prefix + "</h1>\n"))
 			case "2":
-				w.Write([]byte(prefix + "</h2>\n"))
+				w.Write([]byte(opts.Prefix + "</h2>\n"))
 			case "3":
-				w.Write([]byte(prefix + "</h3>\n"))
+				w.Write([]byte(opts.Prefix + "</h3>\n"))
 			default:
-				w.Write([]byte(prefix + "</h1>\n"))
+				w.Write([]byte(opts.Prefix + "</h1>\n"))
 			}
 		default:
 			panic("not reached")
@@ -837,7 +910,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		log.Printf("text nodes should not appear...")
 		lines := strings.Split(n.Data, "\n")
 		for i, l := range lines {
-			lines[i] = prefix + l
+			lines[i] = opts.Prefix + l
 		}
 		out := strings.Join(lines, "\n")
 		w.Write([]byte(out + "\n"))
@@ -848,7 +921,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<!--" + n.Data + "-->\n"))
+		w.Write([]byte(opts.Prefix + "<!--" + n.Data + "-->\n"))
 	case TexOnlyNode:
 	case CenterAlignNode:
 		if n.PrevSibling != nil {
@@ -856,7 +929,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		}
 		w.Write([]byte("<div style='text-align:center'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</div>"))
 	case RightAlignNode:
@@ -865,7 +938,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		}
 		w.Write([]byte("<div style='text-align:right'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</div>"))
 	case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
@@ -893,23 +966,23 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		}
 		w.Write([]byte(">"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</" + dataatom + ">"))
 	case EquationNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<div style='equation'>"))
-		w.Write([]byte(prefix + "\\begin{equation}"))
+		w.Write([]byte(opts.Prefix + "<div style='equation'>"))
+		w.Write([]byte(opts.Prefix + "\\begin{equation}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(Tex, s, w, c, Indented(opts)) // intentionally don't increase indent
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte(prefix + indent + "\\label{" + id + "}"))
+			w.Write([]byte(opts.Prefix + opts.Indent + "\\label{" + id + "}"))
 		}
-		w.Write([]byte(prefix + "\\end{equation}"))
-		w.Write([]byte(prefix + "</div>"))
+		w.Write([]byte(opts.Prefix + "\\end{equation}"))
+		w.Write([]byte(opts.Prefix + "</div>"))
 	case ImageNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -917,7 +990,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + fmt.Sprintf("<img src=\"%s\"", getAttr(n.Attr, "src"))))
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("<img src=\"%s\"", getAttr(n.Attr, "src"))))
 		if width := getAttr(n.Attr, "width"); width != "" {
 			w.Write([]byte(fmt.Sprintf(" width=\"%s\"", width)))
 		}
@@ -930,7 +1003,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 		if tt := getAttr(n.Attr, "type"); tt != "" {
 			t = tt
 		}
-		w.Write([]byte(prefix + fmt.Sprintf("<div class='%s'", t)))
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("<div class='%s'", t)))
 		if text := getAttr(n.Attr, "text"); text != "" {
 			w.Write([]byte(fmt.Sprintf(" text='%s'", text)))
 		}
@@ -938,25 +1011,25 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, prefi
 			w.Write([]byte(fmt.Sprintf(" id='%s'", id)))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, Indented(opts))
 		}
-		w.Write([]byte(prefix + "</div>"))
+		w.Write([]byte(opts.Prefix + "</div>"))
 	case ProofNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(prefix + "<div class='proof'>"))
+		w.Write([]byte(opts.Prefix + "<div class='proof'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(val, s, w, c, Indented(opts))
 		}
-		w.Write([]byte(prefix + "</div>"))
+		w.Write([]byte(opts.Prefix + "</div>"))
 	case LinkNode:
-		w.Write([]byte(prefix + fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
 		w.Write([]byte("/>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, prefix+indent, indent) // intentionally don't increase indent
+			writeHTML(Tex, s, w, c, Indented(opts))
 		}
-		w.Write([]byte(prefix + "</a>"))
+		w.Write([]byte(opts.Prefix + "</a>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}

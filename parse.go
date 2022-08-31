@@ -287,6 +287,8 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case "equation":
 				n.Type = EquationNode
 				n.setAttr("id", getAttr(in.Attr, "id"))
+			case "subequations":
+				n.Type = SubequationsNode
 			case "statement":
 				n.Type = StatementNode
 				n.setAttr("id", getAttr(in.Attr, "id"))

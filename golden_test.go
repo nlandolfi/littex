@@ -45,7 +45,7 @@ func TestGolden(t *testing.T) {
 
 		var b bytes.Buffer
 
-		lit.WriteLit(&b, n, "", "  ")
+		lit.WriteLit(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
 
 		s := b.String()
 
