@@ -109,7 +109,7 @@ func ParseTex(s string) (*Node, error) {
 	s = strings.Replace(s, "``", "“", -1)
 	s = strings.Replace(s, "''", "”", -1)
 	s = strings.Replace(s, "`", "‘", -1) // MUST BE AFTER DOUBLE
-	s = strings.Replace(s, "'", "’", -1)
+	// s = strings.Replace(s, "'", "’", -1)
 	s = strings.Replace(s, "\\&", "&", -1)
 	s = strings.Replace(s, "\\\\", "᜶", -1)
 	s = strings.Replace(s, "\\indent", "↦", -1)
@@ -153,21 +153,39 @@ var dblqR = regexp.MustCompile("``((.|\n)*)?''")
 var sglqR = regexp.MustCompile("`((.|\n)*)?'")
 var sayR = regexp.MustCompile(`\\say{((.|\n)*)?}`)
 var commentsR = regexp.MustCompile(`%(.*?)\n`)
+var propositionWithText = regexp.MustCompile(`\\begin{proposition}[(\w*)]`)
+var proposition = regexp.MustCompile(`\\begin{proposition}`)
+var propositionEnd = regexp.MustCompile(`\\end{proposition}`)
+var ssection = regexp.MustCompile(`\\ssection{(\w*)}`)
+var section = regexp.MustCompile(`\\section{(\w*)}`)
+var ssubsection = regexp.MustCompile(`\\ssubsection{(\w*)}`)
+var subsection = regexp.MustCompile(`\\subsection{(\w*)}`)
 
 // useful: https://gist.github.com/claybridges/8f9d51a1dc365f2e64fa
 var res = map[*regexp.Regexp]string{
-	textitR:   "‹$1›",
-	textbfR:   "«$1»",
-	footnoteR: "† ⦊ ‖ $1 ⦉⦉",
-	textscR:   "⸤$1⸥",
-	tR:        "❬$1❭",
-	cR:        "⁅$1⁆",
-	dblqR:     "“$1”",
-	sglqR:     "‘$1’",
-	sayR:      "“$1”",
+	propositionWithText: "<statement type='proposition' text='$1'>",
+	proposition:         "<statement type='proposition'>",
+	propositionEnd:      "</statement>",
+	ssection:            "§ $1 ⦉",
+	section:             "#§ $1 ⦉",
+	subsection:          "#§§ $1 ⦉",
+	ssubsection:         "§§ $1 ⦉",
+	textitR:             "‹$1›",
+	textbfR:             "«$1»",
+	footnoteR:           "† ⦊ ‖ $1 ⦉⦉",
+	textscR:             "⸤$1⸥",
+	tR:                  "❬$1❭",
+	cR:                  "⁅$1⁆",
+	dblqR:               "“$1”",
+	sglqR:               "‘$1’",
+	sayR:                "“$1”",
 }
 
 var order = []*regexp.Regexp{
+	ssection,
+	section,
+	ssubsection,
+	subsection,
 	textitR,
 	textbfR,
 	footnoteR,
@@ -177,6 +195,9 @@ var order = []*regexp.Regexp{
 	dblqR,
 	sglqR,
 	sayR,
+	propositionWithText,
+	proposition,
+	propositionEnd,
 }
 
 // func MarshalHTML(n *Node) *html.Node

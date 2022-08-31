@@ -505,6 +505,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		if text := getAttr(n.Attr, "text"); text != "" {
 			w.Write([]byte(fmt.Sprintf("[%s]", text)))
 		}
+		w.Write([]byte("\n"))
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte("\n" + opts.Prefix + "\\label{" + id + "}"))
 		}
@@ -803,7 +804,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 		w.Write([]byte(opts.Prefix + "<p>\\[\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, Indented(opts))
+			writeHTML(Tex, s, w, c, InMath(Indented(opts)))
 		}
 		w.Write([]byte("\n" + opts.Prefix + "\\]</p>"))
 	case RunNode, ListItemNode, SectionNode:
