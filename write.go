@@ -357,7 +357,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(opts.Prefix + "\\[\n"))
-		writeKids(w, n, Indented(InMath(opts)), WriteTex)
+		writeKids(w, n, InMath(Indented(opts)), WriteTex)
 		w.Write([]byte("\n" + opts.Prefix + "\\]"))
 	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil {
