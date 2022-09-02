@@ -1052,7 +1052,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, Indented(opts))
 		}
-		w.Write([]byte(opts.Prefix + "</a>"))
+		w.Write([]byte("</a>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}
