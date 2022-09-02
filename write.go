@@ -306,8 +306,10 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 		panic("TODO: links not implemented")
 
 	default:
+		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
-		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+		log.Fatalf("unhandled node type: %s", n.Type)
+		//		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
 	}
 }
 
@@ -556,7 +558,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			WriteTex(w, c, opts)
 		}
 	default:
-		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+		log.Fatalf("unhandled node type: %s", n.Type)
 	}
 }
 

@@ -158,7 +158,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝒱': "\\mathcal{V}",
 	'𝒳': "\\mathcal{X}",
 	'ℓ': "\\ell",
-	'∕': "/",
+	//	'∕': "/", causes confusion with </div>
 	'∏': "\\prod",
 	'∑': "\\sum",
 	'≈': "\\approx",
@@ -207,6 +207,7 @@ var LatexMathReplacements = map[rune]string{
 	'ε': "\\varepsilon",
 	'ϵ': "\\epsilon",
 	'φ': "\\phi",
+	'Φ': "\\Phi",
 	'γ': "\\gamma",
 	'η': "\\eta",
 	'ι': "\\iota",
@@ -225,6 +226,7 @@ var LatexMathReplacements = map[rune]string{
 	'⇐': "\\Leftarrow",
 	'τ': "\\tau",
 	'θ': "\\theta",
+	'Θ': "\\Theta",
 	'ω': "\\omega",
 	'Ω': "\\Omega",
 	//	'ς':
