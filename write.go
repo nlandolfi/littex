@@ -5,6 +5,7 @@ import (
 	"html"
 	"io"
 	"log"
+	"path"
 	"strings"
 	"unicode/utf8"
 )
@@ -531,6 +532,18 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		}
 		w.Write([]byte("\\end{proof}"))
 	case LinkNode:
+		href := getAttr(n.Attr, "href")
+		if strings.HasPrefix(href, "/sheets/") {
+			sheetname := strings.TrimSuffix(path.Base(href), path.Ext(href))
+			w.Write([]byte(fmt.Sprintf(" \\sheetref{%s}{", sheetname)))
+
+		} else {
+			w.Write([]byte(fmt.Sprintf(" \\href{%s}{", href)))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("}"))
 	case TableNode:
 		//		w.Write([]byte(fmt.Sprintf("\\begin{table}\n")))
 		// TODO: one day write table...
