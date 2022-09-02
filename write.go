@@ -829,7 +829,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 		w.Write([]byte("\n" + opts.Prefix + "\\]</p>"))
 	case RunNode, ListItemNode, SectionNode:
-		if n.PrevSibling != nil {
+		if n.PrevSibling != nil && n.PrevSibling.Type != LinkNode {
 			w.Write([]byte("\n"))
 		}
 
@@ -1047,10 +1047,10 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 		w.Write([]byte(opts.Prefix + "</div>"))
 	case LinkNode:
-		w.Write([]byte(opts.Prefix + fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
+		w.Write([]byte(fmt.Sprintf(" <a href='%s'", getAttr(n.Attr, "href"))))
 		w.Write([]byte("/>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, Indented(opts))
+			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</a>"))
 	default:
