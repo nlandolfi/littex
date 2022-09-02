@@ -29,6 +29,13 @@ func Indented(o *WriteOpts) *WriteOpts {
 	}
 }
 
+func NoPrefix(o *WriteOpts) *WriteOpts {
+	return &WriteOpts{
+		Indent: o.Indent,
+		InMath: o.InMath,
+	}
+}
+
 // WriteDebug prints the node tree in a pretty format.
 func WriteDebug(w io.Writer, n *Node, opts *WriteOpts) {
 	fmt.Fprintf(w, opts.Prefix+"%s", n.Type)
@@ -858,13 +865,13 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(opts.Prefix + "<h1>\n"))
+				w.Write([]byte(opts.Prefix + "<h1>"))
 			case "2":
-				w.Write([]byte(opts.Prefix + "<h2>\n"))
+				w.Write([]byte(opts.Prefix + "<h2>"))
 			case "3":
-				w.Write([]byte(opts.Prefix + "<h3>\n"))
+				w.Write([]byte(opts.Prefix + "<h3>"))
 			default:
-				w.Write([]byte(opts.Prefix + "<h1>\n"))
+				w.Write([]byte(opts.Prefix + "<h1>"))
 			}
 		}
 
@@ -882,7 +889,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			//log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
-				if c.PrevSibling != nil {
+				if c.PrevSibling != nil && c.PrevSibling.Type != LinkNode {
 					w.Write([]byte("\n"))
 				}
 
@@ -891,7 +898,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 				allowedWidth := maxWidth - offset
 				lines := lineBlocks(block, val, opts, true, allowedWidth)
 				if len(lines) > 0 {
-					writeLines(w, lines, opts.Prefix+opts.Indent, afterFirstLine)
+					prefix := opts.Prefix + opts.Indent
+					if c.PrevSibling != nil && c.PrevSibling.Type == LinkNode {
+						prefix = ""
+					}
+					writeLines(w, lines, prefix, afterFirstLine)
 					afterFirstLine = true
 				}
 
@@ -903,9 +914,9 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 
 		// WHY IS THIS HERE? commenting out for now - NCL 9/1/22
-		// if n.LastChild != nil && n.LastChild.Type == TokenNode {
+		//if n.LastChild != nil && n.LastChild.Type == TokenNode {
 		//	w.Write([]byte(" "))
-		// }
+		//}
 		// will need to do overflow check
 		switch n.Type {
 		case RunNode:
@@ -918,13 +929,13 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(opts.Prefix + "</h1>\n"))
+				w.Write([]byte("</h1>\n"))
 			case "2":
-				w.Write([]byte(opts.Prefix + "</h2>\n"))
+				w.Write([]byte("</h2>\n"))
 			case "3":
-				w.Write([]byte(opts.Prefix + "</h3>\n"))
+				w.Write([]byte("</h3>\n"))
 			default:
-				w.Write([]byte(opts.Prefix + "</h1>\n"))
+				w.Write([]byte("</h1>\n"))
 			}
 		default:
 			panic("not reached")
@@ -1033,6 +1044,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(fmt.Sprintf(" id='%s'", id)))
 		}
+		w.Write([]byte(">\n"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, Indented(opts))
 		}
@@ -1047,10 +1059,13 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 		w.Write([]byte(opts.Prefix + "</div>"))
 	case LinkNode:
+		if opts.InMath {
+			log.Fatal("can't be in a link node in math")
+		}
 		w.Write([]byte(fmt.Sprintf(" <a href='%s'", getAttr(n.Attr, "href"))))
 		w.Write([]byte("/>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(val, s, w, c, opts)
+			writeHTML(val, s, w, c, NoPrefix(opts))
 		}
 		w.Write([]byte("</a>"))
 	default:
