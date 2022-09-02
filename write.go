@@ -1050,7 +1050,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		w.Write([]byte(opts.Prefix + fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
 		w.Write([]byte("/>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, Indented(opts))
+			writeHTML(val, s, w, c, Indented(opts))
 		}
 		w.Write([]byte(opts.Prefix + "</a>"))
 	default:
