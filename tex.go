@@ -152,6 +152,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝒪': "\\mathcal{O}",
 	'𝒫': "\\mathcal{P}",
 	'𝒬': "\\mathcal{Q}",
+	'ℛ': "\\mathcal{R}",
 	'𝒮': "\\mathcal{S}",
 	'𝒯': "\\mathcal{T}",
 	'𝒰': "\\mathcal{U}",

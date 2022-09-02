@@ -303,8 +303,14 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 		}
 		w.Write([]byte("\n" + opts.Prefix + "</proof>"))
 	case LinkNode:
-		panic("TODO: links not implemented")
-
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(opts.Prefix + fmt.Sprintf("<a href='%s'>\n", getAttr(n.Attr, "href"))))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, Indented(opts))
+		}
+		w.Write([]byte("\n" + opts.Prefix + "</a>"))
 	default:
 		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
@@ -883,9 +889,10 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			}
 		}
 
-		if n.LastChild != nil && n.LastChild.Type == TokenNode {
-			w.Write([]byte(" "))
-		}
+		// WHY IS THIS HERE? commenting out for now - NCL 9/1/22
+		// if n.LastChild != nil && n.LastChild.Type == TokenNode {
+		//	w.Write([]byte(" "))
+		// }
 		// will need to do overflow check
 		switch n.Type {
 		case RunNode:
