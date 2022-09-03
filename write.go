@@ -973,11 +973,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			w.Write([]byte("\n"))
 		}
 		// TODO should the br be here
-		w.Write([]byte("<br><span style='text-align:center'>"))
+		w.Write([]byte("<div style='text-align:center'>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, opts)
 		}
-		w.Write([]byte("</span><br/>"))
+		w.Write([]byte("</div>"))
 	case RightAlignNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
