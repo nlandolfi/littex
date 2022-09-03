@@ -11,7 +11,8 @@ func Tex(t *Token, inMath bool) string {
 		var out = ""
 
 		for _, r := range t.Value {
-			if replacement, ok := LatexMathReplacements[r]; ok {
+			// TODO avoid dictionary lookup if not in math
+			if replacement, ok := LatexMathReplacements[r]; inMath && ok {
 				out += replacement + " " // I think we need the space here.
 			} else {
 				out += string(r)

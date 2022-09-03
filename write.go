@@ -198,7 +198,7 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n\n"))
 		}
 		w.Write([]byte(opts.Prefix + "<!--" + n.Data + "-->"))
-	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, SubequationsNode:
+	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, SubequationsNode, QuoteNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -227,6 +227,8 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			dataatom = "td"
 		case SubequationsNode:
 			dataatom = "subequations"
+		case QuoteNode:
+			dataatom = "quote"
 		default:
 			panic("not reached")
 		}
@@ -376,7 +378,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		writeKids(w, n, InMath(Indented(opts)), WriteTex)
 		w.Write([]byte("\n" + opts.Prefix + "\\]"))
 	case RunNode, ListItemNode, SectionNode:
-		if n.PrevSibling != nil {
+		if n.PrevSibling != nil && n.PrevSibling.Type != LinkNode {
 			w.Write([]byte("\n"))
 		}
 
@@ -409,7 +411,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			//log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
-				if c.PrevSibling != nil && c.PrevSibling.Type != RunNode {
+				if c.PrevSibling != nil && c.PrevSibling.Type != RunNode && c.PrevSibling.Type != LinkNode {
 					w.Write([]byte("\n"))
 				}
 
@@ -473,6 +475,15 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			WriteTex(w, c, opts)
 		}
 		w.Write([]byte("\\end{flushright}"))
+	case QuoteNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("\\begin{quote}"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("\\end{quote}"))
 	case EquationNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -975,6 +986,17 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</div>"))
+	case QuoteNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		// TODO: maybe don't use blockquote, use custom
+		// quote class div
+		w.Write([]byte("<blockquote>"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(val, s, w, c, opts)
+		}
+		w.Write([]byte("</blockquote>"))
 	case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
 		var dataatom string
 		switch n.Type {

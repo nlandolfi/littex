@@ -317,6 +317,8 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.setAttr("text", getAttr(in.Attr, "text"))
 			case "proof":
 				n.Type = ProofNode
+			case "quote":
+				n.Type = QuoteNode
 			default:
 				log.Printf("%+v", in)
 				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)

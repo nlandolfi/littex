@@ -54,6 +54,7 @@ const (
 	TableRowNode
 	THNode
 	TDNode
+	QuoteNode
 )
 
 func (t NodeType) String() string {
