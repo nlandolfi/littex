@@ -1079,7 +1079,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if opts.InMath {
 			log.Fatal("can't be in a link node in math")
 		}
-		w.Write([]byte(fmt.Sprintf(" <a href='%s'", getAttr(n.Attr, "href"))))
+		w.Write([]byte(fmt.Sprintf("<a href='%s'", getAttr(n.Attr, "href"))))
 		w.Write([]byte("/>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, NoPrefix(opts))
