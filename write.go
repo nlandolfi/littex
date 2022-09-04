@@ -968,7 +968,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			w.Write([]byte("\n"))
 		}
 		// TODO should the br be here
-		w.Write([]byte("<div style='display: flex; flex-direction: row; justify-content: center;'><div>"))
+		w.Write([]byte("<div style='display: flex; flex-direction: row; justify-content: center;text-align:center'><div>"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			writeHTML(val, s, w, c, opts)
 		}
