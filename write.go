@@ -358,18 +358,15 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n" + opts.Prefix + "\\end{itemize}"))
 		}
 	case FootnoteNode:
-		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
-		}
 		// the first little bit here removes the space.
 		// it means there is no way to have a space in between
 		// text and a footnote, but I don't think there's a way
 		// to specify that within .gba files.
 		// Could in the future check if the previous child here was a token
 		// and a non implicit space token
-		w.Write([]byte(opts.Prefix + "\\ifhmode\\unskip\\fi\\footnote{\n"))
-		writeKids(w, n, Indented(opts), WriteTex)
-		w.Write([]byte("\n" + opts.Prefix + "}"))
+		w.Write([]byte("\\footnote{"))
+		writeKids(w, n, opts, WriteTex)
+		w.Write([]byte("}"))
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -438,17 +435,11 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("}\n"))
 		}
 	case CommentNode:
-		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
-		}
-		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
-			w.Write([]byte("\n"))
-		}
 		for _, line := range strings.Split(n.Data, "\n") {
-			if strings.TrimSpace(line) == "" {
+			if line == "" {
 				continue
 			}
-			w.Write([]byte(opts.Prefix + "%" + line + "\n"))
+			w.Write([]byte("\n%" + line))
 		}
 	case TexOnlyNode:
 		if n.PrevSibling != nil {
@@ -627,6 +618,9 @@ func Val(t *Token, inMath bool) string {
 }
 
 func HTMLVal(t *Token, inMath bool) string {
+	if isSpace(t) {
+		return " "
+	}
 	switch t.Value {
 	case "᜶":
 		return "<br />"
