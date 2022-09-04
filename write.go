@@ -1,6 +1,7 @@
 package lit
 
 import (
+	"bytes"
 	"fmt"
 	"html"
 	"io"
@@ -198,7 +199,7 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n\n"))
 		}
 		w.Write([]byte(opts.Prefix + "<!--" + n.Data + "-->"))
-	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, SubequationsNode, QuoteNode:
+	case TexOnlyNode, RightAlignNode, CenterAlignNode, TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, SubequationsNode, QuoteNode, DivNode, CodeNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
@@ -229,12 +230,16 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			dataatom = "subequations"
 		case QuoteNode:
 			dataatom = "quote"
+		case DivNode:
+			dataatom = "div"
+		case CodeNode:
+			dataatom = "code"
 		default:
 			panic("not reached")
 		}
 		w.Write([]byte(opts.Prefix + "<" + dataatom))
 		switch n.Type {
-		case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode:
+		case TableNode, TableHeadNode, TableBodyNode, TableRowNode, THNode, TDNode, DivNode, CodeNode:
 			for _, a := range n.Attr {
 				w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
 			}
@@ -449,6 +454,18 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteTex(w, c, opts)
 		}
+	case DivNode:
+		w.Write([]byte("{"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("}"))
+	case CodeNode:
+		w.Write([]byte("\\texttt{"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteTex(w, c, opts)
+		}
+		w.Write([]byte("}"))
 	case CenterAlignNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -769,6 +786,7 @@ func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 	s := new(htmlWriteState)
 	writeHTML(HTMLVal, s, w, n, opts)
 
+	fmt.Fprintf(w, "<hr style='margin-top:0.5in'>")
 	fmt.Fprintf(w, "<ol class='footnotes'>")
 	for i, f := range s.footnotes {
 		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
@@ -963,6 +981,49 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		}
 		w.Write([]byte(opts.Prefix + "<!--" + n.Data + "-->\n"))
 	case TexOnlyNode:
+	case DivNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<div"))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(val, s, w, c, opts)
+		}
+		w.Write([]byte("</div>"))
+	case PreNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<code"))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte("><pre>"))
+		var b bytes.Buffer
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(&b, c, opts)
+		}
+		w.Write([]byte(html.EscapeString(b.String())))
+		w.Write([]byte("</pre></code>"))
+	case CodeNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<code"))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte("><pre>"))
+		var b bytes.Buffer
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(&b, c, opts)
+		}
+		w.Write([]byte(html.EscapeString(b.String())))
+		w.Write([]byte("</pre></code>"))
 	case CenterAlignNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))

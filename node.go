@@ -14,8 +14,8 @@ import (
 // The main difference is that we lex HTML text nodes
 // into TokenNodes.
 type Node struct {
-	Type  NodeType    // The Type of Node, see NodeType.
-	Data  string      // The data, as in html.Node.
+	Type  NodeType // The Type of Node, see NodeType.
+	Data  string
 	Attr  []Attribute // The attributes, as in html.Node.
 	Token *Token      // The token value if Type==TokenNode; see Token.
 
@@ -55,6 +55,9 @@ const (
 	THNode
 	TDNode
 	QuoteNode
+	DivNode
+	CodeNode
+	PreNode
 )
 
 func (t NodeType) String() string {
@@ -99,6 +102,12 @@ func (t NodeType) String() string {
 		return "statement"
 	case LinkNode:
 		return "link"
+	case DivNode:
+		return "div"
+	case CodeNode:
+		return "code"
+	case PreNode:
+		return "pre"
 	default:
 		panic(fmt.Sprintf("unknown node type: %d", t))
 	}

@@ -1,0 +1,46 @@
+<div style='max-width:8.5in; margin: 1in auto; font-size:1em;'>
+  <img src='littex.jpg'/>
+  ¶ ⦊
+    ‖ LitTex is an ‹archival› markup language that renders to
+      both␣
+      <a href='https:᜶www.latex-project.org'>
+        ‖ LaTeX ⦉
+      </a>
+      ␣and␣
+      <a href='https:᜶developer.mozilla.org/en-US/docs/Web/HTML'>
+        ‖ HTML ⦉
+      </a>
+      . ⦉
+  ⦉
+
+  ¶ ⦊
+    ‖ Here is an example: ⦉
+  ⦉
+
+  <code style='background:lightgray'>
+    ¶ ⦊
+      ‖ The principal concept of set theory, the one that in
+        completely axiomatic studies is the principle primitive
+        (undefined) concept, is that of ‹belonging›. ⦉
+
+      ‖ If $x$ belongs to $A$ ($x$ is an element of $A$, $x$
+        is contained in $A$), we shall write
+        ◇ ⦊
+          ‖ x ∈ A. ⦉
+        ⦉⦉
+
+      ‖ This version of the Greek letter epsilon is so often
+        used to denote belonging that its use to denote anything
+        else is almost prohibited. ⦉
+
+      ‖ Most authors relegate $ϵ$ to its set-theoretic use
+        forever and use $ε$ when they need the fifth letter of
+        the Greek alphabet. ⦉
+    ⦉
+  </code>
+
+  ‖ «Paragraphs» ⦉
+  ¶ ⦊
+    ‖ Paragraphs are represented with a pilcrow. ⦉
+  ⦉
+</div>

@@ -85,7 +85,7 @@ func litReplace(s string) string {
 	s = strings.Replace(s, "⦉", "</div>", -1)
 	//	s = strings.Replace(s, "\\S", "§", -1)
 	re := regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
-	s = re.ReplaceAllString(s, `<a href='$2'>$1</a>`)
+	s = re.ReplaceAllString(s, `<a href='$2'> ‖ $1 ⦉</a>`)
 	return s
 }
 
@@ -208,7 +208,7 @@ func UnmarshalHTML(in *html.Node) (*Node, error) {
 
 func unmarshalHTMLText(in *html.Node) (tokens []*Node, err error) {
 	if in.Type != html.TextNode {
-		panic("die")
+		panic("lit.unmarshalHTMLText called on non-text node")
 	}
 
 	var ts []*Token
@@ -273,6 +273,9 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 		case atom.Td:
 			n.Type = TDNode
 			n.Attr = copyAttr(in.Attr)
+		case atom.Code:
+			n.Type = CodeNode
+			n.Attr = copyAttr(in.Attr)
 		case atom.Div:
 			switch c := littypeOf(in); {
 			case c == ParagraphClass:
@@ -294,6 +297,9 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.Type = SectionNode
 				n.setAttr("section-level", litsectionlevelOf(in.Attr))
 				n.setAttr("section-numbered", litsectionnumbered(in.Attr))
+			case c == "":
+				n.Type = DivNode
+				n.Attr = copyAttr(in.Attr)
 			default:
 				panic(fmt.Sprintf("unrecognized littype: %q", c))
 			}
@@ -327,24 +333,31 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 		}
 
-		for c := in.FirstChild; c != nil; c = c.NextSibling {
-			switch c.Type {
-			case html.TextNode:
-				ts, err := unmarshalHTMLText(c)
-				if err != nil {
-					return nil, err
-				}
+		if n.Type == CodeNode {
+			if len(n.Kids()) > 1 {
+				log.Fatal("code node can only have one child")
+			}
+		} else {
 
-				for _, child := range ts {
-					n.AppendChild(child)
-				}
-			default:
-				child, err := unmarshalHTML(c, &n)
-				if err != nil {
-					return nil, err
-				}
-				if child != nil {
-					n.AppendChild(child)
+			for c := in.FirstChild; c != nil; c = c.NextSibling {
+				switch c.Type {
+				case html.TextNode:
+					ts, err := unmarshalHTMLText(c)
+					if err != nil {
+						return nil, err
+					}
+
+					for _, child := range ts {
+						n.AppendChild(child)
+					}
+				default:
+					child, err := unmarshalHTML(c, &n)
+					if err != nil {
+						return nil, err
+					}
+					if child != nil {
+						n.AppendChild(child)
+					}
 				}
 			}
 		}
