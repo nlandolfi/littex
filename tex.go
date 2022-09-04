@@ -89,7 +89,11 @@ func Tex(t *Token, inMath bool) string {
 		case '᜶':
 			return "\\\\"
 		case '↦':
-			return "\\indent"
+			if inMath {
+				return "\\mapsto"
+			} else {
+				return "\\indent"
+			}
 		case '↤':
 			return "\\noindent"
 		case '␣':
