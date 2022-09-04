@@ -659,7 +659,11 @@ func HTMLVal(t *Token, inMath bool) string {
 	case "❭":
 		return "</span>"
 	case "↦":
-		return "&nbsp;&nbsp;&nbsp;&nbsp;"
+		if inMath {
+			return "\\mapsto"
+		} else {
+			return "&nbsp;&nbsp;&nbsp;&nbsp;"
+		}
 	case "＆": // This is a full-width &
 		return "\\&"
 	case "⁅":
