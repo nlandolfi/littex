@@ -618,8 +618,8 @@ func Val(t *Token, inMath bool) string {
 }
 
 func HTMLVal(t *Token, inMath bool) string {
-	if isSpace(t) {
-		return " "
+	if isSpace(t) && !t.Implicit {
+		return "&nbsp;"
 	}
 	switch t.Value {
 	case "᜶":
@@ -658,7 +658,7 @@ func HTMLVal(t *Token, inMath bool) string {
 }
 
 func isSpace(t *Token) bool {
-	return t.Type == PunctuationToken && t.Value == "␣"
+	return t.Type == SymbolToken && t.Value == "␣"
 }
 
 type tokenStringer func(t *Token, inMath bool) string

@@ -78,12 +78,12 @@ func Lex(s string) (tokens []*Token, err error) {
 			}
 			last := tokens[len(tokens)-1]
 			if last.Type == WordToken ||
-				last.Type == SymbolToken ||
+				(last.Type == SymbolToken && last.Value != "␣") ||
 				last.Type == OpaqueToken ||
-				(last.Type == PunctuationToken && last.Value != "␣") {
+				last.Type == PunctuationToken {
 				// convert it to a space
 				tokens = append(tokens, &Token{
-					Type:     PunctuationToken,
+					Type:     SymbolToken,
 					Value:    "␣",
 					Implicit: true,
 				})

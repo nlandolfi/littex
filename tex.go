@@ -22,11 +22,6 @@ func Tex(t *Token, inMath bool) string {
 		return out
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
-		case '␣':
-			if t.Implicit {
-				return " "
-			}
-			return "␣"
 		case '&':
 			return "\\&"
 		case '＆':
@@ -97,6 +92,8 @@ func Tex(t *Token, inMath bool) string {
 			return "\\indent"
 		case '↤':
 			return "\\noindent"
+		case '␣':
+			return " "
 		}
 		if replacement, ok := LatexMathReplacements[r]; ok {
 			return replacement
