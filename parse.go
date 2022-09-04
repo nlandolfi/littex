@@ -8,6 +8,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -63,29 +64,95 @@ func ParseLit(s string) (*Node, error) {
 }
 
 func litReplace(s string) string {
-	s = strings.Replace(s, "¶⦊", "¶ ⦊", -1)
-	s = strings.Replace(s, "†⦊", "† ⦊", -1)
-	s = strings.Replace(s, "◇⦊", "◇ ⦊", -1)
-	s = strings.Replace(s, "⁝⦊", "⁝ ⦊", -1)
-	s = strings.Replace(s, "𝍫⦊", "𝍫 ⦊", -1)
-	s = strings.Replace(s, "§⦊", "§ ⦊", -1)
-	s = strings.Replace(s, "¶ ⦊", "<div data-littype='"+ParagraphClass+"'>", -1)
-	s = strings.Replace(s, "† ⦊", "<div data-littype='"+FootnoteClass+"'>", -1)
-	s = strings.Replace(s, "◇ ⦊", "<div data-littype='"+DisplayMathClass+"'>", -1)
-	s = strings.Replace(s, "‖", "<div data-littype='"+RunClass+"'>", -1)
-	s = strings.Replace(s, "⁝ ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='unordered'>", -1)
-	s = strings.Replace(s, "𝍫 ⦊", "<div data-littype='"+ListClass+"' data-litlisttype='ordered'>", -1)
-	s = strings.Replace(s, "‣", "<div data-littype='"+ListItemClass+"'>", -1)
-	s = strings.Replace(s, "#§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3' data-litsectionnumbered='true'>", -1)
-	s = strings.Replace(s, "#§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2' data-litsectionnumbered='true'>", -1)
-	s = strings.Replace(s, "#§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1' data-litsectionnumbered='true'>", -1)
-	s = strings.Replace(s, "§§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='3' data-litsectionnumbered='false'>", -1)
-	s = strings.Replace(s, "§§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='2' data-litsectionnumbered='false'>", -1)
-	s = strings.Replace(s, "§", "<div data-littype='"+SectionClass+"' data-litsectionlevel='1' data-litsectionnumbered='false'>", -1)
-	s = strings.Replace(s, "⦉", "</div>", -1)
-	//	s = strings.Replace(s, "\\S", "§", -1)
-	re := regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
-	s = re.ReplaceAllString(s, `<a href='$2'> ‖ $1 ⦉</a>`)
+	s = " " + s // to ensure a first character match,
+	// for the picrow etc escapes
+
+	// runs
+	re := regexp.MustCompile(`[^\\]‖`)
+	s = re.ReplaceAllString(s, "<div data-littype='"+RunClass+"'>")
+	s = strings.Replace(s, "\\‖", "‖", -1)
+
+	// pilcrow
+	re = regexp.MustCompile(`([^\\])¶⦊`)
+	s = re.ReplaceAllString(s, `$1¶ ⦊`)
+	re = regexp.MustCompile(`([^\\])¶ ⦊`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+ParagraphClass+"'>")
+	s = strings.Replace(s, "\\¶", "¶", -1)
+
+	// footnote
+	re = regexp.MustCompile(`([^\\])†⦊`)
+	s = re.ReplaceAllString(s, `$1† ⦊`)
+	re = regexp.MustCompile(`([^\\])† ⦊`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+FootnoteClass+"'>")
+	s = strings.Replace(s, "\\†", "†", -1)
+
+	// display math
+	re = regexp.MustCompile(`([^\\])◇⦊`)
+	s = re.ReplaceAllString(s, `$1◇ ⦊`)
+	re = regexp.MustCompile(`([^\\])◇ ⦊`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+DisplayMathClass+"'>")
+	s = strings.Replace(s, "\\◇", "◇", -1)
+
+	// unordered lists
+	re = regexp.MustCompile(`([^\\])⁝⦊`)
+	s = re.ReplaceAllString(s, `$1⁝ ⦊`)
+	re = regexp.MustCompile(`([^\\])⁝ ⦊`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+ListClass+"' data-litlisttype='unordered'>")
+	s = strings.Replace(s, "\\⁝", "⁝", -1)
+
+	// ordered lists
+	re = regexp.MustCompile(`([^\\])𝍫⦊`)
+	s = re.ReplaceAllString(s, `$1𝍫 ⦊`)
+	re = regexp.MustCompile(`([^\\])𝍫 ⦊`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+ListClass+"' data-litlisttype='ordered'>")
+	s = strings.Replace(s, "\\𝍫", "𝍫", -1)
+
+	// list items
+	re = regexp.MustCompile(`([^\\])‣`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+ListItemClass+"'>")
+	s = strings.Replace(s, "\\‣", "‣", -1)
+
+	// sections
+	// first, replace repeats
+	re = regexp.MustCompile(`[^\\](§+)`)
+	s = re.ReplaceAllStringFunc(s, func(og string) string {
+		// drop the first non \ match
+		index := strings.Index(og, "§")
+		in := og[index:len(og)]
+		//log.Print(in)
+		//log.Print(utf8.RuneCountInString(in))
+		return fmt.Sprintf("%s§%d", og[0:index], utf8.RuneCountInString(in))
+	})
+	// numbered
+	re = regexp.MustCompile(`#§([\d])`)
+	s = re.ReplaceAllString(s, "<div data-littype='"+SectionClass+"' data-litsectionlevel='$2' data-litsectionnumbered='true'>")
+	// unnumbered
+	re = regexp.MustCompile(`([^\\])§([\d])`)
+	s = re.ReplaceAllString(s, "$1<div data-littype='"+SectionClass+"' data-litsectionlevel='$2' data-litsectionnumbered='false'>")
+	// section symbol
+	s = strings.Replace(s, "\\§", "§", -1)
+
+	// closes
+	// the naive single match doesn't work, misses some of them
+	// so need this more complicated thing
+	re = regexp.MustCompile(`([^\\])⦉+`)
+	s = re.ReplaceAllStringFunc(s, func(og string) string {
+		// drop the first non \ match
+		index := strings.Index(og, "⦉")
+		in := og[index:len(og)]
+		out := og[0:index]
+		for i := 0; i < utf8.RuneCountInString(in); i++ {
+			out += "</div>"
+		}
+		return out
+	})
+	// all to get the escape functionalityj
+	s = strings.Replace(s, "\\⦉", "⦉", -1)
+
+	//	s = strings.Replace(s, "⦉", "</div>", -1)
+
+	//re = regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
+	//s = re.ReplaceAllString(s, `<a href='$2'> ‖ $1 ⦉</a>`)
 	return s
 }
 
@@ -333,31 +400,24 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
 		}
 
-		if n.Type == CodeNode {
-			if len(n.Kids()) > 1 {
-				log.Fatal("code node can only have one child")
-			}
-		} else {
+		for c := in.FirstChild; c != nil; c = c.NextSibling {
+			switch c.Type {
+			case html.TextNode:
+				ts, err := unmarshalHTMLText(c)
+				if err != nil {
+					return nil, err
+				}
 
-			for c := in.FirstChild; c != nil; c = c.NextSibling {
-				switch c.Type {
-				case html.TextNode:
-					ts, err := unmarshalHTMLText(c)
-					if err != nil {
-						return nil, err
-					}
-
-					for _, child := range ts {
-						n.AppendChild(child)
-					}
-				default:
-					child, err := unmarshalHTML(c, &n)
-					if err != nil {
-						return nil, err
-					}
-					if child != nil {
-						n.AppendChild(child)
-					}
+				for _, child := range ts {
+					n.AppendChild(child)
+				}
+			default:
+				child, err := unmarshalHTML(c, &n)
+				if err != nil {
+					return nil, err
+				}
+				if child != nil {
+					n.AppendChild(child)
 				}
 			}
 		}

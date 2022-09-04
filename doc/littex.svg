@@ -7,19 +7,13 @@
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="Artboard" transform="translate(-467.000000, -674.000000)">
             <g id="Group-6" transform="translate(466.000000, 673.000000)">
-                <g id="Group-5" transform="translate(98.000000, 37.000000)" fill="#000000" font-weight="400">
-                    <g id="Group-4" transform="translate(0.000000, 5.000000)" font-family="CMUSansSerif, CMU Sans Serif">
-                        <text id="L" font-size="40" letter-spacing="1.966667">
-                            <tspan x="0.17682275" y="36">L</tspan>
-                        </text>
-                        <text id="I" font-size="30" letter-spacing="1.47500026">
-                            <tspan x="12.0950194" y="30">I</tspan>
-                        </text>
-                        <text id="T" font-size="30" letter-spacing="1.47500026">
-                            <tspan x="19.0671874" y="30">T</tspan>
-                        </text>
+                <g id="Group-5" transform="translate(101.000000, 37.000000)" fill="#000000">
+                    <g id="Group-4" transform="translate(0.000000, 13.000000)">
+                        <polygon id="L" points="0.946354 28 0.946354 0.24609375 4.540104 0.24609375 4.540104 25.4023438 12.3330728 25.4023438 17.1377603 25.3632812 17.1377603 28"></polygon>
+                        <polygon id="I" points="11.9221678 22 11.9221678 1.18457031 14.6174803 1.18457031 14.6174803 22"></polygon>
+                        <polygon id="T" points="17.1218749 3.30859375 17.1218749 1.33105469 35.3591796 1.33105469 35.3591796 3.30859375 31.0964842 3.30859375 27.5808592 3.27929688 27.5808592 22 24.9148436 22 24.9148436 3.27929688 21.3699217 3.30859375"></polygon>
                     </g>
-                    <g id="Group-3" transform="translate(41.000000, 0.000000)" font-size="40" font-family="CMUSerif-Roman, CMU Serif" letter-spacing="1.96666706">
+                    <g id="Group-3" transform="translate(38.000000, 0.000000)" font-size="40" font-family="CMUSerif-Roman, CMU Serif" letter-spacing="1.96666706" font-weight="400">
                         <text id="T">
                             <tspan x="0.083072722" y="37">T</tspan>
                         </text>
@@ -32,7 +26,7 @@
                     </g>
                 </g>
                 <g id="layer1" fill-rule="nonzero">
-                    <g id="g3363" transform="translate(63.111342, 49.185985) scale(-1, 1) rotate(-180.000000) translate(-63.111342, -49.185985) translate(0.510076, 0.587624)">
+                    <g id="g3363" transform="translate(63.510076, 49.284345) scale(-1, 1) rotate(-180.000000) translate(-63.510076, -49.284345) translate(0.510076, 0.784345)">
                         <g id="g3365" transform="translate(0.120390, 0.186662)">
                             <g id="g3367">
                                 <g id="g3369">

@@ -1,46 +1,79 @@
 <div style='max-width:8.5in; margin: 1in auto; font-size:1em;'>
-  <img src='littex.jpg'/>
+  <img src='littex.svg'/>
   ¶ ⦊
     ‖ LitTex is an ‹archival› markup language that renders to
       both␣
-      <a href='https:᜶www.latex-project.org'>
+      <a href='https://www.latex-project.org'>
         ‖ LaTeX ⦉
       </a>
       ␣and␣
-      <a href='https:᜶developer.mozilla.org/en-US/docs/Web/HTML'>
+      <a href='https://developer.mozilla.org/en-US/docs/Web/HTML'>
         ‖ HTML ⦉
       </a>
       . ⦉
   ⦉
 
   ¶ ⦊
-    ‖ Here is an example: ⦉
+    ‖ It was designed by␣
+      <a href='https://nicklandolfi.com'>
+        ‖ N. C. Landolfi ⦉
+      </a>
+      ␣for the␣
+      <a href='https://greatbooksadventure.com/litterae.html'>
+        ‖ Litterae ⦉
+      </a>
+      ␣and␣
+      <a href='https://bourbakiproject.com'>
+        ‖ Bourbaki ⦉
+      </a>
+      ␣projects. ⦉
   ⦉
 
-  <code style='background:lightgray'>
-    ¶ ⦊
-      ‖ The principal concept of set theory, the one that in
-        completely axiomatic studies is the principle primitive
-        (undefined) concept, is that of ‹belonging›. ⦉
+  ‖ «Runs» ⦉
+  ¶ ⦊
+    ‖ Runs are denoted by \‖. ⦉
 
-      ‖ If $x$ belongs to $A$ ($x$ is an element of $A$, $x$
-        is contained in $A$), we shall write
-        ◇ ⦊
-          ‖ x ∈ A. ⦉
-        ⦉⦉
+    ‖ Example: ⦉
+    <code></code>
+  ⦉
 
-      ‖ This version of the Greek letter epsilon is so often
-        used to denote belonging that its use to denote anything
-        else is almost prohibited. ⦉
+  ‖ «Footnotes» ⦉
+  ¶ ⦊
+    ‖ Footnotes are denoted by \†. ⦉
+  ⦉
 
-      ‖ Most authors relegate $ϵ$ to its set-theoretic use
-        forever and use $ε$ when they need the fifth letter of
-        the Greek alphabet. ⦉
-    ⦉
-  </code>
+  ‖ «Display math blocks» ⦉
+  ¶ ⦊
+    ‖ Display math blocks are denoted by \◇. ⦉
+  ⦉
 
   ‖ «Paragraphs» ⦉
   ¶ ⦊
-    ‖ Paragraphs are represented with a pilcrow. ⦉
+    ‖ Paragraphs are denoted by \¶. ⦉
+  ⦉
+
+  ‖ «Unordered lists» ⦉
+  ¶ ⦊
+    ‖ Unordered lists are denoted by \⁝. ⦉
+  ⦉
+
+  ‖ «Ordered lists» ⦉
+  ¶ ⦊
+    ‖ Unordered lists are denoted by \𝍫. ⦉
+  ⦉
+
+  ‖ «List items» ⦉
+  ¶ ⦊
+    ‖ Unordered lists are denoted by \‣. ⦉
+  ⦉
+
+  ‖ «Sections» ⦉
+  ¶ ⦊
+    ‖ Sections are denoted by \§ ⦉
+  ⦉
+
+  ‖ «Closing elements» ⦉
+  ¶ ⦊
+    ‖ Closing elements are denoted by \⦉ ⦉
   ⦉
 </div>

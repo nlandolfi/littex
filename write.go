@@ -632,6 +632,10 @@ func Val(t *Token, inMath bool) string {
 	if t.Implicit && isSpace(t) {
 		out = " "
 	}
+	switch out {
+	case "¶", "‖", "†", "◇", "⁝", "𝍫", "‣", "§", "⦉":
+		out = "\\" + out
+	}
 	return out
 }
 
@@ -673,6 +677,11 @@ func HTMLVal(t *Token, inMath bool) string {
 	}
 
 	if t.Type == OpaqueToken {
+		return t.Value
+	}
+
+	switch t.Value {
+	case "¶", "‖", "◇", "†", "⁝", "‣", "𝍫", "§", "⦉":
 		return t.Value
 	}
 
@@ -790,17 +799,20 @@ func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 	s := new(htmlWriteState)
 	writeHTML(HTMLVal, s, w, n, opts)
 
-	fmt.Fprintf(w, "<hr style='margin-top:0.5in'>")
-	fmt.Fprintf(w, "<ol class='footnotes'>")
-	for i, f := range s.footnotes {
-		fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
-		for c := f.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(HTMLVal, nil, w, c, Indented(opts))
+	if len(s.footnotes) > 0 {
+
+		fmt.Fprintf(w, "<hr style='margin-top:0.5in'>")
+		fmt.Fprintf(w, "<ol class='footnotes'>")
+		for i, f := range s.footnotes {
+			fmt.Fprintf(w, "<li id='footnote-%d'>", i+1)
+			for c := f.FirstChild; c != nil; c = c.NextSibling {
+				writeHTML(HTMLVal, nil, w, c, Indented(opts))
+			}
+			fmt.Fprintf(w, "<a href='#footnote-%d-reference'>↩︎</a>", i+1)
+			fmt.Fprintf(w, "</li>")
 		}
-		fmt.Fprintf(w, "<a href='#footnote-%d-reference'>↩︎</a>", i+1)
-		fmt.Fprintf(w, "</li>")
+		fmt.Fprintf(w, "</ol>")
 	}
-	fmt.Fprintf(w, "</ol>")
 	return nil
 }
 
