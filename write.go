@@ -441,6 +441,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			}
 			w.Write([]byte("\n%" + line))
 		}
+		w.Write([]byte("\n"))
 	case TexOnlyNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
