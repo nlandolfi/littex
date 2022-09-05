@@ -2,8 +2,6 @@ package lit
 
 import (
 	"fmt"
-	"log"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -267,12 +265,8 @@ func (n *Node) SectionNumbered() bool {
 	return getAttr(n.Attr, "section-numbered") == "true"
 }
 
-func (n *Node) SectionLevel() int {
-	i, err := strconv.Atoi(getAttr(n.Attr, "section-level"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return i
+func (n *Node) SectionLevel() string {
+	return getAttr(n.Attr, "section-level")
 }
 
 // Convenient for templates (esp. slides) {{{

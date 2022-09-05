@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8"/>
   <body>
-<div style='max-width:8.5in; margin: 1in auto; font-size:1em;'>    <img src="littex.svg"/>
+<div style='max-width:6.5in; margin: 1in auto; font-size:1em;'>    <img src="littex.svg"/>
     <p>
       <span class='run'>LitTex is an <i>archival</i> markup language
         that renders to both&nbsp;<a href='https://www.latex-project.org'/><span class='run'>LaTeX</span></a>&nbsp;and&nbsp;<a href='https://developer.mozilla.org/en-US/docs/Web/HTML'/><span class='run'>HTML</span></a>.</span>
@@ -12,9 +12,262 @@
       <span class='run'>It was designed by&nbsp;<a href='https://nicklandolfi.com'/><span class='run'>N. C. Landolfi</span></a>&nbsp;for the&nbsp;<a href='https://greatbooksadventure.com/litterae.html'/><span class='run'>Litterae</span></a>&nbsp;and&nbsp;<a href='https://bourbakiproject.com'/><span class='run'>Bourbaki</span></a>&nbsp;projects.</span>
     </p>
 
+
+    <!--
+  <div data-littype='paragraph'>
+   <div data-littype='run'> It is a superset of HTML with a few extra symbols that
+      save many characters. </div>
+  </div>
+
+  <div data-littype='paragraph'>
+   <div data-littype='run'> It an obvious tokenization, useful for references. </div>
+  </div>
+  -->
+
+    <p>
+      <span class='run'>Here is an example, from Section 1 of
+        Halmos’ <i>Naive Set Theory</i>.</span>
+<code><pre>      ¶ ⦊
+        ‖ The principal concept of set theory, the one that in
+          completely axiomatic studies is the principle primitive
+          (undefined) concept, is that of ‹belonging›. ⦉
+
+        ‖ If $x$ belongs to $A$ ($x$ is an element of $A$, $x$
+          is contained in $A$), we shall write
+          ◇ ⦊
+            ‖ x ∈ A. ⦉
+          ⦉⦉
+
+        ‖ This version of the Greek letter epsilon is so often
+          used to denote belonging that its use to denote
+          anything else is almost prohibited. ⦉
+
+        ‖ Most authors relegate $ϵ$ to its set-theoretic use
+          forever and use $ε$ when they need the fifth letter of
+          the Greek alphabet. ⦉
+      ⦉</pre></code>
+    </p>
+
+
+    <p>
+      <span class='run'>LitTex is <i>readable</i>, <i>short</i>, and
+        <i>has math</i>.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>What can LitTex render? Well, this page,
+        for instance.</span>
+    </p>
+
+
+    <!--
+  <div data-littype='paragraph'>
+   <div data-littype='run'> Roughly speaking, the pilcrow ¶ is shorthand for a
+      pargraph, the symbol<div data-littype='run'> is shorthand for a “run” (think
+      sentence), and the symbol ◇ is shorthand to introduce some
+      displayed math. </div>
+
+   <div data-littype='run'> The symbol </div> is shorthand for any closing tag. </div>
+  </div>
+  -->
+
+    <span class='run'><b>Closing elements</b></span>
+    <p>
+      <span class='run'>Closing elements are denoted by ⦉.</span>
+
+      <span class='run'>See examples below.</span>
+    </p>
+
     <span class='run'><b>Runs</b></span>
     <p>
       <span class='run'>Runs are denoted by ‖.</span>
+    </p>
 
-      <span class='run'>Example:</span>
-<code><pre>
+
+    <p>
+      <span class='run'>Example 1</span>
+<code><pre>      ‖ This is a run. ⦉</pre></code>
+      <span class='run'>Example 2</span>
+<code><pre>      ‖ The fun part, is that runs can be multiple lines of
+        plain unicode text 🙂, but the lit program will format
+        them, and have them wrap nicely (in fact, it formatted
+        this block you are reading). ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>Footnotes</b></span>
+    <p>
+      <span class='run'>Footnotes are denoted by †.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1: Kierkegaard’s Journal</span>
+<code><pre>      ¶ ⦊
+        ‖ What I really need is to get clear about what I must
+          do,
+          † ⦊
+            ‖ How often, when a person believes that he has the
+              best grip on himself, it turns out that he has
+              embraced a cloud instead of Juno. ⦉
+          ⦉
+          not what I must know, except insofar as knowledge must
+          precede every act. ⦉
+
+        ‖ What matters is to find a purpose, to see what it
+          really is that God wills that ‹I› shall do; the
+          crucial thing is to find a truth which is truth ‹for
+          me›,
+          † ⦊
+            ‖ Only then does one have an inner experience, but
+              how many experience life&#39;s different impressions the
+              way the sea sketches figures in the sand and then
+              promptly erases them without a trace. ⦉
+          ⦉
+          to find ‹the idea for which I am willing to live and
+          die›. ⦉
+      ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>Display math blocks</b></span>
+    <p>
+      <span class='run'>Display math blocks are denoted by ◇.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1:</span>
+<code><pre>      ◇ ⦊
+        ‖ ∫ f dμ = ∫ f^+ dμ - ∫ f^- dμ. ⦉
+      ⦉</pre></code>
+      <span class='run'>Example 2:</span>
+<code><pre>      ◇ ⦊
+        ‖ (X, ℱ, 𝗣) ⦉
+      ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>Paragraphs</b></span>
+    <p>
+      <span class='run'>Paragraphs are denoted by ¶.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1:</span>
+<code><pre>      ◇ ⦊
+        ‖ ∫ f dμ = ∫ f^+ dμ - ∫ f^- dμ. ⦉
+      ⦉</pre></code>
+      <span class='run'>Example 2:</span>
+<code><pre>      ◇ ⦊
+        ‖ (X, ℱ, 𝗣) ⦉
+      ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>List items</b></span>
+    <p>
+      <span class='run'>Unordered lists are denoted by ‣.</span>
+
+      <span class='run'>See examples below.</span>
+    </p>
+
+    <span class='run'><b>Unordered lists</b></span>
+    <p>
+      <span class='run'>Unordered lists are denoted by ⁝.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1</span>
+<code><pre>      ⁝ ⦊
+        ‣ apples ⦉
+
+        ‣ oranges ⦉
+
+        ‣ and something more complicated
+          ◇ ⦊
+            ‖ ax^2 + bx + c = 0 ⦉
+          ⦉⦉
+      ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>Ordered lists</b></span>
+    <p>
+      <span class='run'>Ordered lists are denoted by 𝍫.</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1</span>
+<code><pre>      𝍫 ⦊
+        ‣ did you know ⦉
+
+        ‣ you can escape these \‖ \⦉ ⦉
+      ⦉</pre></code>
+    </p>
+
+    <span class='run'><b>Sections</b></span>
+    <p>
+      <span class='run'>Sections are denoted by §</span>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 0</span>
+<code><pre>      § This is a section. ⦉
+
+      §§ This is a subsection. ⦉
+
+      §§§ This is a subsubsection. ⦉
+
+      #§ This one is numbered ⦉
+
+      #§§ And this one ⦉</pre></code>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 1</span>
+<code><pre>      § Why ⦉
+      ¶ ⦊
+        ‖ It happens that all circulant matrices have the same
+          eigenvectors. ⦉
+      ⦉
+
+      § Definition ⦉
+      ¶ ⦊
+        ‖ Recall that if $C$ is circulant then
+          ◇ ⦊
+            ‖ C = c_0I + c_1 S + c_2S^2 + ⋯ + c_{n-1}S^{n-1}. ⦉
+          ⦉⦉
+
+        ‖ So $q ∈ 𝗥^d$ is an eigenvector of $C$ if and only
+          if it is one of $S$.
+          † ⦊
+            ‖ Future editions will complete this development. ⦉
+          ⦉⦉
+      ⦉</pre></code>
+    </p>
+
+
+    <p>
+      <span class='run'>Example 2.</span>
+<code><pre>      § Definition ⦉
+      ¶ ⦊
+        ‖ Let $(X, 𝗙)$ be a vector space where $𝗙$ is the
+          field of real numbers or the field of complex numbers. ⦉
+
+        ‖ The functional $f: X → 𝗥$ is a ❬norm❭ if
+          𝍫 ⦊
+            ‣ $f(v) ≥ 0$ for all $x ∈ V$ ⦉
+
+            ‣ $f(v) = 0$ if and only if $x = 0 ∈ X$. ⦉
+
+            ‣ $f(α x) = \abs{α}f(x)$ for all $α ∈ 𝗙$, $x ∈ X$ ⦉
+
+            ‣ $f(x + y) ≤ f(x) + f(y)$ for all $x, y ∈ X$. ⦉
+          ⦉⦉
+      ⦉</pre></code>
+    </p>
+</div>
+  </body>
+</html>

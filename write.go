@@ -134,11 +134,11 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 
 			// maybe don't bother with these helper functions Section*
 			switch n.SectionLevel() {
-			case 1:
+			case "1":
 				w.Write([]byte("§ "))
-			case 2:
+			case "2":
 				w.Write([]byte("§§ "))
-			case 3:
+			case "3":
 				w.Write([]byte("§§§ "))
 			default:
 				w.Write([]byte("§ "))
@@ -633,7 +633,7 @@ func Val(t *Token, inMath bool) string {
 		out = " "
 	}
 	switch out {
-	case "¶", "‖", "†", "◇", "⁝", "𝍫", "‣", "§", "⦉":
+	case "¶", "‖", "†", "◇", "⁝", "𝍫", "‣", "§", "⦉", "<", ">":
 		out = "\\" + out
 	}
 	return out
@@ -683,6 +683,8 @@ func HTMLVal(t *Token, inMath bool) string {
 	switch t.Value {
 	case "¶", "‖", "◇", "†", "⁝", "‣", "𝍫", "§", "⦉":
 		return t.Value
+	case "<", ">":
+		return html.EscapeString(t.Value)
 	}
 
 	return html.EscapeString(Val(t, inMath))

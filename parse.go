@@ -67,6 +67,9 @@ func litReplace(s string) string {
 	s = " " + s // to ensure a first character match,
 	// for the picrow etc escapes
 
+	s = strings.Replace(s, "\\<", "&lt;", -1)
+	s = strings.Replace(s, "\\>", "&gt;", -1)
+
 	// runs
 	re := regexp.MustCompile(`[^\\]‖`)
 	s = re.ReplaceAllString(s, "<div data-littype='"+RunClass+"'>")
@@ -114,20 +117,23 @@ func litReplace(s string) string {
 
 	// sections
 	// first, replace repeats
-	re = regexp.MustCompile(`[^\\](§+)`)
+	re = regexp.MustCompile(`[^\\]§+`)
 	s = re.ReplaceAllStringFunc(s, func(og string) string {
+		//		log.Printf("in: %q", og)
 		// drop the first non \ match
 		index := strings.Index(og, "§")
 		in := og[index:len(og)]
-		//log.Print(in)
+		//log.Printf("slice: %q", og[0:index])
 		//log.Print(utf8.RuneCountInString(in))
-		return fmt.Sprintf("%s§%d", og[0:index], utf8.RuneCountInString(in))
+		out := fmt.Sprintf("%s§%d", og[0:index], utf8.RuneCountInString(in))
+		//		log.Printf("out: %q", out)
+		return out
 	})
 	// numbered
-	re = regexp.MustCompile(`#§([\d])`)
-	s = re.ReplaceAllString(s, "<div data-littype='"+SectionClass+"' data-litsectionlevel='$2' data-litsectionnumbered='true'>")
+	re = regexp.MustCompile(`#§([[:digit:]]+)`)
+	s = re.ReplaceAllString(s, "<div data-littype='"+SectionClass+"' data-litsectionlevel='$1' data-litsectionnumbered='true'>")
 	// unnumbered
-	re = regexp.MustCompile(`([^\\])§([\d])`)
+	re = regexp.MustCompile(`([^\\#])§([[:digit:]]+)`)
 	s = re.ReplaceAllString(s, "$1<div data-littype='"+SectionClass+"' data-litsectionlevel='$2' data-litsectionnumbered='false'>")
 	// section symbol
 	s = strings.Replace(s, "\\§", "§", -1)
@@ -165,13 +171,13 @@ func ParseTex(s string) (*Node, error) {
 		replace := res[r]
 		s = r.ReplaceAllString(s, replace)
 	}
-	s = strings.Replace(s, "\\item", "‣", -1)
-	s = strings.Replace(s, "\\begin{itemize}", "⁝ ⦊", -1)
-	s = strings.Replace(s, "\\begin{enumerate}", "𝍫 ⦊", -1)
+	s = strings.Replace(s, "\\item", " ‣", -1)
+	s = strings.Replace(s, "\\begin{itemize}", " ⁝ ⦊", -1)
+	s = strings.Replace(s, "\\begin{enumerate}", " 𝍫 ⦊", -1)
 	s = strings.Replace(s, "\\end{itemize}", "⦉", -1)
 	s = strings.Replace(s, "\\end{enumerate}", "⦉", -1)
 	s = strings.Replace(s, "\\[", "◇ ⦊ ‖ ", -1)
-	s = strings.Replace(s, "\\]", "⦉", -1)
+	s = strings.Replace(s, "\\]", " ⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
 	s = strings.Replace(s, "``", "“", -1)
 	s = strings.Replace(s, "''", "”", -1)
@@ -193,10 +199,10 @@ func ParseTex(s string) (*Node, error) {
 	w := &b
 	ps := strings.Split(s, "\n\n")
 	for _, p := range ps {
-		fmt.Fprintf(w, "¶ ⦊")
+		fmt.Fprintf(w, " ¶ ⦊")
 		ls := strings.Split(p, "\n")
 		for _, l := range ls {
-			fmt.Fprintf(w, "‖ ")
+			fmt.Fprintf(w, " ‖ ")
 			if len(l) > 0 && l[0] == '%' { // comments
 				fmt.Fprintf(w, "❲%s❳", l)
 			} else {
@@ -220,7 +226,7 @@ var dblqR = regexp.MustCompile("``((.|\n)*)?''")
 var sglqR = regexp.MustCompile("`((.|\n)*)?'")
 var sayR = regexp.MustCompile(`\\say{((.|\n)*)?}`)
 var commentsR = regexp.MustCompile(`%(.*?)\n`)
-var propositionWithText = regexp.MustCompile(`\\begin{proposition}\[(\w*)\]`)
+var propositionWithText = regexp.MustCompile(`\\begin{proposition}\[([\w| ]*)\]`)
 var proposition = regexp.MustCompile(`\\begin{proposition}`)
 var propositionEnd = regexp.MustCompile(`\\end{proposition}`)
 var ssection = regexp.MustCompile(`\\ssection{(\w*)}`)
@@ -230,16 +236,16 @@ var subsection = regexp.MustCompile(`\\subsection{(\w*)}`)
 
 // useful: https://gist.github.com/claybridges/8f9d51a1dc365f2e64fa
 var res = map[*regexp.Regexp]string{
-	propositionWithText: "<statement type='proposition' text='$1'>",
-	proposition:         "<statement type='proposition'>",
-	propositionEnd:      "</statement>",
-	ssection:            "§ $1 ⦉",
-	section:             "#§ $1 ⦉",
-	subsection:          "#§§ $1 ⦉",
-	ssubsection:         "§§ $1 ⦉",
+	propositionWithText: " <statement type='proposition' text='$1'>",
+	proposition:         " <statement type='proposition'>",
+	propositionEnd:      " </statement>",
+	ssection:            " § $1 ⦉",
+	section:             " #§ $1 ⦉",
+	subsection:          " #§§ $1 ⦉",
+	ssubsection:         " §§ $1 ⦉",
 	textitR:             "‹$1›",
 	textbfR:             "«$1»",
-	footnoteR:           "† ⦊ ‖ $1 ⦉⦉",
+	footnoteR:           " † ⦊ ‖ $1 ⦉⦉",
 	textscR:             "⸤$1⸥",
 	tR:                  "❬$1❭",
 	cR:                  "⁅$1⁆",
