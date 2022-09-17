@@ -633,8 +633,14 @@ func Val(t *Token, inMath bool) string {
 		out = " "
 	}
 	switch out {
-	case "¶", "‖", "†", "◇", "⁝", "𝍫", "‣", "§", "⦉", "<", ">":
+	case "¶", "‖", "†", "◇", "⁝", "𝍫", "‣", "§", "⦉":
 		out = "\\" + out
+		/*
+			case "<", ">":
+				if !inMath {
+					out = "\\" + out
+				}
+		*/
 	}
 	return out
 }
@@ -683,8 +689,10 @@ func HTMLVal(t *Token, inMath bool) string {
 	switch t.Value {
 	case "¶", "‖", "◇", "†", "⁝", "‣", "𝍫", "§", "⦉":
 		return t.Value
-	case "<", ">":
-		return html.EscapeString(t.Value)
+		/*
+			case "<", ">":
+				return html.EscapeString(t.Value)
+		*/
 	}
 
 	return html.EscapeString(Val(t, inMath))
@@ -810,7 +818,7 @@ func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 			for c := f.FirstChild; c != nil; c = c.NextSibling {
 				writeHTML(HTMLVal, nil, w, c, Indented(opts))
 			}
-			fmt.Fprintf(w, "<a href='#footnote-%d-reference'>↩︎</a>", i+1)
+			fmt.Fprintf(w, " <a href='#footnote-%d-reference'>↩︎</a>", i+1)
 			fmt.Fprintf(w, "</li>")
 		}
 		fmt.Fprintf(w, "</ol>")

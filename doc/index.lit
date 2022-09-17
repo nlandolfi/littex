@@ -104,7 +104,7 @@
 
     ‖ Example 2 ⦉
     <code>
-      ‖ The fun part, is that runs can be multiple lines of
+      ‖ The fun part is that runs can be multiple lines of
         plain unicode text 🙂, but the lit program will format
         them, and have them wrap nicely (in fact, it formatted
         this block you are reading). ⦉
@@ -175,15 +175,14 @@
   ¶ ⦊
     ‖ Example 1: ⦉
     <code>
-      ◇ ⦊
-        ‖ ∫ f dμ = ∫ f^+ dμ - ∫ f^- dμ. ⦉
-      ⦉
-    </code>
+      ¶ ⦊
+        ‖ Here it is. ⦉
 
-    ‖ Example 2: ⦉
-    <code>
-      ◇ ⦊
-        ‖ (X, ℱ, 𝗣) ⦉
+        ‖ You can put math
+          ◇ ⦊
+            ‖ x^2 + y^2 = 1 ⦉
+          ⦉
+          where it ought to go. ⦉
       ⦉
     </code>
   ⦉
