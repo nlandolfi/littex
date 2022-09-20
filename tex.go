@@ -202,6 +202,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝗘': "\\E",
 	'𝗣': "\\mathbfsf{P}",
 	'𝗦': "\\mathbfsf{S}",
+	'𝐑': "\\mathbf{R}",
 	'𝐒': "\\mathbf{S}",
 	'𝐄': "\\mathbf{E}",
 	'𝟏': "\\mathbf{1}",
