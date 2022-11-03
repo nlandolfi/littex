@@ -10,8 +10,9 @@ import (
 
 func TestGolden(t *testing.T) {
 	var cases = []struct {
-		file   string
-		golden string
+		file       string
+		golden     string
+		goldenHTML string
 	}{
 		{
 			file:   "./examples/halmos/halmos.lit",
@@ -28,6 +29,11 @@ func TestGolden(t *testing.T) {
 		{
 			file:   "./examples/mathgenomics/mathgenomics.lit",
 			golden: "./examples/mathgenomics/mathgenomics_golden.lit",
+		},
+		{
+			file:       "./examples/headerids/headerids.lit",
+			golden:     "./examples/headerids/headerids_golden.lit",
+			goldenHTML: "./examples/headerids/headerids_golden.html",
 		},
 	}
 
@@ -56,6 +62,21 @@ func TestGolden(t *testing.T) {
 
 		if want, got := string(bs), s; got != want {
 			t.Fatalf("%q doesn't match golden\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.golden)
+		}
+
+		if c.goldenHTML != "" {
+			bs, err := os.ReadFile(c.goldenHTML)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var b bytes.Buffer
+			lit.WriteHTMLInBody(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
+
+			if want, got := string(bs), b.String(); got != want {
+				t.Fatalf("%q doesn't match goldenHTML\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.goldenHTML)
+			}
+
 		}
 
 	}

@@ -807,6 +807,7 @@ func WriteHTMLInBody(w io.Writer, n *Node, opts *WriteOpts) {
 
 func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 	s := new(htmlWriteState)
+	s.headerIDsAssigned = make(map[string]bool)
 	writeHTML(HTMLVal, s, w, n, opts)
 
 	if len(s.footnotes) > 0 {
@@ -827,7 +828,8 @@ func WriteHTML(w io.Writer, n *Node, opts *WriteOpts) error {
 }
 
 type htmlWriteState struct {
-	footnotes []*Node
+	footnotes         []*Node
+	headerIDsAssigned map[string]bool
 }
 
 func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts *WriteOpts) error {
@@ -915,15 +917,22 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(opts.Prefix + "<h1 "))
+				w.Write([]byte(opts.Prefix + "<h1"))
 			case "2":
-				w.Write([]byte(opts.Prefix + "<h2 "))
+				w.Write([]byte(opts.Prefix + "<h2"))
 			case "3":
-				w.Write([]byte(opts.Prefix + "<h3 "))
+				w.Write([]byte(opts.Prefix + "<h3"))
 			default:
-				w.Write([]byte(opts.Prefix + "<h1 "))
+				w.Write([]byte(opts.Prefix + "<h1"))
 			}
-			w.Write([]byte(fmt.Sprintf("id='%s'", n.FirstChild.headerTokenString())))
+			if n.FirstChild.Type == TokenNode {
+				id := n.FirstChild.headerTokenString()
+				for s.headerIDsAssigned[id] {
+					id = id + "*" // TODO: better option?
+				}
+				s.headerIDsAssigned[id] = true
+				w.Write([]byte(fmt.Sprintf(" id='%s'", html.EscapeString(id))))
+			}
 			w.Write([]byte(">"))
 		}
 

@@ -323,9 +323,6 @@ func (n *Node) headerTokenString() string {
 	if n.Type != TokenNode {
 		panic("TokenString only for tokens")
 	}
-	if n.FirstChild == nil {
-		return ""
-	}
 	block, _ := tokenBlockStartingAt(n)
 	lines := lineBlocks(block, Tex, new(WriteOpts), true, maxWidth)
 	out := lines[0]
