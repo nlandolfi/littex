@@ -319,4 +319,20 @@ func (n *Node) IsListItem() bool {
 	return n.Type == ListItemNode
 }
 
+func (n *Node) headerTokenString() string {
+	if n.Type != TokenNode {
+		panic("TokenString only for tokens")
+	}
+	if n.FirstChild == nil {
+		return ""
+	}
+	block, _ := tokenBlockStartingAt(n)
+	lines := lineBlocks(block, Tex, new(WriteOpts), true, maxWidth)
+	out := lines[0]
+	if len(lines) > 1 {
+		out = strings.Join(lines, " ")
+	}
+	return strings.Replace(out, " ", "_", -1)
+}
+
 // }}}

@@ -915,14 +915,16 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		case SectionNode:
 			switch getAttr(n.Attr, "section-level") {
 			case "1":
-				w.Write([]byte(opts.Prefix + "<h1>"))
+				w.Write([]byte(opts.Prefix + "<h1 "))
 			case "2":
-				w.Write([]byte(opts.Prefix + "<h2>"))
+				w.Write([]byte(opts.Prefix + "<h2 "))
 			case "3":
-				w.Write([]byte(opts.Prefix + "<h3>"))
+				w.Write([]byte(opts.Prefix + "<h3 "))
 			default:
-				w.Write([]byte(opts.Prefix + "<h1>"))
+				w.Write([]byte(opts.Prefix + "<h1 "))
 			}
+			w.Write([]byte(fmt.Sprintf("id='%s'", n.FirstChild.headerTokenString())))
+			w.Write([]byte(">"))
 		}
 
 		w.Write([]byte(out))
