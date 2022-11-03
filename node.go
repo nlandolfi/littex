@@ -305,4 +305,18 @@ func (n *Node) FirstListNode() *Node {
 	return c
 }
 
+func (n *Node) KidsExcludingTokens() (ks []*Node) {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == TokenNode {
+			continue
+		}
+		ks = append(ks, c)
+	}
+	return
+}
+
+func (n *Node) IsListItem() bool {
+	return n.Type == ListItemNode
+}
+
 // }}}
