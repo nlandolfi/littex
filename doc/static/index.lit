@@ -73,25 +73,14 @@
     ‖ What can LitTex render? Well, this page, for instance. ⦉
   ⦉
 
-  <!--
-  <div data-littype='paragraph'>
-   <div data-littype='run'> Roughly speaking, the pilcrow ¶ is shorthand for a
-      pargraph, the symbol<div data-littype='run'> is shorthand for a “run” (think
-      sentence), and the symbol ◇ is shorthand to introduce some
-      displayed math. </div>
-
-   <div data-littype='run'> The symbol </div> is shorthand for any closing tag. </div>
-  </div>
-  -->
-
-  ‖ «Closing elements» ⦉
+  §§§ Closing elements ⦉
   ¶ ⦊
     ‖ Closing elements are denoted by \⦉. ⦉
 
     ‖ See examples below. ⦉
   ⦉
 
-  ‖ «Runs» ⦉
+  §§§ Runs ⦉
   ¶ ⦊
     ‖ Runs are denoted by \‖. ⦉
   ⦉
@@ -111,7 +100,7 @@
     </code>
   ⦉
 
-  ‖ «Footnotes» ⦉
+  §§§ Footnotes ⦉
   ¶ ⦊
     ‖ Footnotes are denoted by \†. ⦉
   ⦉
@@ -146,7 +135,7 @@
     </code>
   ⦉
 
-  ‖ «Display math blocks» ⦉
+  §§§ Display math blocks ⦉
   ¶ ⦊
     ‖ Display math blocks are denoted by \◇. ⦉
   ⦉
@@ -167,7 +156,7 @@
     </code>
   ⦉
 
-  ‖ «Paragraphs» ⦉
+  §§§ «Paragraphs» ⦉
   ¶ ⦊
     ‖ Paragraphs are denoted by \¶. ⦉
   ⦉
@@ -187,14 +176,14 @@
     </code>
   ⦉
 
-  ‖ «List items» ⦉
+  §§§ List items ⦉
   ¶ ⦊
     ‖ Unordered lists are denoted by \‣. ⦉
 
     ‖ See examples below. ⦉
   ⦉
 
-  ‖ «Unordered lists» ⦉
+  §§§ Unordered lists ⦉
   ¶ ⦊
     ‖ Unordered lists are denoted by \⁝. ⦉
   ⦉
@@ -215,7 +204,7 @@
     </code>
   ⦉
 
-  ‖ «Ordered lists» ⦉
+  §§§ Ordered lists ⦉
   ¶ ⦊
     ‖ Ordered lists are denoted by \𝍫. ⦉
   ⦉
@@ -231,7 +220,7 @@
     </code>
   ⦉
 
-  ‖ «Sections» ⦉
+  §§§ Sections ⦉
   ¶ ⦊
     ‖ Sections are denoted by \§ ⦉
   ⦉

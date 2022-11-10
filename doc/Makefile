@@ -1,2 +1,2 @@
-index.html: index.lit
-	lit -in index.lit -out index.html
+deploy:
+		gcloud beta run deploy littex-www --project elos2-261103 --region us-west1 --platform managed --source .
