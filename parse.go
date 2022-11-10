@@ -229,6 +229,8 @@ var commentsR = regexp.MustCompile(`%(.*?)\n`)
 var propositionWithText = regexp.MustCompile(`\\begin{proposition}\[([\w| ]*)\]`)
 var proposition = regexp.MustCompile(`\\begin{proposition}`)
 var propositionEnd = regexp.MustCompile(`\\end{proposition}`)
+var proof = regexp.MustCompile(`\\begin{proof}`)
+var proofEnd = regexp.MustCompile(`\\end{proof}`)
 var ssection = regexp.MustCompile(`\\ssection{(\w*)}`)
 var section = regexp.MustCompile(`\\section{(\w*)}`)
 var ssubsection = regexp.MustCompile(`\\ssubsection{(\w*)}`)
@@ -239,6 +241,8 @@ var res = map[*regexp.Regexp]string{
 	propositionWithText: " <statement type='proposition' text='$1'>",
 	proposition:         " <statement type='proposition'>",
 	propositionEnd:      " </statement>",
+	proof:               " <proof>",
+	proofEnd:            " </proof>",
 	ssection:            " § $1 ⦉",
 	section:             " #§ $1 ⦉",
 	subsection:          " #§§ $1 ⦉",
