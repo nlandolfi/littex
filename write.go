@@ -363,12 +363,6 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n" + opts.Prefix + "\\end{itemize}"))
 		}
 	case FootnoteNode:
-		// the first little bit here removes the space.
-		// it means there is no way to have a space in between
-		// text and a footnote, but I don't think there's a way
-		// to specify that within .gba files.
-		// Could in the future check if the previous child here was a token
-		// and a non implicit space token
 		w.Write([]byte("\\footnote{"))
 		writeKids(w, n, opts, WriteTex)
 		w.Write([]byte("}"))

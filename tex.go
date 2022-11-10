@@ -161,7 +161,10 @@ var LatexMathReplacements = map[rune]string{
 	'𝒯': "\\mathcal{T}",
 	'𝒰': "\\mathcal{U}",
 	'𝒱': "\\mathcal{V}",
+	'𝒲': "\\mathcal{W}",
 	'𝒳': "\\mathcal{X}",
+	'𝒴': "\\mathcal{Y}",
+	'𝒵': "\\mathcal{Z}",
 	'ℓ': "\\ell",
 	//	'∕': "/", causes confusion with </div>
 	'∏': "\\prod",
@@ -195,7 +198,7 @@ var LatexMathReplacements = map[rune]string{
 	'∓': "\\mp",
 	'𝗥': "\\R",
 	'𝗤': "\\Q",
-	'𝗡': "\\N",
+	'𝗡': "\\N ",
 	'𝗭': "\\Z",
 	'𝗖': "\\C",
 	'𝗙': "\\F",
@@ -250,7 +253,8 @@ var LatexMathReplacements = map[rune]string{
 	'¼': "1/4",
 	'⅙': "1/6",
 	'⅓': "1/3",
-	'∖': "\\setminus", // doesnot work?
+	'⅛': "1/8",
+	'∖': "\\setminus", // does not work?
 	'…': "\\dots",
 	'∔': "\\dotplus",
 	'|': "\\mid ",
@@ -268,5 +272,9 @@ var LatexMathReplacements = map[rune]string{
 	'ℜ': "\\Re",
 	'∠': "\\angle",
 	'⊤': "\\top ",
-	'⊥': "\\perp",
+	'⊥': "\\perp ",
+	'⟨': "\\langle ",
+	'⟩': "\\rangle ",
+	'｛': "\\{",
+	'｝': "\\}",
 }
