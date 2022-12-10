@@ -279,4 +279,5 @@ var LatexMathReplacements = map[rune]string{
 	'⟩': "\\rangle ",
 	'｛': "\\{",
 	'｝': "\\}",
+	'≔': "\\coloneqq",
 }
