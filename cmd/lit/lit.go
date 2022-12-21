@@ -152,9 +152,9 @@ const slidesTemplate = `
 \begin{document}
 {{ with $slides := .Kids }}
   {{- with $tslide := index . 0 }}
-	{{/*
+    {{/*
      if we assume the last node of this slide is the list
-     AND the number of items is ocrrect, this works,
+     AND the number of items is correct, this works,
      otherwise it breaks
 		 */}}
     \titleslide
@@ -165,13 +165,17 @@ const slidesTemplate = `
   {{ end }}
 
   {{- range $slide := slice . 1 -}}
-\slidei{ {{ $slide.FirstTokenString }} }{
-{{ range $slide.FirstListNode.Kids -}}
+{{ if $slide.IsListItem }}
+\slide{ {{ $slide.FirstTokenString }} }{
+  {{ range $slide.KidsExcludingTokens }}
 
   {{- texpi . "  " "  " -}}
 
 {{- end }}
 }
+{{ else }}
+  {{- texpi $slide "  " "  " -}}
+{{ end }}
   {{ end }}
 {{ end }}
 \end{document}
