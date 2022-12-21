@@ -53,9 +53,9 @@ func Tex(t *Token, inMath bool) string {
 		case '⧽':
 			return "}"
 		case '“': //left
-			return "\\say{"
+			return "``"
 		case '”': //right
-			return "}"
+			return "''"
 		case '–': // en dash
 			return "--"
 		case '—': // em dash
