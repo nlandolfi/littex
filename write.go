@@ -1120,7 +1120,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		w.Write([]byte(opts.Prefix + "<div style='equation'>"))
 		w.Write([]byte(opts.Prefix + "\\begin{equation}"))
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			writeHTML(Tex, s, w, c, Indented(opts)) // intentionally don't increase indent
+			writeHTML(Tex, s, w, c, Indented(InMath(opts))) // intentionally don't increase indent
 		}
 		if id := getAttr(n.Attr, "id"); id != "" {
 			w.Write([]byte(opts.Prefix + opts.Indent + "\\label{" + id + "}"))
