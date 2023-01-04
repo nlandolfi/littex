@@ -23,7 +23,11 @@ func Tex(t *Token, inMath bool) string {
 	case PunctuationToken:
 		switch r, _ := utf8.DecodeRuneInString(t.Value); r {
 		case '&':
-			return "\\&"
+			if !inMath {
+				return "\\&"
+			} else {
+				return "&"
+			}
 		case '＆':
 			return "&"
 		case '%':
