@@ -110,6 +110,9 @@ func Tex(t *Token, inMath bool) string {
 	case OpaqueToken:
 		x := t.Value
 		for r, to := range LatexMathReplacements {
+			if r == '|' { // don't replace to mid; reason: table headers
+				continue
+			}
 			x = strings.Replace(x, string(r), to, -1)
 		}
 		return x
@@ -214,12 +217,19 @@ var LatexMathReplacements = map[rune]string{
 	'𝐑': "\\mathbf{R}",
 	'𝐒': "\\mathbf{S}",
 	'𝐄': "\\mathbf{E}",
+	'𝐞': "\\mathbf{e}",
 	'𝐏': "\\mathbf{P}",
 	'𝟏': "\\mathbf{1}",
 	'𝟎': "\\mathbf{0}",
+	'𝐊': "\\mathbf{K}",
+	'𝐖': "\\mathbf{W}",
 	'𝐗': "\\mathbf{X}",
 	'𝐘': "\\mathbf{Y}",
 	'𝐙': "\\mathbf{Z}",
+	'𝐰': "\\mathbf{w}",
+	'𝐱': "\\mathbf{x}",
+	'𝐲': "\\mathbf{y}",
+	'𝐳': "\\mathbf{z}",
 	'∇': "\\nabla ",
 	'∂': "\\partial ",
 	'α': "\\alpha",
@@ -246,6 +256,8 @@ var LatexMathReplacements = map[rune]string{
 	'Σ': "\\Sigma",
 	'⇒': "\\Rightarrow",
 	'⇐': "\\Leftarrow",
+	'←': "\\leftarrow",
+	'⇌': "\\rightleftharpoons",
 	'τ': "\\tau",
 	'θ': "\\theta",
 	'Θ': "\\Theta",
@@ -287,4 +299,5 @@ var LatexMathReplacements = map[rune]string{
 	'｛': "\\{",
 	'｝': "\\}",
 	'≔': "\\coloneqq",
+	'⊨': "\\models",
 }
