@@ -1275,7 +1275,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<div class='lit-json'>\n"))
+		w.Write([]byte(opts.Prefix + "<pre class='lit-json'>\n"))
 		if n.JSON != nil {
 			e := json.NewEncoder(w)
 			e.SetIndent(opts.Prefix, opts.Indent)
@@ -1284,7 +1284,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			}
 			w.Write([]byte(opts.Prefix))
 		}
-		w.Write([]byte("</div>"))
+		w.Write([]byte("</pre>"))
 	case YAMLNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -1292,7 +1292,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<div class='lit-yaml'>\n"))
+		w.Write([]byte(opts.Prefix + "<pre class='lit-yaml'>\n"))
 		if n.YAML != nil {
 			e := yaml.NewEncoder(w)
 			if err := e.Encode(n.YAML); err != nil {
@@ -1300,7 +1300,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			}
 			w.Write([]byte(opts.Prefix))
 		}
-		w.Write([]byte("</div>"))
+		w.Write([]byte("</pre>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}
