@@ -16,8 +16,9 @@ type Node struct {
 	Type     NodeType // The Type of Node, see NodeType.
 	DataAtom atom.Atom
 	Data     string
-	Attr     []Attribute // The attributes, as in html.Node. Attribute is a type alias of html.Attribute
-	Token    *Token      // The token value if Type==TokenNode; see Token.
+	Attr     []Attribute            // The attributes, as in html.Node. Attribute is a type alias of html.Attribute
+	Token    *Token                 // The token value if Type==TokenNode; see Token.
+	JSON     map[string]interface{} // The JSON if Type == JSONNode
 
 	Parent                   *Node `json:"-"`
 	FirstChild, LastChild    *Node `json:"-"`

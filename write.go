@@ -2,6 +2,7 @@ package lit
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html"
 	"io"
@@ -352,6 +353,23 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("\n" + opts.Prefix))
 		}
 		w.Write([]byte("</" + dataatom + ">"))
+	case JSONNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(opts.Prefix + "<json>\n"))
+		if n.JSON != nil {
+			e := json.NewEncoder(w)
+			e.SetIndent(opts.Prefix, opts.Indent)
+			if err := e.Encode(n.JSON); err != nil {
+				log.Fatal(err) // TODO- 1/25/23
+			}
+			w.Write([]byte(opts.Prefix))
+		}
+		w.Write([]byte("</json>"))
 	default:
 		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
@@ -398,9 +416,9 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "\\[\n"))
+		w.Write([]byte("\\[\n"))
 		writeKids(w, n, InMath(Indented(opts)), WriteTex)
-		w.Write([]byte("\n" + opts.Prefix + "\\]"))
+		w.Write([]byte("\n" + "\\]"))
 	case RunNode, ListItemNode, SectionNode:
 		if n.PrevSibling != nil && n.PrevSibling.Type != LinkNode {
 			w.Write([]byte("\n"))
@@ -570,7 +588,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteTex(w, c, opts)
 		}
-		w.Write([]byte(fmt.Sprintf("\\end{%s}", t)))
+		w.Write([]byte(fmt.Sprintf("\n\\end{%s}\n", t)))
 	case ProofNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -1223,6 +1241,23 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			writeHTML(val, s, w, c, opts)
 		}
 		w.Write([]byte("</" + dataatom + ">"))
+	case JSONNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(opts.Prefix + "<div class='lit-json'>\n"))
+		if n.JSON != nil {
+			e := json.NewEncoder(w)
+			e.SetIndent(opts.Prefix, opts.Indent)
+			if err := e.Encode(n.JSON); err != nil {
+				log.Fatal(err) // TODO- 1/25/23
+			}
+			w.Write([]byte(opts.Prefix))
+		}
+		w.Write([]byte("</div>"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}

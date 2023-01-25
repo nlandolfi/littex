@@ -3,6 +3,7 @@ package lit
 import (
 	"bytes"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -384,6 +385,22 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			case "json":
 				n.Type = JSONNode
 				n.Attr = copyAttr(in.Attr)
+
+				c := in.FirstChild
+				if c == nil {
+					return &n, nil
+				}
+				if c.Type != html.TextNode {
+					return &n, nil
+				}
+				if strings.TrimSpace(c.Data) == "" {
+					return &n, nil
+				}
+				n.JSON = make(map[string]interface{})
+				if err := json.Unmarshal([]byte(c.Data), &n.JSON); err != nil {
+					// TODO: do something else?
+					log.Fatal(err)
+				}
 			default:
 				n.Type = OpaqueNode
 				n.Attr = copyAttr(in.Attr)
@@ -430,7 +447,6 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	default:
 		return nil, fmt.Errorf("unsupported node type: %d", in.Type)
 	}
-
 	return &n, nil
 }
 
