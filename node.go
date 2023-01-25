@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // Node is similar to *html.Node.
@@ -12,15 +13,18 @@ import (
 // The main difference is that we lex HTML text nodes
 // into TokenNodes.
 type Node struct {
-	Type  NodeType // The Type of Node, see NodeType.
-	Data  string
-	Attr  []Attribute // The attributes, as in html.Node.
-	Token *Token      // The token value if Type==TokenNode; see Token.
+	Type     NodeType // The Type of Node, see NodeType.
+	DataAtom atom.Atom
+	Data     string
+	Attr     []Attribute // The attributes, as in html.Node. Attribute is a type alias of html.Attribute
+	Token    *Token      // The token value if Type==TokenNode; see Token.
 
 	Parent                   *Node `json:"-"`
 	FirstChild, LastChild    *Node `json:"-"`
 	PrevSibling, NextSibling *Node `json:"-"`
 }
+
+type Attribute = html.Attribute
 
 type NodeType int
 
@@ -56,6 +60,8 @@ const (
 	DivNode
 	CodeNode
 	PreNode
+	JSONNode
+	OpaqueNode // Any other node type, for extending to lit to arbitrarty HTML
 )
 
 func (t NodeType) String() string {
@@ -106,6 +112,10 @@ func (t NodeType) String() string {
 		return "code"
 	case PreNode:
 		return "pre"
+	case JSONNode:
+		return "json"
+	case OpaqueNode:
+		return "opaque" // do we need this? or the above? - NCL 1/25/23
 	default:
 		panic(fmt.Sprintf("unknown node type: %d", t))
 	}
@@ -126,8 +136,6 @@ const (
 	ListItemClass    = "listitem"
 	SectionClass     = "section"
 )
-
-type Attribute = html.Attribute
 
 func (n *Node) Kids() (ks []*Node) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {

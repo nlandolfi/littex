@@ -222,6 +222,7 @@ var LatexMathReplacements = map[rune]string{
 	'𝟏': "\\mathbf{1}",
 	'𝟎': "\\mathbf{0}",
 	'𝐊': "\\mathbf{K}",
+	'𝐔': "\\mathbf{U}",
 	'𝐖': "\\mathbf{W}",
 	'𝐗': "\\mathbf{X}",
 	'𝐘': "\\mathbf{Y}",
@@ -300,4 +301,5 @@ var LatexMathReplacements = map[rune]string{
 	'｝': "\\}",
 	'≔': "\\coloneqq",
 	'⊨': "\\models",
+	'⊕': "\\oplus",
 }

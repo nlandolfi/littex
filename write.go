@@ -326,6 +326,32 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			WriteLit(w, c, Indented(opts))
 		}
 		w.Write([]byte("\n" + opts.Prefix + "</a>"))
+	case OpaqueNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		dataatom := n.DataAtom.String()
+		if dataatom == "" {
+			dataatom = n.Data
+		}
+		w.Write([]byte(opts.Prefix + "<" + dataatom))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">"))
+		if n.FirstChild != nil {
+			w.Write([]byte("\n"))
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			WriteLit(w, c, Indented(opts))
+		}
+		if n.FirstChild != nil {
+			w.Write([]byte("\n" + opts.Prefix))
+		}
+		w.Write([]byte("</" + dataatom + ">"))
 	default:
 		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
@@ -336,6 +362,8 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 
 func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 	switch n.Type {
+	case OpaqueNode:
+		w.Write([]byte("% there is an opaque node here\n"))
 	case FragmentNode:
 		writeKids(w, n, opts, WriteTex)
 	case ParagraphNode:
@@ -1178,6 +1206,23 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			writeHTML(val, s, w, c, NoPrefix(opts))
 		}
 		w.Write([]byte("</a>"))
+	case OpaqueNode:
+		dataatom := n.DataAtom.String()
+		if dataatom == "" {
+			dataatom = n.Data
+		}
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte("<" + dataatom))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">"))
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			writeHTML(val, s, w, c, opts)
+		}
+		w.Write([]byte("</" + dataatom + ">"))
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}

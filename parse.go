@@ -38,27 +38,6 @@ func ParseHTML(s string) (*Node, error) {
 }
 
 func ParseLit(s string) (*Node, error) {
-	/*
-		var b bytes.Buffer
-
-		var prev rune
-		var left bool = truek
-		for _, r := range s {
-			if r == '$' && prev != '\\' {
-				if left {
-					b.WriteRune('⟅')
-					left = false
-				} else {
-					b.WriteRune('⟆')
-					left = true
-				}
-			} else {
-				b.WriteRune(r)
-			}
-			prev = r
-		}
-	*/
-
 	s = litReplace(s)
 	return ParseHTML(s)
 }
@@ -402,24 +381,41 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.Type = ProofNode
 			case "quote":
 				n.Type = QuoteNode
+			case "json":
+				n.Type = JSONNode
+				n.Attr = copyAttr(in.Attr)
 			default:
-				log.Printf("%+v", in)
-				return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
+				n.Type = OpaqueNode
+				n.Attr = copyAttr(in.Attr)
+				n.Data = in.Data
 			}
 		default:
-			return nil, fmt.Errorf("unsupported ElementNode DataAtom: %s", in.DataAtom)
+			n.Type = OpaqueNode
+			n.Attr = copyAttr(in.Attr)
+			n.DataAtom = in.DataAtom
 		}
 
 		for c := in.FirstChild; c != nil; c = c.NextSibling {
 			switch c.Type {
 			case html.TextNode:
+				if strings.TrimSpace(c.Data) == "" {
+					continue
+				}
+
+				r := &n
+				if r.Type != RunNode && r.Type != ListItemNode && r.Type != SectionNode {
+					r = &Node{}
+					r.Type = RunNode
+					n.AppendChild(r)
+				}
+
 				ts, err := unmarshalHTMLText(c)
 				if err != nil {
 					return nil, err
 				}
 
 				for _, child := range ts {
-					n.AppendChild(child)
+					r.AppendChild(child)
 				}
 			default:
 				child, err := unmarshalHTML(c, &n)
