@@ -13,6 +13,7 @@ import (
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"gopkg.in/yaml.v3"
 )
 
 func ParseHTML(s string) (*Node, error) {
@@ -399,7 +400,26 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 				n.JSON = make(map[string]interface{})
 				if err := json.Unmarshal([]byte(c.Data), &n.JSON); err != nil {
 					// TODO: do something else?
-					log.Fatal(err)
+					log.Fatalf("json.Unmarshal: %v", err)
+				}
+			case "yaml":
+				n.Type = YAMLNode
+				n.Attr = copyAttr(in.Attr)
+
+				c := in.FirstChild
+				if c == nil {
+					return &n, nil
+				}
+				if c.Type != html.TextNode {
+					return &n, nil
+				}
+				if strings.TrimSpace(c.Data) == "" {
+					return &n, nil
+				}
+				n.YAML = make(map[interface{}]interface{})
+				if err := yaml.Unmarshal([]byte(c.Data), &n.YAML); err != nil {
+					// TODO: do something else?
+					log.Fatalf("yaml.Unmarshal: %v", err)
 				}
 			default:
 				n.Type = OpaqueNode

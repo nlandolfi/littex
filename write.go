@@ -10,6 +10,8 @@ import (
 	"path"
 	"strings"
 	"unicode/utf8"
+
+	"gopkg.in/yaml.v3"
 )
 
 type WriteOpts struct {
@@ -360,7 +362,11 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<json>\n"))
+		w.Write([]byte(opts.Prefix + "<json"))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">\n"))
 		if n.JSON != nil {
 			e := json.NewEncoder(w)
 			e.SetIndent(opts.Prefix, opts.Indent)
@@ -370,6 +376,25 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte(opts.Prefix))
 		}
 		w.Write([]byte("</json>"))
+	case YAMLNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(opts.Prefix + "<yaml"))
+		for _, a := range n.Attr {
+			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		}
+		w.Write([]byte(">\n"))
+		if n.YAML != nil {
+			e := yaml.NewEncoder(w)
+			if err := e.Encode(n.YAML); err != nil {
+				log.Fatal(err) // TODO- 1/25/23
+			}
+		}
+		w.Write([]byte("</yaml>"))
 	default:
 		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
@@ -643,6 +668,8 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			WriteTex(w, c, opts)
 		}
+	case JSONNode, YAMLNode:
+		// TODO?? - 1/25/23
 	default:
 		log.Fatalf("unhandled node type: %s", n.Type)
 	}
@@ -1253,6 +1280,22 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			e := json.NewEncoder(w)
 			e.SetIndent(opts.Prefix, opts.Indent)
 			if err := e.Encode(n.JSON); err != nil {
+				log.Fatal(err) // TODO- 1/25/23
+			}
+			w.Write([]byte(opts.Prefix))
+		}
+		w.Write([]byte("</div>"))
+	case YAMLNode:
+		if n.PrevSibling != nil {
+			w.Write([]byte("\n"))
+		}
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+			w.Write([]byte("\n"))
+		}
+		w.Write([]byte(opts.Prefix + "<div class='lit-yaml'>\n"))
+		if n.YAML != nil {
+			e := yaml.NewEncoder(w)
+			if err := e.Encode(n.YAML); err != nil {
 				log.Fatal(err) // TODO- 1/25/23
 			}
 			w.Write([]byte(opts.Prefix))
