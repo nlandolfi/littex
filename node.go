@@ -198,6 +198,31 @@ func (n *Node) AppendChild(c *Node) {
 	c.PrevSibling = last
 }
 
+// RemoveChild removes a node c that is a child of n. Afterwards, c will have
+// no parent and no siblings.
+//
+// It will panic if c's parent is not n.
+func (n *Node) RemoveChild(c *Node) {
+	if c.Parent != n {
+		panic("html: RemoveChild called for a non-child Node")
+	}
+	if n.FirstChild == c {
+		n.FirstChild = c.NextSibling
+	}
+	if c.NextSibling != nil {
+		c.NextSibling.PrevSibling = c.PrevSibling
+	}
+	if n.LastChild == c {
+		n.LastChild = c.PrevSibling
+	}
+	if c.PrevSibling != nil {
+		c.PrevSibling.NextSibling = c.NextSibling
+	}
+	c.Parent = nil
+	c.PrevSibling = nil
+	c.NextSibling = nil
+}
+
 func copyAttr(as []Attribute) []Attribute {
 	var out []Attribute = make([]Attribute, len(as))
 	for i, a := range as {
