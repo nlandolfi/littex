@@ -88,10 +88,7 @@ func main() {
 		defer f.Close()
 	}
 
-	var opts = &lit.WriteOpts{
-		Prefix: "",
-		Indent: "  ",
-	}
+	var opts = lit.DefaultWriteOpts
 	switch *outmode {
 	case "debug":
 		lit.WriteDebug(w, n, opts)

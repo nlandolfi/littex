@@ -19,6 +19,11 @@ type WriteOpts struct {
 	InMath         bool
 }
 
+var DefaultWriteOpts = &WriteOpts{
+	Prefix: "",
+	Indent: "  ",
+}
+
 func InMath(o *WriteOpts) *WriteOpts {
 	var out WriteOpts = *o
 	out.InMath = true
