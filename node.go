@@ -223,36 +223,6 @@ func (n *Node) RemoveChild(c *Node) {
 	c.NextSibling = nil
 }
 
-// InsertBefore inserts newChild as a child of n, immediately before oldChild
-// in the sequence of n's children. oldChild may be nil, in which case newChild
-// is appended to the end of n's children.
-//
-// It will panic if newChild already has a parent or siblings.
-func (n *Node) InsertBefore(newChild, oldChild *Node) {
-	if newChild.Parent != nil || newChild.PrevSibling != nil || newChild.NextSibling != nil {
-		panic("html: InsertBefore called for an attached child Node")
-	}
-	var prev, next *Node
-	if oldChild != nil {
-		prev, next = oldChild.PrevSibling, oldChild
-	} else {
-		prev = n.LastChild
-	}
-	if prev != nil {
-		prev.NextSibling = newChild
-	} else {
-		n.FirstChild = newChild
-	}
-	if next != nil {
-		next.PrevSibling = newChild
-	} else {
-		n.LastChild = newChild
-	}
-	newChild.Parent = n
-	newChild.PrevSibling = prev
-	newChild.NextSibling = next
-}
-
 func copyAttr(as []Attribute) []Attribute {
 	var out []Attribute = make([]Attribute, len(as))
 	for i, a := range as {
