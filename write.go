@@ -362,11 +362,15 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<json"))
-		for _, a := range n.Attr {
-			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		if n.IsComment {
+			w.Write([]byte(opts.Prefix + "<!--json\n"))
+		} else {
+			w.Write([]byte(opts.Prefix + "<json"))
+			for _, a := range n.Attr {
+				w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+			}
+			w.Write([]byte(">\n"))
 		}
-		w.Write([]byte(">\n"))
 		if n.JSON != nil {
 			e := json.NewEncoder(w)
 			e.SetIndent(opts.Prefix, opts.Indent)
@@ -375,7 +379,11 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			}
 			w.Write([]byte(opts.Prefix))
 		}
-		w.Write([]byte("</json>"))
+		if n.IsComment {
+			w.Write([]byte("</json>"))
+		} else {
+			w.Write([]byte("-->"))
+		}
 	case YAMLNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -383,18 +391,26 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<yaml"))
-		for _, a := range n.Attr {
-			w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+		if n.IsComment {
+			w.Write([]byte(opts.Prefix + "<!--yaml\n"))
+		} else {
+			w.Write([]byte(opts.Prefix + "<yaml"))
+			for _, a := range n.Attr {
+				w.Write([]byte(fmt.Sprintf(" %s='%s'", a.Key, a.Val)))
+			}
+			w.Write([]byte(">\n"))
 		}
-		w.Write([]byte(">\n"))
 		if n.YAML != nil {
 			e := yaml.NewEncoder(w)
 			if err := e.Encode(n.YAML); err != nil {
 				log.Fatal(err) // TODO- 1/25/23
 			}
 		}
-		w.Write([]byte("</yaml>"))
+		if n.IsComment {
+			w.Write([]byte("-->"))
+		} else {
+			w.Write([]byte("</yaml>"))
+		}
 	default:
 		log.Print("WriteLit")
 		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
@@ -1275,7 +1291,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<pre class='lit-json'>\n"))
+		if n.IsComment {
+			w.Write([]byte(opts.Prefix + "<!--json\n"))
+		} else {
+			w.Write([]byte(opts.Prefix + "<pre class='lit-json'>\n"))
+		}
 		if n.JSON != nil {
 			e := json.NewEncoder(w)
 			e.SetIndent(opts.Prefix, opts.Indent)
@@ -1285,6 +1305,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			w.Write([]byte(opts.Prefix))
 		}
 		w.Write([]byte("</pre>"))
+		if n.IsComment {
+			w.Write([]byte(opts.Prefix + "-->"))
+		} else {
+			w.Write([]byte("</pre>"))
+		}
 	case YAMLNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -1292,7 +1317,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
 			w.Write([]byte("\n"))
 		}
-		w.Write([]byte(opts.Prefix + "<pre class='lit-yaml'>\n"))
+		if n.IsComment {
+			w.Write([]byte(opts.Prefix + "<!--yaml>\n"))
+		} else {
+			w.Write([]byte(opts.Prefix + "<pre class='lit-yaml'>\n"))
+		}
 		if n.YAML != nil {
 			e := yaml.NewEncoder(w)
 			if err := e.Encode(n.YAML); err != nil {
@@ -1300,7 +1329,11 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 			}
 			w.Write([]byte(opts.Prefix))
 		}
-		w.Write([]byte("</pre>"))
+		if n.IsComment {
+			w.Write([]byte("-->"))
+		} else {
+			w.Write([]byte("</pre>"))
+		}
 	default:
 		return fmt.Errorf("unhandled node type %s, prev: %v; cur: %v; next: %v", n.Type, n.PrevSibling, n, n.NextSibling)
 	}

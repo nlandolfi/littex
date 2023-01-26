@@ -291,6 +291,35 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 			return nil, nil
 		}
 
+		if strings.HasPrefix(in.Data, "yaml") {
+			d := strings.TrimPrefix(in.Data, "yaml")
+			n.Type = YAMLNode
+			n.Data = d
+			n.IsComment = true
+			if strings.TrimSpace(d) != "" {
+				n.YAML = make(map[interface{}]interface{})
+				if err := yaml.Unmarshal([]byte(d), &n.YAML); err != nil {
+					// TODO: do something else?
+					log.Fatalf("yaml.Unmarshal: %v", err)
+				}
+			}
+			return &n, nil
+		}
+		if strings.HasPrefix(in.Data, "json") {
+			d := strings.TrimPrefix(in.Data, "json")
+			n.Type = JSONNode
+			n.Data = d
+			n.IsComment = true
+			if strings.TrimSpace(d) != "" {
+				n.JSON = make(map[string]interface{})
+				if err := json.Unmarshal([]byte(d), &n.JSON); err != nil {
+					// TODO: do something else?
+					log.Fatalf("json.Unmarshal: %v", err)
+				}
+			}
+			return &n, nil
+		}
+
 		n.Type = CommentNode
 		n.Data = in.Data
 		return &n, nil
@@ -402,6 +431,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 					// TODO: do something else?
 					log.Fatalf("json.Unmarshal: %v", err)
 				}
+				n.Data = c.Data // TODO: remove?? - NCL 1/25/23
 			case "yaml":
 				n.Type = YAMLNode
 				n.Attr = copyAttr(in.Attr)
@@ -421,6 +451,7 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 					// TODO: do something else?
 					log.Fatalf("yaml.Unmarshal: %v", err)
 				}
+				n.Data = c.Data // TODO: remove?? - NCL 1/25/23
 			default:
 				n.Type = OpaqueNode
 				n.Attr = copyAttr(in.Attr)

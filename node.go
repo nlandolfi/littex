@@ -13,13 +13,14 @@ import (
 // The main difference is that we lex HTML text nodes
 // into TokenNodes.
 type Node struct {
-	Type     NodeType // The Type of Node, see NodeType.
-	DataAtom atom.Atom
-	Data     string
-	Attr     []Attribute                 // The attributes, as in html.Node. Attribute is a type alias of html.Attribute
-	Token    *Token                      // The token value if Type==TokenNode; see Token.
-	JSON     map[string]interface{}      // The JSON if Type == JSONNode
-	YAML     map[interface{}]interface{} // The YAML if Type == YAMLNode
+	Type      NodeType // The Type of Node, see NodeType.
+	DataAtom  atom.Atom
+	Data      string
+	Attr      []Attribute                 // The attributes, as in html.Node. Attribute is a type alias of html.Attribute
+	Token     *Token                      // The token value if Type==TokenNode; see Token.
+	JSON      map[string]interface{}      // The JSON if Type == JSONNode
+	YAML      map[interface{}]interface{} // The YAML if Type == YAMLNode
+	IsComment bool                        // For JSON and YAML nodes, only if they are comment form
 
 	Parent                   *Node `json:"-"`
 	FirstChild, LastChild    *Node `json:"-"`
