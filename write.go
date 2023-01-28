@@ -965,7 +965,7 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 	case FootnoteNode:
 		s.footnotes = append(s.footnotes, n)
 		d := len(s.footnotes)
-		fmt.Fprintf(w, "<sup id='footnote-%d-reference'><a href='#footnote-%d'>%d</a></sup>", d, d, d)
+		fmt.Fprintf(w, "<sup id='footnote-%d-reference' class='lit-footnote-sup'><a href='#footnote-%d'>%d</a></sup>", d, d, d)
 	case DisplayMathNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
