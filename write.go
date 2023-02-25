@@ -71,36 +71,54 @@ func WriteDebug(w io.Writer, n *Node, opts *WriteOpts) {
 	}
 }
 
-func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
+func WriteLit(w io.Writer, n *Node, opts *WriteOpts) error {
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, opts)
+			if err := WriteLit(w, c, opts); err != nil {
+				return err
+			}
 		}
 	case ParagraphNode, ListNode:
 		if n.PrevSibling != nil {
-			w.Write([]byte("\n"))
+			if _, err := w.Write([]byte("\n")); err != nil {
+				return err
+			}
+
 			if n.PrevSibling.Type == ParagraphNode {
-				w.Write([]byte("\n"))
+				if _, err := w.Write([]byte("\n")); err != nil {
+					return err
+				}
 			}
 		}
 		switch n.Type {
 		case ParagraphNode:
-			w.Write([]byte(opts.Prefix + "¶ ⦊\n"))
+			if _, err := w.Write([]byte(opts.Prefix + "¶ ⦊\n")); err != nil {
+				return err
+			}
 		case ListNode:
 			switch getAttr(n.Attr, "list-type") {
 			case "ordered":
-				w.Write([]byte(opts.Prefix + "𝍫 ⦊\n"))
+				if _, err := w.Write([]byte(opts.Prefix + "𝍫 ⦊\n")); err != nil {
+					return err
+				}
 			default: // includes unordered
-				w.Write([]byte(opts.Prefix + "⁝ ⦊\n"))
+				if _, err := w.Write([]byte(opts.Prefix + "⁝ ⦊\n")); err != nil {
+					return err
+				}
 			}
 		default:
 			panic("not reached")
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteLit(w, c, Indented(opts))
+			if err := WriteLit(w, c, Indented(opts)); err != nil {
+				return err
+			}
 		}
-		w.Write([]byte("\n" + opts.Prefix + "⦉"))
+		if _, err := w.Write([]byte("\n" + opts.Prefix + "⦉")); err != nil {
+			return err
+		}
+	// TODO: return errors from all below... 2/25/23; finish someday
 	case FootnoteNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
@@ -417,11 +435,11 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) {
 			w.Write([]byte("</yaml>"))
 		}
 	default:
-		log.Print("WriteLit")
-		log.Printf("prev: %v; cur: %v; next: %v", n.PrevSibling, n, n.NextSibling)
-		log.Fatalf("unhandled node type: %s", n.Type)
-		//		panic(fmt.Sprintf("unhandled node type: %s", n.Type))
+		return fmt.Errorf(`WriteLit:
+		prev: %v; cur: %v; next: %v", )
+		unhandled node type: %s`, n.PrevSibling, n, n.NextSibling, n.Type)
 	}
+	return nil
 }
 
 func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {

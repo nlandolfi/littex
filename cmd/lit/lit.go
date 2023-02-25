@@ -15,12 +15,25 @@ import (
 
 var inmode = flag.String("i", "", "the type of the input file")
 var in = flag.String("in", "", "in file, required")
-var outmode = flag.String("o", "", "the type of the output file")
+var outmode = flag.String("o", "", "the type of the output file {debug|lit|tex|html|slides|tmpl}")
 var out = flag.String("out", "", "out file, if unset writes to stdout")
 var tmpl = flag.String("tmpl", "text.tmpl", "in case -o tmpl, the template file to execute")
+var v = flag.Bool("v", false, "whether to print the version; exits after printing info")
+
+// Set using link flags; e.g., -X main.Version=...
+var (
+	Version   string // e.g. 0.1.0
+	GitSHA    string
+	BuildDate string
+)
 
 func main() {
 	flag.Parse()
+
+	if *v {
+		fmt.Printf("lit version %s \n  SHA %s \n  Built at %s\n", Version, GitSHA, BuildDate)
+		return
+	}
 
 	if *in == "" {
 		fmt.Printf("lit -in <filename>\n")
@@ -93,7 +106,9 @@ func main() {
 	case "debug":
 		lit.WriteDebug(w, n, opts)
 	case "", "lit":
-		lit.WriteLit(w, n, opts)
+		if err := lit.WriteLit(w, n, opts); err != nil {
+			log.Fatal(err)
+		}
 	case "tex":
 		lit.WriteTex(w, n, opts)
 	case "html":
