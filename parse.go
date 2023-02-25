@@ -39,6 +39,15 @@ func ParseHTML(s string) (*Node, error) {
 	return nGBA, err
 }
 
+// Use Must like like lit.Must(lit.ParseLit(...))
+// same as template.Must in std lib
+func Must(n *Node, err error) *Node {
+	if err != nil {
+		panic(err)
+	}
+	return n
+}
+
 func ParseLit(s string) (*Node, error) {
 	s = litReplace(s)
 	return ParseHTML(s)
