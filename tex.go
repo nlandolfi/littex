@@ -130,6 +130,7 @@ func Tex(t *Token, inMath bool) string {
 // TODO: clean up
 var LatexMathReplacements = map[rune]string{
 	'→': "\\to",
+	'⟶': "\\goesto",
 	'↦': "\\mapsto",
 	'≠': "\\neq",
 	'∈': "\\in",
