@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"text/template"
 
 	"github.com/nlandolfi/lit"
@@ -25,13 +26,14 @@ var (
 	Version   string // e.g. 0.1.0
 	GitSHA    string
 	BuildDate string
+	GoVersion = runtime.Version()
 )
 
 func main() {
 	flag.Parse()
 
 	if *v {
-		fmt.Printf("lit version %s \n  SHA %s \n  Built at %s\n", Version, GitSHA, BuildDate)
+		fmt.Printf("lit version %s (%s)\n  SHA %s \n  Built at %s\n", Version, GoVersion, GitSHA, BuildDate)
 		return
 	}
 

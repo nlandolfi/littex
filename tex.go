@@ -303,4 +303,5 @@ var LatexMathReplacements = map[rune]string{
 	'≔': "\\coloneqq",
 	'⊨': "\\models",
 	'⊕': "\\oplus",
+	'°': "^{\\circ}", // TODO: is this what we want?
 }
