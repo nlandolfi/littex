@@ -140,6 +140,7 @@ var LatexMathReplacements = map[rune]string{
 	'⊂': "\\subset",
 	'⊆': "\\subseteq",
 	'⊊': "\\subsetneq",
+	'⊄': "\\not\\subset",
 	'∅': "\\varnothing",
 	'∪': "\\cup",
 	'⋃': "\\bigcup",
