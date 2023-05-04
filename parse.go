@@ -151,6 +151,16 @@ func litReplace(s string) string {
 	// readability for now outweigh the fragileness of
 	// this solution
 	s = strings.Replace(s, "⁻¹", "^{-1}", -1)
+	// the same goes for the below
+	s = strings.Replace(s, "¹", "^{1}", -1)
+	s = strings.Replace(s, "²", "^{2}", -1)
+	s = strings.Replace(s, "₁", "_{1}", -1)
+	s = strings.Replace(s, "₂", "_{2}", -1)
+	s = strings.Replace(s, "ᵢ", "_{i}", -1)
+	s = strings.Replace(s, "ⱼ", "_{j}", -1)
+	s = strings.Replace(s, "ₖ", "_{k}", -1)
+	s = strings.Replace(s, "ₘ", "_{m}", -1)
+	s = strings.Replace(s, "ₙ", "_{n}", -1)
 
 	//	s = strings.Replace(s, "⦉", "</div>", -1)
 
