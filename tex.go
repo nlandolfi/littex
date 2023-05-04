@@ -278,6 +278,7 @@ var LatexMathReplacements = map[rune]string{
 	'⅙': "1/6",
 	'⅓': "1/3",
 	'⅛': "1/8",
+	'¾': "3/4",
 	'∖': "\\setminus", // does not work?
 	'…': "\\dots",
 	'∔': "\\dotplus",
