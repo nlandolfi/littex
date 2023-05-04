@@ -145,6 +145,13 @@ func litReplace(s string) string {
 	// all to get the escape functionalityj
 	s = strings.Replace(s, "\\⦉", "⦉", -1)
 
+	// -1 hack, this should be improved to only make
+	// the replacement when in math mode, and to think
+	// through edge cases, but I think the gains in
+	// readability for now outweigh the fragileness of
+	// this solution
+	s = strings.Replace(s, "⁻¹", "^{-1}", -1)
+
 	//	s = strings.Replace(s, "⦉", "</div>", -1)
 
 	//re = regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
