@@ -145,6 +145,9 @@ func litReplace(s string) string {
 	// all to get the escape functionalityj
 	s = strings.Replace(s, "\\⦉", "⦉", -1)
 
+	// Update: Unfortunately the below doesn't work
+	// because it will write out the replacements, instead
+	// of the compact form...more to be done here.
 	// -1 hack, this should be improved to only make
 	// the replacement when in math mode, and to think
 	// through edge cases, but I think the gains in
