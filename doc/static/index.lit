@@ -1,3 +1,4 @@
+<link rel='stylesheet' type='text/css' href='style.css'></link>
 <div style='max-width:6.5in; margin: 1in auto; font-size:1em;'>
   <img src='littex.svg'/>
   ¶ ⦊
@@ -286,6 +287,7 @@
       ⦉
     </code>
   ⦉
+
 
   <center>
     ‖ Copyright © 2023 N. C. Landolfi. All Rights Reserved. ⦉
