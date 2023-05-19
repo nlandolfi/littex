@@ -1,7 +1,9 @@
 LitTex
 ------
 
-An archival markup language for math and the classics; compiles to LaTex and HTML. For more information, see [littex.org](https://littex.org).
+An archival markup language for math and the classics; compiles to LaTex and HTML. 
+Designed for the [bourbaki project](https://bourbakiproject.com) and the [Litterae](https://greatbooksadventure.com/litterae.html) of the great books.
+For more information, see [littex.org](https://littex.org).
 
 Here's an exampe of some LitTex from Halmos' _Naive Set Theory_:
 ```lit
