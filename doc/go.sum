@@ -1,0 +1,7 @@
+github.com/nlandolfi/lit v0.0.0-20230509040315-76704e3d0670 h1:K0xYe1Zq89wyJoIid8QjzplPHzg6QK5KCcgrd/kM7og=
+github.com/nlandolfi/lit v0.0.0-20230509040315-76704e3d0670/go.mod h1:eK2CvAY5cpdxbeR8ioybkracFSY3+UJOy/A5pCnhe1s=
+golang.org/x/net v0.0.0-20220325170049-de3da57026de h1:pZB1TWnKi+o4bENlbzAgLrEbY4RMYmUIRobMcSmfeYc=
+golang.org/x/net v0.0.0-20220325170049-de3da57026de/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

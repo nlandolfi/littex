@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"path"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -449,7 +450,9 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 	case FragmentNode:
 		writeKids(w, n, opts, WriteTex)
 	case ParagraphNode:
-		if n.PrevSibling != nil {
+		// second check here is for text.lit files, to avoid
+		// a new line at beginning in their text.tex files
+		if n.PrevSibling != nil && n.PrevSibling.Type != YAMLNode {
 			w.Write([]byte("\n"))
 		}
 		writeKids(w, n, Indented(opts), WriteTex)
@@ -628,7 +631,13 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		w.Write([]byte(opts.Prefix + fmt.Sprintf("\\includegraphics")))
 		if width := getAttr(n.Attr, "width"); width != "" {
 			if width[len(width)-1] == '%' {
-				width = "0." + width[:len(width)-1] + "\\textwidth"
+				i, err := strconv.Atoi(width[:len(width)-1])
+				if err != nil {
+					width = "1.0\\textwidth"
+				} else {
+					log.Print(i)
+					width = fmt.Sprintf("%f", float64(i)/100.0) + "\\textwidth"
+				}
 			}
 			w.Write([]byte(fmt.Sprintf("[width=%s]", width)))
 		}

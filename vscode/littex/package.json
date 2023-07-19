@@ -1,0 +1,26 @@
+{
+  "name": "littex",
+  "displayName": "littex",
+  "description": "LitTex is an archival markup language that renders to both LaTeX and HTML.",
+  "version": "0.0.2",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "lit",
+      "aliases": ["LitTex", "lit"],
+      "extensions": ["lit","littex"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "lit",
+      "scopeName": "source.littex",
+      "path": "./syntaxes/lit.tmLanguage.json"
+    }]
+  },
+  "publisher": "nclandolfi"
+}

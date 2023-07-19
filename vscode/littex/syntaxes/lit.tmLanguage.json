@@ -1,0 +1,112 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "LitTex",
+  "patterns": [
+    {
+      "include": "#closingElement"
+    },
+    {
+      "include": "#run"
+    },
+    {
+      "include": "#footnote"
+    },
+    {
+      "include": "#displayMathBlock"
+    },
+    {
+      "include": "#paragraph"
+    },
+    {
+      "include": "#listItem"
+    },
+    {
+      "include": "#unorderedList"
+    },
+    {
+      "include": "#orderedList"
+    },
+    {
+      "include": "#section"
+    }
+  ],
+  "repository": {
+    "closingElement": {
+      "match": "⦉",
+      "name": "meta.closing-element.littex"
+    },
+    "run": {
+      "begin": "‖",
+      "end": "⦉",
+      "name": "meta.run.littex",
+      "patterns": [
+        {
+          "match": "\\S+",
+          "name": "text.run.littex"
+        }
+      ]
+    },
+    "footnote": {
+      "begin": "†",
+      "end": "⦉",
+      "name": "meta.footnote.littex",
+      "patterns": [
+        {
+          "match": "\\S+",
+          "name": "text.footnote.littex"
+        }
+      ]
+    },
+    "displayMathBlock": {
+      "begin": "◇",
+      "end": "⦉",
+      "name": "meta.display-math-block.littex",
+      "patterns": [
+        {
+          "match": "\\S+",
+          "name": "text.display-math-block.littex"
+        }
+      ]
+    },
+    "paragraph": {
+      "begin": "¶",
+      "end": "⦉",
+      "name": "meta.paragraph.littex",
+      "patterns": [
+        {
+          "match": "\\S+",
+          "name": "text.paragraph.littex"
+        }
+      ]
+    },
+    "listItem": {
+      "match": "‣[^‣⦉]+",
+      "name": "meta.list-item.littex"
+    },
+    "unorderedList": {
+      "begin": "⁝",
+      "end": "⦉",
+      "name": "meta.unordered-list.littex",
+      "patterns": [
+        {
+          "include": "#listItem"
+        }
+      ]
+    },
+    "orderedList": {
+      "begin": "𝍫",
+      "end": "⦉",
+      "name": "meta.ordered-list.littex",
+      "patterns": [
+        {
+          "include": "#listItem"
+        }
+      ]
+    },
+    "section": {
+      "match": "§+[^§⦉]+",
+      "name": "meta.section.littex"
+    }
+  },
+	"scopeName": "source.littex"
+}

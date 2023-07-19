@@ -99,7 +99,7 @@ func Tex(t *Token, inMath bool) string {
 				return "\\indent"
 			}
 		case '↤':
-			return "\\noindent"
+			return "{\\noindent}"
 		case '␣':
 			return " "
 		}
