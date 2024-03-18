@@ -286,7 +286,7 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) error {
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
 		}
-		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode) {
+		if n.PrevSibling != nil && (n.PrevSibling.Type == ParagraphNode || n.PrevSibling.Type == ListNode || n.PrevSibling.Type == RunNode) {
 			w.Write([]byte("\n"))
 		}
 		w.Write([]byte(opts.Prefix + "<equation"))
