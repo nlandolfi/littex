@@ -606,12 +606,12 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		}
 		w.Write([]byte("\\begin{equation}"))
 		if id := getAttr(n.Attr, "id"); id != "" {
-			w.Write([]byte("\n" + opts.Prefix + "\\label{" + id + "}"))
+			w.Write([]byte("\\label{" + id + "}\n"))
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			WriteTex(w, c, InMath(opts))
+			WriteTex(w, c, InMath(Indented(opts)))
 		}
-		w.Write([]byte("\\end{equation}"))
+		w.Write([]byte("\n\\end{equation}"))
 	case SubequationsNode:
 		if n.PrevSibling != nil {
 			w.Write([]byte("\n"))
