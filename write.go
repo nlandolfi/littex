@@ -635,7 +635,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 				if err != nil {
 					width = "1.0\\textwidth"
 				} else {
-					log.Print(i)
+					// log.Print(i)
 					width = fmt.Sprintf("%f", float64(i)/100.0) + "\\textwidth"
 				}
 			}
