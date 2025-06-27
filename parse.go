@@ -142,7 +142,7 @@ func litReplace(s string) string {
 		}
 		return out
 	})
-	// all to get the escape functionalityj
+       // all to get the escape functionality
 	s = strings.Replace(s, "\\⦉", "⦉", -1)
 
 	// Update: Unfortunately the below doesn't work
