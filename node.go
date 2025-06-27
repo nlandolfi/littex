@@ -292,9 +292,10 @@ func litimgsrc(a []html.Attribute) string {
 }
 
 func (n *Node) setAttr(k, v string) {
-	for _, a := range n.Attr {
-		if a.Key == k {
-			a.Val = v
+	for i := range n.Attr {
+		if n.Attr[i].Key == k {
+			n.Attr[i].Val = v
+			return
 		}
 	}
 	n.Attr = append(n.Attr, Attribute{Key: k, Val: v})
