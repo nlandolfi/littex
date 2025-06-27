@@ -38,46 +38,50 @@ func TestGolden(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		bs, err := os.ReadFile(c.file)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf(c.file)
+		c := c
+		t.Run(c.file, func(t *testing.T) {
+			bs, err := os.ReadFile(c.file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Logf(c.file)
 
-		n, err := lit.ParseLit(string(bs))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		var b bytes.Buffer
-
-		lit.WriteLit(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
-
-		s := b.String()
-
-		bs, err = os.ReadFile(c.golden)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if want, got := string(bs), s; got != want {
-			t.Fatalf("%q doesn't match golden\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.golden)
-		}
-
-		if c.goldenHTML != "" {
-			bs, err := os.ReadFile(c.goldenHTML)
+			n, err := lit.ParseLit(string(bs))
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var b bytes.Buffer
-			lit.WriteHTMLInBody(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
 
-			if want, got := string(bs), b.String(); got != want {
-				t.Fatalf("%q doesn't match goldenHTML\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.goldenHTML)
+			lit.WriteLit(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
+
+			s := b.String()
+
+			bs, err = os.ReadFile(c.golden)
+			if err != nil {
+				t.Fatal(err)
 			}
 
-		}
+			if want, got := string(bs), s; got != want {
+				t.Fatalf("%q doesn't match golden\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.golden)
+			}
+
+			if c.goldenHTML != "" {
+				bs, err := os.ReadFile(c.goldenHTML)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				var b bytes.Buffer
+				lit.WriteHTMLInBody(&b, n, &lit.WriteOpts{Prefix: "", Indent: "  "})
+
+				if want, got := string(bs), b.String(); got != want {
+					t.Fatalf("%q doesn't match goldenHTML\n diff the result of lit on %q \nagainst %q", c.file, c.file, c.goldenHTML)
+				}
+
+			}
+
+		})
 
 	}
 }
