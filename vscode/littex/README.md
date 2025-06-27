@@ -1,6 +1,6 @@
 # LitTex
 
-An archival markup language for math and the classics; compiles to LaTex and HTML. 
+An archival markup language for math and the classics; compiles to LaTeX and HTML.
 Designed for the [bourbaki project](https://bourbakiproject.com) and the [Litterae](https://greatbooksadventure.com/litterae.html) of the [great books](https://greatbooksadventure.com).
 For more information, see [littex.org](https://littex.org).
 
