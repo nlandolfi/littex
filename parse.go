@@ -203,8 +203,8 @@ func ParseTex(s string) (*Node, error) {
 	s = strings.Replace(s, "\\[\n", "◇ ⦊ ‖ ", -1)
 	s = strings.Replace(s, "\n\\]", " ⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
-	s = strings.Replace(s, "``", "\"\"", -1)
-	s = strings.Replace(s, "''", "\"\"", -1)
+	s = strings.Replace(s, "``", "\u201c", -1)
+	s = strings.Replace(s, "''", "\u201d", -1)
 	s = strings.Replace(s, "`", "'", -1) // MUST BE AFTER DOUBLE
 	// s = strings.Replace(s, "'", "'", -1)
 	s = strings.Replace(s, "\\&", "&", -1)
@@ -277,9 +277,9 @@ var res = map[*regexp.Regexp]string{
 	textscR:             "⸤$1⸥",
 	tR:                  "❬$1❭",
 	cR:                  "⁅$1⁆",
-	dblqR:               "\"$1\"",
+	dblqR:               "\u201c$1\u201d",
 	sglqR:               "'$1'",
-	sayR:                "\"$1\"",
+	sayR:                "\u201c$1\u201d",
 }
 
 var order = []*regexp.Regexp{
