@@ -1,0 +1,145 @@
+# Configuration for golangci-lint
+# https://golangci-lint.run/usage/configuration/
+
+run:
+  # Timeout for running linters
+  timeout: 5m
+  # Include test files
+  tests: true
+  # Which Go version to target
+  go: '1.20'
+  # Skip directories
+  skip-dirs:
+    - vendor
+    - node_modules
+
+# Linters configuration
+linters:
+  disable-all: true
+  enable:
+    - errcheck      # Check for unchecked errors
+    - gosimple      # Simplify code
+    - govet         # Examine Go source code for suspicious constructs
+    - ineffassign   # Detect ineffectual assignments
+    - staticcheck   # Go static analysis
+    - unused        # Check for unused constants, variables, functions and types
+    - gofmt         # Check if code was gofmt-ed
+    - goimports     # Check imports formatting
+    - misspell      # Find commonly misspelled English words
+    - revive        # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    - gocritic      # Provides diagnostics that check for bugs, performance and style issues
+    - godot         # Check if comments end with a period
+    - whitespace    # Check for trailing whitespace
+
+# Linter settings
+linters-settings:
+  errcheck:
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`
+    check-type-assertions: true
+    # Report about assignment of errors to blank identifier: `_ = err`
+    check-blank: true
+
+  govet:
+    # Report about shadowed variables
+    check-shadowing: true
+    # Enable all analyzers
+    enable-all: true
+    # Disable specific analyzers
+    disable:
+      - fieldalignment  # Too aggressive for this codebase
+
+  gofmt:
+    # Simplify code: gofmt with `-s` option
+    simplify: true
+
+  goimports:
+    # Put local package after standard and third party packages
+    local-prefixes: github.com/nlandolfi/lit
+
+  gocritic:
+    # Enable specific checkers
+    enabled-checks:
+      - appendAssign
+      - argOrder
+      - assignOp
+      - badCall
+      - badCond
+      - captLocal
+      - caseOrder
+      - commentFormatting
+      - defaultCaseOrder
+      - dupArg
+      - dupBranchBody
+      - dupCase
+      - elseif
+      - emptyFallthrough
+      - exitAfterDefer
+      - flagDeref
+      - ifElseChain
+      - regexpMust
+      - sloppyLen
+      - switchTrue
+      - typeSwitchVar
+      - underef
+      - unlambda
+      - unslice
+      - valSwap
+      - wrapperFunc
+
+  revive:
+    # Minimal confidence for issues
+    min-confidence: 0.8
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+        arguments:
+          - checkPrivateReceivers
+          - disableStutteringCheck
+
+  misspell:
+    # Correct spellings
+    locale: US
+
+  unused:
+    # Consider only exported fields
+    check-exported: false
+
+# Issues configuration
+issues:
+  # Maximum count of issues with the same text
+  max-same-issues: 5
+  
+  # Excluding configuration
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - dupl
+        - goconst
+        - funlen
+        - gocyclo
+        
+    # Exclude known issues
+    - text: "should have comment or be unexported"
+      linters:
+        - revive
+      
+    # Exclude magic numbers in test files
+    - path: _test\.go
+      text: "magic number"
+      linters:
+        - gomnd
+        
+    # Exclude TODOs - they're intentional markers
+    - text: "TODO:"
+      linters:
+        - godot
+        
+  # Don't show excluded issues in the output
+  exclude-use-default: false
+  
+  # Maximum issues count per one linter
+  max-issues-per-linter: 50
