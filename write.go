@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	// The write package contains functions that serialise the internal
+	// LitTex node-tree representation to various output formats
+	// (LitTex, TeX, HTML, …).  The public helpers below are therefore
+	// consumed by both the CLI (cmd/lit) and any downstream libraries
+	// embedding LitTex as an engine.
 	"io"
 	"log"
 	"path"
@@ -20,18 +25,30 @@ type WriteOpts struct {
 	InMath         bool
 }
 
+// WriteOpts controls indentation, prefixing and math-mode behaviour for
+// the various Write* functions.  The zero value is valid, however callers
+// will typically start with DefaultWriteOpts and then derive new options
+// using helper constructors such as Indented or InMath.
+
 var DefaultWriteOpts = &WriteOpts{
 	Prefix: "",
 	Indent: "  ",
 }
 
 func InMath(o *WriteOpts) *WriteOpts {
+	// InMath returns a shallow copy of o with InMath set to true.  This is
+	// used by writers when descending into a math environment so that text
+	// escaping rules switch to their TeX-math equivalents.
 	var out WriteOpts = *o
 	out.InMath = true
 	return &out
 }
 
 func Indented(o *WriteOpts) *WriteOpts {
+	// Indented returns a copy of o whose Prefix has been extended by one
+	// level of indentation.  It is the canonical helper for recursive
+	// descent writers that need to increase indentation when printing
+	// child nodes.
 	return &WriteOpts{
 		Prefix: o.Prefix + o.Indent,
 		Indent: o.Indent,
@@ -40,6 +57,9 @@ func Indented(o *WriteOpts) *WriteOpts {
 }
 
 func NoPrefix(o *WriteOpts) *WriteOpts {
+	// NoPrefix returns a copy of o with Prefix cleared.  Useful when
+	// certain child nodes (e.g. inline runs) should not inherit the
+	// surrounding line’s leading whitespace.
 	return &WriteOpts{
 		Indent: o.Indent,
 		InMath: o.InMath,
@@ -73,6 +93,14 @@ func WriteDebug(w io.Writer, n *Node, opts *WriteOpts) {
 }
 
 func WriteLit(w io.Writer, n *Node, opts *WriteOpts) error {
+	// WriteLit serialises the provided Node tree back to canonical LitTex
+	// markup, writing the result into w.  The algorithm performs a depth-
+	// first traversal, emitting the appropriate opening / closing control
+	// runes (¶, ⦊, ⦉, etc.) and ensuring whitespace / new-line semantics
+	// match LitTex’s expectations.
+	//
+	// It is the inverse of ParseLit:  ParseLit turns textual LitTex into a
+	// *Node, and WriteLit turns a *Node back into textual LitTex.
 	switch n.Type {
 	case FragmentNode:
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -446,6 +474,10 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) error {
 func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 	switch n.Type {
 	case OpaqueNode:
+	// WriteDebug is intended for development & debugging only.  It prints
+	// the node hierarchy with indentation, node types and (for token
+	// nodes) the underlying token value so that developers can visually
+	// inspect the AST produced by the parser.
 		w.Write([]byte("% there is an opaque node here\n"))
 	case FragmentNode:
 		writeKids(w, n, opts, WriteTex)

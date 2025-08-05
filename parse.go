@@ -16,6 +16,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// ParseHTML parses HTML content into a LitTex Node tree. It creates a fragment
+// node as the root and processes all HTML elements into their corresponding
+// LitTex node types.
 func ParseHTML(s string) (*Node, error) {
 	var fragment html.Node = html.Node{
 		Type:     html.ElementNode,
@@ -39,8 +42,13 @@ func ParseHTML(s string) (*Node, error) {
 	return nGBA, err
 }
 
-// Use Must like like lit.Must(lit.ParseLit(...))
-// same as template.Must in std lib
+// Must is a helper that wraps a call to a function returning (*Node, error)
+// and panics if the error is non-nil. It's intended for use in variable
+// initializations such as:
+//
+//	var document = lit.Must(lit.ParseLit(...))
+//
+// This is similar to template.Must in the standard library.
 func Must(n *Node, err error) *Node {
 	if err != nil {
 		panic(err)
@@ -48,6 +56,9 @@ func Must(n *Node, err error) *Node {
 	return n
 }
 
+// ParseLit parses LitTex markup into a Node tree. It first converts LitTex
+// syntax to an intermediate HTML representation and then parses that HTML
+// into the final Node tree structure.
 func ParseLit(s string) (*Node, error) {
 	s = litReplace(s)
 	return ParseHTML(s)
@@ -172,6 +183,9 @@ func litReplace(s string) string {
 	return s
 }
 
+// ParseTex converts LaTeX content into a LitTex Node tree. It processes LaTeX
+// commands and environments, transforming them into their corresponding LitTex
+// syntax before parsing the result into a Node tree.
 func ParseTex(s string) (*Node, error) {
 	for _, c := range commentsR.FindAllString(s, -1) {
 		log.Printf("dropping comment: %q", c)
@@ -189,10 +203,10 @@ func ParseTex(s string) (*Node, error) {
 	s = strings.Replace(s, "\\[\n", "◇ ⦊ ‖ ", -1)
 	s = strings.Replace(s, "\n\\]", " ⦉", -1)
 	s = strings.Replace(s, "---", "—", -1)
-	s = strings.Replace(s, "``", "“", -1)
-	s = strings.Replace(s, "''", "”", -1)
-	s = strings.Replace(s, "`", "‘", -1) // MUST BE AFTER DOUBLE
-	// s = strings.Replace(s, "'", "’", -1)
+	s = strings.Replace(s, "``", "\"\"", -1)
+	s = strings.Replace(s, "''", "\"\"", -1)
+	s = strings.Replace(s, "`", "'", -1) // MUST BE AFTER DOUBLE
+	// s = strings.Replace(s, "'", "'", -1)
 	s = strings.Replace(s, "\\&", "&", -1)
 	s = strings.Replace(s, "\\\\", "᜶", -1)
 	s = strings.Replace(s, "\\indent", "↦", -1)
@@ -263,9 +277,9 @@ var res = map[*regexp.Regexp]string{
 	textscR:             "⸤$1⸥",
 	tR:                  "❬$1❭",
 	cR:                  "⁅$1⁆",
-	dblqR:               "“$1”",
-	sglqR:               "‘$1’",
-	sayR:                "“$1”",
+	dblqR:               "\"$1\"",
+	sglqR:               "'$1'",
+	sayR:                "\"$1\"",
 }
 
 var order = []*regexp.Regexp{
@@ -289,6 +303,9 @@ var order = []*regexp.Regexp{
 
 // func MarshalHTML(n *Node) *html.Node
 
+// UnmarshalHTML converts an HTML node tree into a LitTex Node tree.
+// It recursively processes the HTML structure and transforms it into
+// the corresponding LitTex node types based on element attributes and content.
 func UnmarshalHTML(in *html.Node) (*Node, error) {
 	return unmarshalHTML(in, nil)
 }
@@ -530,7 +547,9 @@ func unmarshalHTML(in *html.Node, parent *Node) (*Node, error) {
 	return &n, nil
 }
 
-// super simple
+// ParseCSV parses CSV content into a LitTex Node tree. Each row is represented
+// as a list node, and each field in the row becomes a list item with appropriate
+// token nodes for the content.
 func ParseCSV(s string) (*Node, error) {
 	fragment := Node{Type: FragmentNode}
 
