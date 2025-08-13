@@ -34,6 +34,16 @@ func ParseHTML(s string) (*Node, error) {
 	return parser.ParseHTML(s)
 }
 
+// ParseTex parses a LaTeX string and returns the AST
+func ParseTex(s string) (*Node, error) {
+	return parser.ParseTex(s)
+}
+
+// ParseCSV parses a CSV string and returns the AST
+func ParseCSV(s string) (*Node, error) {
+	return parser.ParseCSV(s)
+}
+
 // Must is a utility function like template.Must in std lib
 func Must(n *Node, err error) *Node {
 	return parser.Must(n, err)

@@ -216,7 +216,7 @@ func WriteLines(w io.Writer, lines []string, prefix string, prefixFirst bool) {
 	for i, line := range lines {
 		if i == 0 && prefixFirst {
 			io.WriteString(w, prefix)
-		} else if i > 0 {
+		} else if i > 0 && !prefixFirst {
 			io.WriteString(w, prefix)
 		}
 		io.WriteString(w, line)
