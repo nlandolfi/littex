@@ -244,13 +244,13 @@ func writeHTML(val writer.TokenStringer, s *htmlWriteState, w io.Writer, n *ast.
 				io.WriteString(w, "<!-- ")
 				encoder := json.NewEncoder(w)
 				encoder.SetIndent(opts.Prefix, opts.Indent)
-				encoder.Encode(n.JSON)
+				_ = encoder.Encode(n.JSON)
 				io.WriteString(w, " -->")
 			} else {
 				io.WriteString(w, "<script type='application/json'>")
 				encoder := json.NewEncoder(w)
 				encoder.SetIndent(opts.Prefix, opts.Indent)
-				encoder.Encode(n.JSON)
+				_ = encoder.Encode(n.JSON)
 				io.WriteString(w, "</script>")
 			}
 		}
@@ -263,7 +263,7 @@ func writeHTML(val writer.TokenStringer, s *htmlWriteState, w io.Writer, n *ast.
 				if err != nil {
 					log.Printf("Error marshaling YAML: %v", err)
 				} else {
-					io.WriteString(w, string(yamlBytes))
+					_, _ = w.Write(yamlBytes)
 				}
 				io.WriteString(w, " -->")
 			} else {
@@ -272,7 +272,7 @@ func writeHTML(val writer.TokenStringer, s *htmlWriteState, w io.Writer, n *ast.
 				if err != nil {
 					log.Printf("Error marshaling YAML: %v", err)
 				} else {
-					io.WriteString(w, string(yamlBytes))
+					_, _ = w.Write(yamlBytes)
 				}
 				io.WriteString(w, "</script>")
 			}

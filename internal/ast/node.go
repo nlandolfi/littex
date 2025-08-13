@@ -126,11 +126,9 @@ type NodeClass string
 
 const (
 	InlineClass  NodeClass = "inline"
-	BlockClass             = "block"
-	UnknownClass           = "unknown"
-)
-
-// Kids returns the children of the node.
+	BlockClass   NodeClass = "block"
+	UnknownClass NodeClass = "unknown"
+) // Kids returns the children of the node.
 func (n *Node) Kids() (ks []*Node) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		ks = append(ks, c)

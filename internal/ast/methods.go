@@ -78,10 +78,8 @@ func (n *Node) RemoveChild(c *Node) {
 }
 
 func copyAttr(as []Attribute) []Attribute {
-	var out []Attribute = make([]Attribute, len(as))
-	for i, a := range as {
-		out[i] = a
-	}
+	out := make([]Attribute, len(as))
+	copy(out, as)
 	return out
 }
 
