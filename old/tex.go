@@ -8,7 +8,7 @@ import (
 func Tex(t *Token, inMath bool) string {
 	switch t.Type {
 	case WordToken:
-		var out = ""
+		out := ""
 
 		for _, r := range t.Value {
 			// TODO avoid dictionary lookup if not in math
@@ -56,9 +56,9 @@ func Tex(t *Token, inMath bool) string {
 			return "\\t{"
 		case '⧽':
 			return "}"
-		case '“': //left
+		case '“': // left
 			return "``"
-		case '”': //right
+		case '”': // right
 			return "''"
 		case '–': // en dash
 			return "--"

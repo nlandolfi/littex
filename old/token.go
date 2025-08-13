@@ -15,8 +15,10 @@ const (
 	OpaqueToken
 )
 
-const OpaqueOpenRune = '❲'
-const OpaqueCloseRune = '❳'
+const (
+	OpaqueOpenRune  = '❲'
+	OpaqueCloseRune = '❳'
+)
 
 // const OpenMathOpaqueRune = '⧼'
 // const CloseMathOpaqueRune = '⧽'

@@ -22,7 +22,7 @@ func ParseHTML(s string) (*Node, error) {
 		DataAtom: atom.Div,
 		Data:     "div",
 		Attr: []html.Attribute{
-			html.Attribute{
+			{
 				Key: "data-littype", Val: "fragment",
 			},
 		},
@@ -112,9 +112,9 @@ func litReplace(s string) string {
 		//		log.Printf("in: %q", og)
 		// drop the first non \ match
 		index := strings.Index(og, "§")
-		in := og[index:len(og)]
-		//log.Printf("slice: %q", og[0:index])
-		//log.Print(utf8.RuneCountInString(in))
+		in := og[index:]
+		// log.Printf("slice: %q", og[0:index])
+		// log.Print(utf8.RuneCountInString(in))
 		out := fmt.Sprintf("%s§%d", og[0:index], utf8.RuneCountInString(in))
 		//		log.Printf("out: %q", out)
 		return out
@@ -135,14 +135,14 @@ func litReplace(s string) string {
 	s = re.ReplaceAllStringFunc(s, func(og string) string {
 		// drop the first non \ match
 		index := strings.Index(og, "⦉")
-		in := og[index:len(og)]
+		in := og[index:]
 		out := og[0:index]
 		for i := 0; i < utf8.RuneCountInString(in); i++ {
 			out += "</div>"
 		}
 		return out
 	})
-       // all to get the escape functionality
+	// all to get the escape functionality
 	s = strings.Replace(s, "\\⦉", "⦉", -1)
 
 	// Update: Unfortunately the below doesn't work
@@ -167,8 +167,8 @@ func litReplace(s string) string {
 
 	//	s = strings.Replace(s, "⦉", "</div>", -1)
 
-	//re = regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
-	//s = re.ReplaceAllString(s, `<a href='$2'> ‖ $1 ⦉</a>`)
+	// re = regexp.MustCompile(`\[(.+?)\]\((.+?)\)`)
+	// s = re.ReplaceAllString(s, `<a href='$2'> ‖ $1 ⦉</a>`)
 	return s
 }
 
@@ -226,25 +226,27 @@ func ParseTex(s string) (*Node, error) {
 	return ParseLit(b.String())
 }
 
-var textitR = regexp.MustCompile(`\\textit{((.|\n)*?)}`)
-var textbfR = regexp.MustCompile(`\\textbf{((.|\n)*?)}`)
-var textscR = regexp.MustCompile(`\\textsc{((.|\n)*?)}`)
-var footnoteR = regexp.MustCompile(`\\footnote{((.|\n)*?)}`)
-var tR = regexp.MustCompile(`\\t{((.|\n)*?)}`)
-var cR = regexp.MustCompile(`\\c{((.|\n)*?)}`)
-var dblqR = regexp.MustCompile("``((.|\n)*)?''")
-var sglqR = regexp.MustCompile("`((.|\n)*)?'")
-var sayR = regexp.MustCompile(`\\say{((.|\n)*)?}`)
-var commentsR = regexp.MustCompile(`%(.*?)\n`)
-var propositionWithText = regexp.MustCompile(`\\begin{proposition}\[([\w| ]*)\]`)
-var proposition = regexp.MustCompile(`\\begin{proposition}`)
-var propositionEnd = regexp.MustCompile(`\\end{proposition}`)
-var proof = regexp.MustCompile(`\\begin{proof}`)
-var proofEnd = regexp.MustCompile(`\\end{proof}`)
-var ssection = regexp.MustCompile(`\\ssection{(\w*)}`)
-var section = regexp.MustCompile(`\\section{(\w*)}`)
-var ssubsection = regexp.MustCompile(`\\ssubsection{(\w*)}`)
-var subsection = regexp.MustCompile(`\\subsection{(\w*)}`)
+var (
+	textitR             = regexp.MustCompile(`\\textit{((.|\n)*?)}`)
+	textbfR             = regexp.MustCompile(`\\textbf{((.|\n)*?)}`)
+	textscR             = regexp.MustCompile(`\\textsc{((.|\n)*?)}`)
+	footnoteR           = regexp.MustCompile(`\\footnote{((.|\n)*?)}`)
+	tR                  = regexp.MustCompile(`\\t{((.|\n)*?)}`)
+	cR                  = regexp.MustCompile(`\\c{((.|\n)*?)}`)
+	dblqR               = regexp.MustCompile("``((.|\n)*)?''")
+	sglqR               = regexp.MustCompile("`((.|\n)*)?'")
+	sayR                = regexp.MustCompile(`\\say{((.|\n)*)?}`)
+	commentsR           = regexp.MustCompile(`%(.*?)\n`)
+	propositionWithText = regexp.MustCompile(`\\begin{proposition}\[([\w| ]*)\]`)
+	proposition         = regexp.MustCompile(`\\begin{proposition}`)
+	propositionEnd      = regexp.MustCompile(`\\end{proposition}`)
+	proof               = regexp.MustCompile(`\\begin{proof}`)
+	proofEnd            = regexp.MustCompile(`\\end{proof}`)
+	ssection            = regexp.MustCompile(`\\ssection{(\w*)}`)
+	section             = regexp.MustCompile(`\\section{(\w*)}`)
+	ssubsection         = regexp.MustCompile(`\\ssubsection{(\w*)}`)
+	subsection          = regexp.MustCompile(`\\subsection{(\w*)}`)
+)
 
 // useful: https://gist.github.com/claybridges/8f9d51a1dc365f2e64fa
 var res = map[*regexp.Regexp]string{

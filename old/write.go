@@ -177,15 +177,15 @@ func WriteLit(w io.Writer, n *Node, opts *WriteOpts) error {
 		w.Write([]byte(out))
 
 		offset := utf8.RuneCountInString(out)
-		//log.Printf("offset; %d", offset)
+		// log.Printf("offset; %d", offset)
 
 		//		lineBuffer = ""
-		//relOffset := 0
+		// relOffset := 0
 
 		var afterFirstLine bool
 		// Looping over the children.
 		for c := n.FirstChild; c != nil; afterFirstLine = true {
-			//log.Printf("RUN NODE: %s", c.Type)
+			// log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
 				if c.PrevSibling != nil {
@@ -517,7 +517,7 @@ func WriteTex(w io.Writer, n *Node, opts *WriteOpts) {
 		var afterFirstLine bool
 		// Looping over the children.
 		for c := n.FirstChild; c != nil; afterFirstLine = true {
-			//log.Printf("RUN NODE: %s", c.Type)
+			// log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
 				if c.PrevSibling != nil && c.PrevSibling.Type != RunNode && c.PrevSibling.Type != LinkNode {
@@ -820,7 +820,7 @@ func isSpace(t *Token) bool {
 type tokenStringer func(t *Token, inMath bool) string
 
 func lineBlocks(ts []*Token, v tokenStringer, opts *WriteOpts, shouldEscapeInMath bool, width int) []string {
-	var pieces = []string{""}
+	pieces := []string{""}
 	var spaces []*Token
 	var inMath bool = opts.InMath
 	for _, t := range ts {
@@ -839,10 +839,10 @@ func lineBlocks(ts []*Token, v tokenStringer, opts *WriteOpts, shouldEscapeInMat
 	}
 
 	var lines []string = []string{""}
-	var curRuneCount = 0
+	curRuneCount := 0
 	var onePieceOnLine bool
 	for i, p := range pieces {
-		var lastPiece = (len(pieces)-1 == i)
+		lastPiece := (len(pieces)-1 == i)
 
 		c := utf8.RuneCountInString(p) + 1 // for the space
 		if lastPiece {
@@ -1057,15 +1057,15 @@ func writeHTML(val tokenStringer, s *htmlWriteState, w io.Writer, n *Node, opts 
 		w.Write([]byte(out))
 
 		offset := utf8.RuneCountInString(out)
-		//log.Printf("offset; %d", offset)
+		// log.Printf("offset; %d", offset)
 
 		//		lineBuffer = ""
-		//relOffset := 0
+		// relOffset := 0
 
 		var afterFirstLine bool
 		// Looping over the children.
 		for c := n.FirstChild; c != nil; afterFirstLine = true {
-			//log.Printf("RUN NODE: %s", c.Type)
+			// log.Printf("RUN NODE: %s", c.Type)
 			switch c.Type {
 			case TokenNode:
 				if c.PrevSibling != nil && c.PrevSibling.Type != LinkNode {
