@@ -27,7 +27,7 @@ func TestProcessDirectory(t *testing.T) {
 title: Hello
 -->
 
-¶ ⦊Hello world⦉
+¶ ⦊ Hello world ⦉
 `
 	if err := os.WriteFile(filepath.Join(inDir, "index.lit"), []byte(lit1), 0644); err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ title: Hello
 	}
 
 	// create nested .lit file without frontmatter
-	lit2 := `¶ ⦊A post⦉
+	lit2 := `¶ ⦊ A post ⦉
 `
 	if err := os.WriteFile(filepath.Join(inDir, "posts", "one.lit"), []byte(lit2), 0644); err != nil {
 		t.Fatal(err)
@@ -92,7 +92,7 @@ func TestProcessDirectoryCustomTemplate(t *testing.T) {
 template: custom.tmpl
 -->
 
-¶ ⦊Custom content⦉
+¶ ⦊ Custom content ⦉
 `
 	if err := os.WriteFile(filepath.Join(inDir, "page.lit"), []byte(lit1), 0644); err != nil {
 		t.Fatal(err)
@@ -120,7 +120,7 @@ func TestProcessDirectoryNoTemplate(t *testing.T) {
 	outDir := t.TempDir()
 
 	// no template files - should output raw html
-	lit1 := `¶ ⦊Raw content⦉
+	lit1 := `¶ ⦊ Raw content ⦉
 `
 	if err := os.WriteFile(filepath.Join(inDir, "raw.lit"), []byte(lit1), 0644); err != nil {
 		t.Fatal(err)

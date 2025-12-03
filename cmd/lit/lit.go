@@ -23,6 +23,7 @@ var outmode = flag.String("o", "", "output format {debug|lit|tex|html|slides|tmp
 var out = flag.String("out", "", "output file or directory; if dir input, -out dir is required")
 var tmpl = flag.String("tmpl", "text.tmpl", "template file for -o tmpl mode")
 var v = flag.Bool("v", false, "print version and exit")
+var verbose = flag.Bool("verbose", false, "print file processing info")
 
 // Set using link flags; e.g., -X main.Version=...
 var (
@@ -264,7 +265,9 @@ func processDirectory(inDir, outDir string) {
 			}
 		}
 
-		log.Printf("%s -> %s", p, outPath)
+		if *verbose {
+			log.Printf("%s -> %s", p, outPath)
+		}
 		return nil
 	})
 
